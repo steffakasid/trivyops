@@ -38,6 +38,7 @@ type Vulnerability struct {
 
 type trivy struct {
 	projName string
+	state    string
 	ignore   []string
 	result   TrivyJson
 }
@@ -71,7 +72,7 @@ func ScanGroup(id string) (trivyResults, error) {
 	for _, proj := range projs {
 		fmt.Printf("Scan project %s for trivy results\n", proj.NameWithNamespace)
 		projResult := trivy{projName: proj.Name}
-		projResult.result, err = getTrivyResult(proj.ID, proj.DefaultBranch)
+		projResult.result, projResult.state, err = getTrivyResult(proj.ID, proj.DefaultBranch)
 		if err != nil {
 			log.Println(err)
 		} else {
@@ -89,19 +90,32 @@ func ScanGroup(id string) (trivyResults, error) {
 	return results, nil
 }
 
-func getTrivyResult(pid int, ref string) (TrivyJson, error) {
+func getTrivyResult(pid int, ref string) (TrivyJson, string, error) {
+	jobs, _, err := git.Jobs.ListProjectJobs(pid, &gitlab.ListJobsOptions{IncludeRetried: *gitlab.Bool(false)})
+	if err != nil {
+		return nil, "", err
+	}
+
+	var state string
+	for _, job := range jobs {
+		if job.Name == trivyJob {
+			state = job.Status
+			break
+		}
+	}
+
 	rdr, res, err := git.Jobs.DownloadArtifactsFile(pid, ref, &gitlab.DownloadArtifactsFileOptions{Job: gitlab.String(trivyJob)})
 	if err != nil {
 		if res.StatusCode == 404 {
-			return nil, fmt.Errorf("no %s job result", trivyJob)
+			return nil, state, fmt.Errorf("no %s job result", trivyJob)
 		} else {
-			return nil, err
+			return nil, state, err
 		}
 	}
 	unzip, err := zip.NewReader(rdr, rdr.Size())
 	if err != nil {
 		fmt.Println("Error unzip")
-		return nil, err
+		return nil, state, err
 	}
 
 	for _, file := range unzip.File {
@@ -110,12 +124,12 @@ func getTrivyResult(pid int, ref string) (TrivyJson, error) {
 
 			if err != nil {
 				fmt.Println("Error file open")
-				return nil, err
+				return nil, state, err
 			}
 
 			bt, err := ioutil.ReadAll(rc)
 			if err != nil {
-				return nil, err
+				return nil, state, err
 			}
 			log.Printf("read %d byte", len(bt))
 			rc.Close()
@@ -123,13 +137,13 @@ func getTrivyResult(pid int, ref string) (TrivyJson, error) {
 			jsonResult := &TrivyJson{}
 			err = json.Unmarshal(bt, jsonResult)
 			if err != nil {
-				return nil, err
+				return nil, state, err
 			}
 
-			return *jsonResult, err
+			return *jsonResult, state, err
 		}
 	}
-	return nil, fmt.Errorf("no %s file found", trivyArtifact)
+	return nil, state, fmt.Errorf("no %s file found", trivyArtifact)
 }
 
 func getTrivyIgnore(pid int, ref string) ([]string, error) {
