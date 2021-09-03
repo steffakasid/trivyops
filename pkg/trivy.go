@@ -93,7 +93,7 @@ func getTrivyResult(pid int, ref string) (TrivyJson, error) {
 	rdr, res, err := git.Jobs.DownloadArtifactsFile(pid, ref, &gitlab.DownloadArtifactsFileOptions{Job: gitlab.String(trivyJob)})
 	if err != nil {
 		if res.StatusCode == 404 {
-			return nil, fmt.Errorf("intentionally ignored 404 not found when trying to get %s job results", trivyJob)
+			return nil, fmt.Errorf("no %s job result", trivyJob)
 		} else {
 			return nil, err
 		}
@@ -136,7 +136,7 @@ func getTrivyIgnore(pid int, ref string) ([]string, error) {
 	bt, res, err := git.RepositoryFiles.GetRawFile(pid, ".trivyignore", &gitlab.GetRawFileOptions{Ref: gitlab.String(ref)})
 	if err != nil {
 		if res.StatusCode == 404 {
-			return nil, errors.New("intentionally ignored 404 not found when getting .trivyignore")
+			return nil, errors.New("no .trivyignore file found")
 		} else {
 			return nil, err
 		}
