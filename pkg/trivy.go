@@ -2,11 +2,13 @@ package pkg
 
 import (
 	"archive/zip"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/xanzy/go-gitlab"
 )
@@ -18,9 +20,26 @@ const (
 	trivyArtifact = "trivy-result.json"
 )
 
+type TrivyJson []Package
+type Package struct {
+	Target          string
+	Vulnerabilities []Vulnerability
+}
+type Vulnerability struct {
+	VulnerabilityID  string
+	PkgName          string
+	InstalledVersion string
+	FixedVersion     string
+	Title            string
+	Description      string
+	Severity         string
+	References       []string
+}
+
 type trivy struct {
-	ignore []byte
-	result []byte
+	projName string
+	ignore   []string
+	result   TrivyJson
 }
 
 type trivyResults []trivy
@@ -51,14 +70,18 @@ func ScanGroup(id string) (trivyResults, error) {
 	fmt.Println()
 	for _, proj := range projs {
 		fmt.Printf("Scan project %s for trivy results\n", proj.NameWithNamespace)
-		projResult := trivy{}
+		projResult := trivy{projName: proj.Name}
 		projResult.result, err = getTrivyResult(proj.ID, proj.DefaultBranch)
 		if err != nil {
 			log.Println(err)
+		} else {
+			log.Println("Result", projResult.result)
 		}
 		projResult.ignore, err = getTrivyIgnore(proj.ID, proj.DefaultBranch)
 		if err != nil {
 			log.Println(err)
+		} else {
+			log.Println("Ignore", projResult.ignore)
 		}
 		results = append(results, projResult)
 		fmt.Println()
@@ -66,7 +89,7 @@ func ScanGroup(id string) (trivyResults, error) {
 	return results, nil
 }
 
-func getTrivyResult(pid int, ref string) ([]byte, error) {
+func getTrivyResult(pid int, ref string) (TrivyJson, error) {
 	rdr, res, err := git.Jobs.DownloadArtifactsFile(pid, ref, &gitlab.DownloadArtifactsFileOptions{Job: gitlab.String(trivyJob)})
 	if err != nil {
 		if res.StatusCode == 404 {
@@ -77,19 +100,39 @@ func getTrivyResult(pid int, ref string) ([]byte, error) {
 	}
 	unzip, err := zip.NewReader(rdr, rdr.Size())
 	if err != nil {
+		fmt.Println("Error unzip")
 		return nil, err
 	}
 
 	for _, file := range unzip.File {
 		if file.Name == trivyArtifact {
-			// TODO: read file
+			rc, err := file.Open()
+
+			if err != nil {
+				fmt.Println("Error file open")
+				return nil, err
+			}
+
+			bt, err := ioutil.ReadAll(rc)
+			if err != nil {
+				return nil, err
+			}
+			log.Printf("read %d byte", len(bt))
+			rc.Close()
+
+			jsonResult := &TrivyJson{}
+			err = json.Unmarshal(bt, jsonResult)
+			if err != nil {
+				return nil, err
+			}
+
+			return *jsonResult, err
 		}
 	}
-
-	return ioutil.ReadAll(rdr)
+	return nil, fmt.Errorf("no %s file found", trivyArtifact)
 }
 
-func getTrivyIgnore(pid int, ref string) ([]byte, error) {
+func getTrivyIgnore(pid int, ref string) ([]string, error) {
 	bt, res, err := git.RepositoryFiles.GetRawFile(pid, ".trivyignore", &gitlab.GetRawFileOptions{Ref: gitlab.String(ref)})
 	if err != nil {
 		if res.StatusCode == 404 {
@@ -98,5 +141,11 @@ func getTrivyIgnore(pid int, ref string) ([]byte, error) {
 			return nil, err
 		}
 	}
-	return bt, nil
+	var ignores []string
+	for _, str := range strings.Split(string(bt), "\n") {
+		if !strings.HasPrefix(str, "#") {
+			ignores = append(ignores, str)
+		}
+	}
+	return ignores, nil
 }
