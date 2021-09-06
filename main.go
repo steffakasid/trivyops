@@ -23,7 +23,8 @@ func main() {
 	if help {
 		flag.Usage()
 	} else {
-		_, err := pkg.ScanGroup(groupId, trivyJobName, trivyFileName)
+		scan := pkg.Scan{ID: groupId, JobName: trivyJobName, ArtifactFileName: trivyFileName}
+		_, err := scan.ScanGroup()
 		if err != nil {
 			log.Fatalf("Failed to scan trivy results: %s!", err)
 		}
