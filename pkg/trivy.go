@@ -16,7 +16,6 @@ import (
 var git *gitlab.Client
 
 const (
-	trivyJob      = "trivy-scan"
 	trivyArtifact = "trivy-result.json"
 )
 
@@ -50,15 +49,20 @@ func init() {
 	if gitToken == "" {
 		log.Fatal("No GITLAB_TOKEN env var set!")
 	}
+	gitHost := os.Getenv("GITLAB_HOST")
+	if gitHost == "" {
+		gitHost = "https://gitlab.com"
+	}
 
 	var err error
-	git, err = gitlab.NewClient(gitToken)
+
+	git, err = gitlab.NewClient(gitToken, gitlab.WithBaseURL(gitHost))
 	if err != nil {
 		log.Fatalf("Failed to create client: %v", err)
 	}
 }
 
-func ScanGroup(id string) (trivyResults, error) {
+func ScanGroup(id, jobName string) (trivyResults, error) {
 	if id == "" {
 		return nil, errors.New("no group id set")
 	}
@@ -72,7 +76,7 @@ func ScanGroup(id string) (trivyResults, error) {
 	for _, proj := range projs {
 		fmt.Printf("Scan project %s for trivy results\n", proj.NameWithNamespace)
 		projResult := trivy{projName: proj.Name}
-		projResult.result, projResult.state, err = getTrivyResult(proj.ID, proj.DefaultBranch)
+		projResult.result, err = getTrivyResult(jobName, proj.ID, proj.DefaultBranch)
 		if err != nil {
 			log.Println(err)
 		} else {
@@ -90,7 +94,7 @@ func ScanGroup(id string) (trivyResults, error) {
 	return results, nil
 }
 
-func getTrivyResult(pid int, ref string) (TrivyJson, string, error) {
+func getTrivyResult(jobName string, pid int, ref string) (TrivyJson, string, error) {
 	jobs, _, err := git.Jobs.ListProjectJobs(pid, &gitlab.ListJobsOptions{IncludeRetried: *gitlab.Bool(false)})
 	if err != nil {
 		return nil, "", err

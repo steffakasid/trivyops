@@ -8,14 +8,22 @@ import (
 )
 
 var (
-	groupId string
+	groupId      string
+	trivyJobName string
+	help         bool
 )
 
 func main() {
 	flag.StringVar(&groupId, "group-id", "", "Set group-id to scan for trivy results")
+	flag.StringVar(&trivyJobName, "job-name", "scan_oci_image_trivy", "The gitlab ci jobname to check")
+	flag.BoolVar(&help, "help", false, "Print help message")
 	flag.Parse()
-	_, err := pkg.ScanGroup(groupId)
-	if err != nil {
-		log.Fatalf("Failed to scan trivy results: %s!", err)
+	if help {
+		flag.Usage()
+	} else {
+		_, err := pkg.ScanGroup(groupId, trivyJobName)
+		if err != nil {
+			log.Fatalf("Failed to scan trivy results: %s!", err)
+		}
 	}
 }
