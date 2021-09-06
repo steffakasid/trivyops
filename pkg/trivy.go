@@ -10,32 +10,17 @@ import (
 	"os"
 	"strings"
 
+	"github.com/aquasecurity/trivy/pkg/report"
 	"github.com/xanzy/go-gitlab"
 )
 
 var git *gitlab.Client
 
-type TrivyJson []Package
-type Package struct {
-	Target          string
-	Vulnerabilities []Vulnerability
-}
-type Vulnerability struct {
-	VulnerabilityID  string
-	PkgName          string
-	InstalledVersion string
-	FixedVersion     string
-	Title            string
-	Description      string
-	Severity         string
-	References       []string
-}
-
 type trivy struct {
 	projName string
 	state    string
 	ignore   []string
-	result   TrivyJson
+	result   report.Results
 }
 
 type trivyResults []trivy
@@ -97,7 +82,7 @@ func ScanGroup(id, jobName, trivyArtifact string) (trivyResults, error) {
 	return results, nil
 }
 
-func getTrivyResult(jobName, trivyArtifact string, pid int, ref string) (TrivyJson, string, error) {
+func getTrivyResult(jobName, trivyArtifact string, pid int, ref string) (report.Results, string, error) {
 	jobs, _, err := git.Jobs.ListProjectJobs(pid, &gitlab.ListJobsOptions{IncludeRetried: *gitlab.Bool(false)})
 	if err != nil {
 		return nil, "", err
@@ -141,7 +126,7 @@ func getTrivyResult(jobName, trivyArtifact string, pid int, ref string) (TrivyJs
 			log.Printf("read %d byte", len(bt))
 			rc.Close()
 
-			jsonResult := &TrivyJson{}
+			jsonResult := &report.Results{}
 			err = json.Unmarshal(bt, jsonResult)
 			if err != nil {
 				return nil, state, err
