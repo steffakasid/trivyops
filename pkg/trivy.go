@@ -15,10 +15,6 @@ import (
 
 var git *gitlab.Client
 
-const (
-	trivyArtifact = "trivy-result.json"
-)
-
 type TrivyJson []Package
 type Package struct {
 	Target          string
@@ -62,13 +58,20 @@ func init() {
 	}
 }
 
-func ScanGroup(id, jobName string) (trivyResults, error) {
+func ScanGroup(id, jobName, trivyArtifact string) (trivyResults, error) {
 	if id == "" {
 		return nil, errors.New("no group id set")
 	}
 
 	results := trivyResults{}
-	projs, _, err := git.Groups.ListGroupProjects(id, &gitlab.ListGroupProjectsOptions{Archived: gitlab.Bool(false), IncludeSubgroups: gitlab.Bool(true)})
+	options := &gitlab.ListGroupProjectsOptions{
+		ListOptions: gitlab.ListOptions{
+			PerPage: 100,
+		},
+		Archived:         gitlab.Bool(false),
+		IncludeSubgroups: gitlab.Bool(true),
+	}
+	projs, _, err := git.Groups.ListGroupProjects(id, options)
 	if err != nil {
 		return nil, err
 	}
@@ -76,11 +79,11 @@ func ScanGroup(id, jobName string) (trivyResults, error) {
 	for _, proj := range projs {
 		fmt.Printf("Scan project %s for trivy results\n", proj.NameWithNamespace)
 		projResult := trivy{projName: proj.Name}
-		projResult.result, err = getTrivyResult(jobName, proj.ID, proj.DefaultBranch)
+		projResult.result, projResult.state, err = getTrivyResult(jobName, trivyArtifact, proj.ID, proj.DefaultBranch)
 		if err != nil {
 			log.Println(err)
 		} else {
-			log.Println("Result", projResult.result)
+			log.Println("Result", projResult)
 		}
 		projResult.ignore, err = getTrivyIgnore(proj.ID, proj.DefaultBranch)
 		if err != nil {
@@ -94,7 +97,7 @@ func ScanGroup(id, jobName string) (trivyResults, error) {
 	return results, nil
 }
 
-func getTrivyResult(jobName string, pid int, ref string) (TrivyJson, string, error) {
+func getTrivyResult(jobName, trivyArtifact string, pid int, ref string) (TrivyJson, string, error) {
 	jobs, _, err := git.Jobs.ListProjectJobs(pid, &gitlab.ListJobsOptions{IncludeRetried: *gitlab.Bool(false)})
 	if err != nil {
 		return nil, "", err
@@ -102,16 +105,16 @@ func getTrivyResult(jobName string, pid int, ref string) (TrivyJson, string, err
 
 	var state string
 	for _, job := range jobs {
-		if job.Name == trivyJob {
+		if job.Name == jobName {
 			state = job.Status
 			break
 		}
 	}
 
-	rdr, res, err := git.Jobs.DownloadArtifactsFile(pid, ref, &gitlab.DownloadArtifactsFileOptions{Job: gitlab.String(trivyJob)})
+	rdr, res, err := git.Jobs.DownloadArtifactsFile(pid, ref, &gitlab.DownloadArtifactsFileOptions{Job: gitlab.String(jobName)})
 	if err != nil {
 		if res.StatusCode == 404 {
-			return nil, state, fmt.Errorf("no %s job result", trivyJob)
+			return nil, state, fmt.Errorf("no %s job result", jobName)
 		} else {
 			return nil, state, err
 		}
