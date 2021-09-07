@@ -46,41 +46,50 @@ func printResult(results pkg.TrivyResults) {
 		if projResult.Vulnerabilities > 0 {
 			projectTbl := table.NewWriter()
 			projectTbl.SetStyle(table.StyleLight)
+			projectTbl.SetColumnConfigs([]table.ColumnConfig{
+				{Number: 1, WidthMax: 30},
+				{Number: 2, WidthMin: 20},
+			})
 			projectTbl.AppendHeader(table.Row{projResult.ProjName, projResult.ProjName}, rowConfigAutoMerge)
 			projectTbl.AppendRow(table.Row{".trivyignore", projResult.Ignore}, rowConfigAutoMerge)
+			projectTbl.AppendSeparator()
 
 			summaryTable := table.NewWriter()
 			summaryTable.SetStyle(table.StyleLight)
 			summaryTable.AppendHeader(table.Row{"Job", "Status", "Scanned Packages", "Vulnerabilities"})
 			summaryTable.AppendRow(table.Row{trivyJobName, projResult.State, len(projResult.ReportResult), projResult.Vulnerabilities})
 			projectTbl.AppendRow(table.Row{"Summary", summaryTable.Render()}, rowConfigAutoMerge)
+			projectTbl.AppendSeparator()
 			if v || vv || vvv {
 				for _, tgt := range projResult.ReportResult {
 					if (vv || vvv) && len(tgt.Vulnerabilities) > 0 {
 						detailsLvl2 := table.NewWriter()
 						detailsLvl2.SetStyle(table.StyleLight)
 						detailsLvl2.SetColumnConfigs([]table.ColumnConfig{
-							{Number: 3, WidthMax: 50},
-							{Number: 5, WidthMin: 20},
-							{Number: 6, WidthMin: 20},
+							{Number: 1, WidthMax: 30},
+							{Number: 2, WidthMax: 30},
+							{Number: 3, WidthMax: 40},
+							{Number: 4, WidthMax: 30},
+							{Number: 5, WidthMin: 17, WidthMax: 17},
+							{Number: 6, WidthMin: 15, WidthMax: 15},
 						})
-						detailsLvl2.AppendHeader(table.Row{"ID", "Severity", "Title", "IsFixable"})
+						headerRow := table.Row{"ID", "Severity", "Title", "IsFixable"}
 						if vvv {
-							detailsLvl2.AppendHeader(table.Row{"InstalledVersion", "FixedVersion"})
+							headerRow = append(headerRow, "InstalledVersion", "FixedVersion")
+							detailsLvl2.AppendHeader(headerRow)
 						}
 						for _, pkg := range tgt.Vulnerabilities {
 							row := table.Row{pkg.VulnerabilityID, pkg.Severity, pkg.Title, (pkg.FixedVersion != "")}
 							if vvv {
 								row = append(row, pkg.InstalledVersion, pkg.FixedVersion)
-								// fmt.Printf("Description: %s", pkg.Description)
-								// fmt.Printf("References: %s", pkg.References)
 							}
 							detailsLvl2.AppendRow(row)
 						}
 						projectTbl.AppendRow(table.Row{tgt.Target, detailsLvl2.Render()})
 					} else {
-						projectTbl.AppendRow(table.Row{tgt.Target, fmt.Sprintf("Vulnerabilities: %d", len(tgt.Vulnerabilities))})
+						projectTbl.AppendRow(table.Row{tgt.Target, fmt.Sprintf("Found %d vulnerabilities", len(tgt.Vulnerabilities))})
 					}
+					projectTbl.AppendSeparator()
 				}
 			}
 			tw.AppendRow(table.Row{projectTbl.Render()})
