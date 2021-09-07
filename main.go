@@ -43,7 +43,7 @@ func printResult(results pkg.TrivyResults) {
 	tw := table.NewWriter()
 	tw.AppendHeader(table.Row{"Vulnerable Projects"}, rowConfigAutoMerge)
 	for _, projResult := range results {
-		if projResult.Vulnerabilities > 0 {
+		if projResult.Vulnerabilities.Count > 0 {
 			projectTbl := table.NewWriter()
 			projectTbl.SetStyle(table.StyleLight)
 			projectTbl.SetColumnConfigs([]table.ColumnConfig{
@@ -62,9 +62,9 @@ func printResult(results pkg.TrivyResults) {
 			projectTbl.AppendSeparator()
 			if v || vv || vvv {
 				for _, tgt := range projResult.ReportResult {
+					detailsLvl2 := table.NewWriter()
+					detailsLvl2.SetStyle(table.StyleLight)
 					if (vv || vvv) && len(tgt.Vulnerabilities) > 0 {
-						detailsLvl2 := table.NewWriter()
-						detailsLvl2.SetStyle(table.StyleLight)
 						detailsLvl2.SetColumnConfigs([]table.ColumnConfig{
 							{Number: 1, WidthMax: 30},
 							{Number: 2, WidthMax: 30},
@@ -86,8 +86,14 @@ func printResult(results pkg.TrivyResults) {
 							detailsLvl2.AppendRow(row)
 						}
 						projectTbl.AppendRow(table.Row{tgt.Target, detailsLvl2.Render()})
+					} else if len(tgt.Vulnerabilities) == 0 {
+						projectTbl.AppendRow(table.Row{tgt.Target, "0 Vulnerabilities"})
 					} else {
-						projectTbl.AppendRow(table.Row{tgt.Target, fmt.Sprintf("Found %d vulnerabilities", len(tgt.Vulnerabilities))})
+						detailsLvl2.AppendHeader(table.Row{"Critical", "High", "Medium", "Low", "Unkown"})
+						crit, hi, med, lo, un := results.GetSummary(tgt.Vulnerabilities)
+						detailsLvl2.AppendRow(table.Row{crit, hi, med, lo, un})
+						detailsLvl2.AppendFooter(table.Row{"", "", "", "Sum", crit + hi + med + lo + un})
+						projectTbl.AppendRow(table.Row{tgt.Target, detailsLvl2.Render()})
 					}
 					projectTbl.AppendSeparator()
 				}
