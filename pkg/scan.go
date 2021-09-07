@@ -15,6 +15,8 @@ import (
 	"github.com/xanzy/go-gitlab"
 )
 
+const NoNextPage = -1
+
 func init() {
 	gitToken := os.Getenv("GITLAB_TOKEN")
 	if gitToken == "" {
@@ -57,6 +59,37 @@ func (s Scan) ScanGroup() (TrivyResults, error) {
 	}
 
 	results := TrivyResults{}
+	projs, err := s.getAllGroupProjects(NoNextPage)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, proj := range projs {
+		logger.Infof("Scan project %s for trivy results\n", proj.NameWithNamespace)
+		projResult := &trivy{ProjName: proj.Name}
+		projResult.ReportResult, projResult.State, err = s.getTrivyResult(proj.ID, proj.DefaultBranch)
+		if err != nil {
+			logger.Warn(err)
+		} else {
+			logger.Debugln("Result", projResult)
+		}
+		projResult.Ignore, err = s.getTrivyIgnore(proj.ID, proj.DefaultBranch)
+		if err != nil {
+			logger.Warn(err)
+		} else {
+			logger.Debugln("Ignore", projResult.Ignore)
+		}
+		results = append(results, projResult)
+	}
+	return results, nil
+}
+
+func (s Scan) getAllGroupProjects(nextPage int) ([]*gitlab.Project, error) {
+	var (
+		projs []*gitlab.Project
+		resp  *gitlab.Response
+		err   error
+	)
 	options := &gitlab.ListGroupProjectsOptions{
 		ListOptions: gitlab.ListOptions{
 			PerPage: 100,
@@ -64,29 +97,18 @@ func (s Scan) ScanGroup() (TrivyResults, error) {
 		Archived:         gitlab.Bool(false),
 		IncludeSubgroups: gitlab.Bool(true),
 	}
-	projs, _, err := git.Groups.ListGroupProjects(s.ID, options)
+	projs, resp, err = git.Groups.ListGroupProjects(s.ID, options)
 	if err != nil {
-		return nil, err
+		return projs, err
 	}
-
-	for _, proj := range projs {
-		logger.Debugf("Scan project %s for trivy results\n", proj.NameWithNamespace)
-		projResult := &trivy{ProjName: proj.Name}
-		projResult.ReportResult, projResult.State, err = s.getTrivyResult(proj.ID, proj.DefaultBranch)
+	if resp != nil && resp.NextPage > 0 {
+		projsR, err := s.getAllGroupProjects(resp.NextPage)
 		if err != nil {
-			logger.Debug(err)
-		} else {
-			logger.Debugln("Result", projResult)
+			return projs, err
 		}
-		projResult.Ignore, err = s.getTrivyIgnore(proj.ID, proj.DefaultBranch)
-		if err != nil {
-			logger.Debug(err)
-		} else {
-			logger.Debugln("Ignore", projResult.Ignore)
-		}
-		results = append(results, projResult)
+		projs = append(projs, projsR...)
 	}
-	return results, nil
+	return projs, nil
 }
 
 func (s Scan) getTrivyResult(pid int, ref string) (report.Results, string, error) {
