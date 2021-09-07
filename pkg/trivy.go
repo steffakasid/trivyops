@@ -15,9 +15,9 @@ type trivy struct {
 	ReportResult    report.Results
 }
 
-type trivyResults []*trivy
+type TrivyResults []*trivy
 
-func (t *trivyResults) check() {
+func (t *TrivyResults) Check() {
 	for _, result := range *t {
 		var countVulnies int
 		for _, pkgResult := range result.ReportResult {

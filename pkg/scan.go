@@ -11,11 +11,9 @@ import (
 	"strings"
 
 	"github.com/aquasecurity/trivy/pkg/report"
-	"github.com/sirupsen/logrus"
+	logger "github.com/sirupsen/logrus"
 	"github.com/xanzy/go-gitlab"
 )
-
-var logger = logrus.New()
 
 func init() {
 	gitToken := os.Getenv("GITLAB_TOKEN")
@@ -30,17 +28,17 @@ func init() {
 
 	logLvl := os.Getenv("LOG_LEVEL")
 	if logLvl != "" {
-		lvl, err := logrus.ParseLevel(logLvl)
+		lvl, err := logger.ParseLevel(logLvl)
+
 		if err != nil {
 			logger.Error(err)
-		} else {
-			lvl = logrus.InfoLevel
+			lvl = logger.InfoLevel
 		}
 		logger.SetLevel(lvl)
 	}
 
 	var err error
-
+	logger.Debugf("Creating client for host %s", gitHost)
 	git, err = gitlab.NewClient(gitToken, gitlab.WithBaseURL(gitHost))
 	if err != nil {
 		logger.Fatalf("Failed to create client: %v", err)
@@ -53,12 +51,12 @@ type Scan struct {
 	ArtifactFileName string
 }
 
-func (s Scan) ScanGroup() (trivyResults, error) {
+func (s Scan) ScanGroup() (TrivyResults, error) {
 	if s.ID == "" {
 		return nil, errors.New("no group id set")
 	}
 
-	results := trivyResults{}
+	results := TrivyResults{}
 	options := &gitlab.ListGroupProjectsOptions{
 		ListOptions: gitlab.ListOptions{
 			PerPage: 100,
