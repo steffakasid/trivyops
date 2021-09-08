@@ -97,6 +97,9 @@ func (s Scan) getAllGroupProjects(nextPage int) ([]*gitlab.Project, error) {
 		Archived:         gitlab.Bool(false),
 		IncludeSubgroups: gitlab.Bool(true),
 	}
+	if nextPage != NoNextPage {
+		options.ListOptions.Page = nextPage
+	}
 	projs, resp, err = git.Groups.ListGroupProjects(s.ID, options)
 	if err != nil {
 		return projs, err
