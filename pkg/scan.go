@@ -76,19 +76,19 @@ func (s Scan) ScanGroup() (TrivyResults, error) {
 			projResult := &trivy{ProjName: proj.Name}
 			projResult.ReportResult, projResult.State, err = s.getTrivyResult(proj.ID, proj.DefaultBranch)
 			if err != nil {
-				logger.Warn(err)
+				logger.WithField("Project", proj.Name).Warnln(err)
 			} else {
-				logger.Debugln("Result", projResult)
+				logger.WithField("Project", proj.Name).Debugln("Result", projResult)
 			}
 			projResult.Ignore, err = s.getTrivyIgnore(proj.ID, proj.DefaultBranch)
 			if err != nil {
-				logger.Warn(err)
+				logger.WithField("Project", proj.Name).Warn(err)
 			} else {
-				logger.Debugln("Ignore", projResult.Ignore)
+				logger.WithField("Project", proj.Name).Debugln("Ignore", projResult.Ignore)
 			}
 			results = append(results, projResult)
 		} else {
-			logger.Debugln("Filter out", proj.NameWithNamespace)
+			logger.WithField("Project", proj.Name).Debugln("Filter out")
 		}
 	}
 	return results, nil
