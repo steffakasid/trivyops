@@ -4,8 +4,11 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"strconv"
 	"strings"
 
+	"github.com/aquasecurity/trivy/pkg/report"
+	"github.com/aquasecurity/trivy/pkg/types"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/steffakasid/trivy-scanner/pkg"
 )
@@ -17,6 +20,10 @@ var (
 	output           string
 	filter           string
 	help, v, vv, vvv bool
+)
+
+const (
+	maxNameLen = 50
 )
 
 func main() {
@@ -51,22 +58,45 @@ func main() {
 }
 
 func printResultTxt(results pkg.TrivyResults) {
+	maxProjNLen := maxProjNameLen(results)
 	for i, projResult := range results {
 		if projResult.Vulnerabilities.Count > 0 || len(projResult.Ignore) > 0 {
-			fmt.Printf("%d: %s Job State %s Scanned Packages: %d Vulnerabilities found: %d .trivyignore: %s\n", i, projResult.ProjName, projResult.State, len(projResult.ReportResult), projResult.Vulnerabilities.Count, projResult.Ignore)
+			fmt.Printf("[%s]: %s | Job State: %s | Scanned Packages: %s | Vulnerabilities found: %s | .trivyignore: %t\n",
+				padInt(i, 4, "0"),
+				padName(projResult.ProjName, maxProjNLen),
+				projResult.State,
+				padInt(len(projResult.ReportResult), 3, " "),
+				padInt(projResult.Vulnerabilities.Count, 3, " "),
+				(len(projResult.Ignore) > 0))
 			if v || vv || vvv {
+				maxTgtNLen := maxTgtNameLen(projResult.ReportResult)
 				for _, tgt := range projResult.ReportResult {
 					if v {
 						crit, hi, med, lo, un := results.GetSummary(tgt.Vulnerabilities)
-						fmt.Printf("\t%s - Critical %d High %d Medium %d Low %d Unkown %d\n", tgt.Target, crit, hi, med, lo, un)
+						fmt.Printf("\t%s| Critical %s | High %s | Medium %s | Low %s | Unkown %s\n",
+							padName(tgt.Target, maxTgtNLen),
+							padInt(crit, 3, " "),
+							padInt(hi, 3, " "),
+							padInt(med, 3, " "),
+							padInt(lo, 3, " "),
+							padInt(un, 3, " "))
 					} else {
 						fmt.Printf("\t%s:\n", tgt.Target)
-						for j, vulli := range tgt.Vulnerabilities {
-							fmt.Printf("\t\t%d - %s Severity: %s Title: %s IsFixable: %T", j, vulli.PkgName, vulli.Severity, vulli.Title, (vulli.FixedVersion != ""))
-							if vvv {
-								fmt.Printf("InstalledVersion: %s FixedVersion %s", vulli.InstalledVersion, vulli.FixedVersion)
+						maxVuNLen := maxPckNameLen(tgt.Vulnerabilities)
+						if len(tgt.Vulnerabilities) > 0 {
+							for _, vulli := range tgt.Vulnerabilities {
+								fmt.Printf("\t\t%s | Severity: %s | Title: %s | IsFixable: %t",
+									padName(vulli.PkgName, maxVuNLen),
+									vulli.Severity,
+									cut(vulli.Title, 150),
+									(vulli.FixedVersion != ""))
+								if vvv {
+									fmt.Printf(" | InstalledVersion: %s | FixedVersion %s", vulli.InstalledVersion, vulli.FixedVersion)
+								}
+								fmt.Println()
 							}
-							fmt.Println()
+						} else {
+							fmt.Println("\t\tNo vulnerabilities found!")
 						}
 					}
 				}
@@ -143,4 +173,71 @@ func printResult(results pkg.TrivyResults) {
 	tw.SetAutoIndex(true)
 	tw.SetStyle(table.StyleLight)
 	fmt.Println(tw.Render())
+}
+
+func maxProjNameLen(projs pkg.TrivyResults) int {
+	maxLen := 0
+	for _, proj := range projs {
+		projNLen := len(proj.ProjName)
+		if projNLen > maxNameLen {
+			return maxNameLen
+		} else if projNLen > maxLen {
+			maxLen = projNLen
+		}
+	}
+	return maxLen
+}
+
+func maxTgtNameLen(results report.Results) int {
+	maxLen := 0
+	for _, res := range results {
+		targetLen := len(res.Target)
+		if targetLen > maxNameLen {
+			return maxNameLen
+		} else if targetLen > maxLen {
+			maxLen = targetLen
+		}
+	}
+	return maxLen
+}
+
+func maxPckNameLen(vullies []types.DetectedVulnerability) int {
+	maxLen := 0
+	for _, vul := range vullies {
+		pkgNameLen := len(vul.PkgName)
+		if pkgNameLen > maxNameLen {
+			return maxNameLen
+		} else if pkgNameLen > maxLen {
+			maxLen = pkgNameLen
+		}
+	}
+	return maxLen
+}
+
+func padName(name string, maxLen int) string {
+	nameLen := len(name)
+	if nameLen < maxLen {
+		name += strings.Repeat(" ", maxLen-nameLen)
+		return name
+	} else if nameLen > maxLen {
+		name = name[0:maxLen-3] + "..."
+	}
+	return name
+}
+
+func padInt(num int, length int, padStr string) string {
+	numStr := strconv.Itoa(num)
+	lenNum := len(numStr)
+	if lenNum < length {
+		return strings.Repeat(padStr, length-lenNum) + numStr
+	}
+	return numStr
+}
+
+func cut(t string, length int) string {
+	if len(t) <= length {
+		return t
+	} else {
+		return t[0:length-3] + "..."
+	}
 }
