@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 	"strconv"
 	"strings"
 
@@ -22,21 +23,47 @@ var (
 	help, v, vv, vvv bool
 )
 
-const (
-	maxNameLen = 50
-)
+const maxNameLen = 50
 
-func main() {
-	flag.StringVar(&groupId, "group-id", "", "Set group-id to scan for trivy results")
-	flag.StringVar(&trivyJobName, "job-name", "scan_oci_image_trivy", "The gitlab ci jobname to check")
-	flag.StringVar(&trivyFileName, "artifact-name", "trivy-results.json", "The artifact filename of the trivy result")
-	flag.StringVar(&filter, "filter", "", "A golang regular expression to filter project name with namespace (e.g. (^.*/groupprefix.+$)|(^.*otherprefix.*))")
+func init() {
+	flag.StringVar(&groupId, "-group-id", "", "Set group-id to scan for trivy results")
+	flag.StringVar(&trivyJobName, "-job-name", "scan_oci_image_trivy", "The gitlab ci jobname to check")
+	flag.StringVar(&trivyFileName, "-artifact-name", "trivy-results.json", "The artifact filename of the trivy result")
+	flag.StringVar(&filter, "-filter", "", "A golang regular expression to filter project name with namespace (e.g. (^.*/groupprefix.+$)|(^.*otherprefix.*))")
 	flag.StringVar(&output, "o", "text", "Define how to output results [text, table]")
 	flag.BoolVar(&v, "v", false, "Get details")
 	flag.BoolVar(&vv, "vv", false, "Get more details")
 	flag.BoolVar(&vvv, "vvv", false, "Get even more details")
-	flag.BoolVar(&help, "help", false, "Print help message")
+	flag.BoolVar(&help, "-help", false, "Print help message")
+
+	flag.Usage = func() {
+		w := flag.CommandLine.Output() // may be os.Stderr - but not necessarily
+
+		fmt.Fprintf(w, "Usage of %s: \n", os.Args[0])
+		fmt.Fprintln(w, `
+This tool can be used to receive all trivy results from a GitLab group. The tool
+scans all subgroups and prints out a result a GitLab CI trivy scan job and checks
+if there is a .trivyignore defined in the default branch.
+
+Variables:
+  - GITLAB_TOKEN		- the GitLab token to access the Gitlab instance
+  - GITLAB_HOST		- the GitLab host which should be accessed [Default: https://gitlab.com]
+  - LOG_LEVEL			- the log level to use [Default: info]
+
+Examples:
+  trivyops --group-id 1234    				- get all trivy results from 1234
+  trivyops --group-id 1234 --filter ^blub.*	- get all trivy results from 1234 where name starts with blub
+  trivyops --group-id 1234 -o table			- output results as table (works well with less results)
+  trivyops --group-id 1234 -v					- get more details
+
+Flags:`)
+
+		flag.PrintDefaults()
+	}
 	flag.Parse()
+}
+
+func main() {
 	if help {
 		flag.Usage()
 	} else {
