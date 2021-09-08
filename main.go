@@ -15,6 +15,7 @@ var (
 	trivyJobName     string
 	trivyFileName    string
 	output           string
+	filter           string
 	help, v, vv, vvv bool
 )
 
@@ -22,6 +23,7 @@ func main() {
 	flag.StringVar(&groupId, "group-id", "", "Set group-id to scan for trivy results")
 	flag.StringVar(&trivyJobName, "job-name", "scan_oci_image_trivy", "The gitlab ci jobname to check")
 	flag.StringVar(&trivyFileName, "artifact-name", "trivy-results.json", "The artifact filename of the trivy result")
+	flag.StringVar(&filter, "filter", "", "A golang regular expression to filter project name with namespace (e.g. (^.*/groupprefix.+$)|(^.*otherprefix.*))")
 	flag.StringVar(&output, "o", "text", "Define how to output results [text, table]")
 	flag.BoolVar(&v, "v", false, "Get details")
 	flag.BoolVar(&vv, "vv", false, "Get more details")
@@ -32,6 +34,9 @@ func main() {
 		flag.Usage()
 	} else {
 		scan := pkg.Scan{ID: groupId, JobName: trivyJobName, ArtifactFileName: trivyFileName}
+		if filter != "" {
+			scan.Filter = filter
+		}
 		trivyResults, err := scan.ScanGroup()
 		if err != nil {
 			log.Fatalf("Failed to scan trivy results: %s!", err)
@@ -47,20 +52,22 @@ func main() {
 
 func printResultTxt(results pkg.TrivyResults) {
 	for i, projResult := range results {
-		fmt.Printf("%d: %s Job State %s Scanned Packages: %d Vulnerabilities found: %d .trivyignore: %s\n", i, projResult.ProjName, projResult.State, len(projResult.ReportResult), projResult.Vulnerabilities.Count, projResult.Ignore)
-		if v || vv || vvv {
-			for _, tgt := range projResult.ReportResult {
-				if v {
-					crit, hi, med, lo, un := results.GetSummary(tgt.Vulnerabilities)
-					fmt.Printf("\t%s - Critical %d High %d Medium %d Low %d Unkown %d\n", tgt.Target, crit, hi, med, lo, un)
-				} else {
-					fmt.Printf("\t%s:\n", tgt.Target)
-					for j, vulli := range tgt.Vulnerabilities {
-						fmt.Printf("\t\t%d - %s Severity: %s Title: %s IsFixable: %T", j, vulli.PkgName, vulli.Severity, vulli.Title, (vulli.FixedVersion != ""))
-						if vvv {
-							fmt.Printf("InstalledVersion: %s FixedVersion %s", vulli.InstalledVersion, vulli.FixedVersion)
+		if projResult.Vulnerabilities.Count > 0 || len(projResult.Ignore) > 0 {
+			fmt.Printf("%d: %s Job State %s Scanned Packages: %d Vulnerabilities found: %d .trivyignore: %s\n", i, projResult.ProjName, projResult.State, len(projResult.ReportResult), projResult.Vulnerabilities.Count, projResult.Ignore)
+			if v || vv || vvv {
+				for _, tgt := range projResult.ReportResult {
+					if v {
+						crit, hi, med, lo, un := results.GetSummary(tgt.Vulnerabilities)
+						fmt.Printf("\t%s - Critical %d High %d Medium %d Low %d Unkown %d\n", tgt.Target, crit, hi, med, lo, un)
+					} else {
+						fmt.Printf("\t%s:\n", tgt.Target)
+						for j, vulli := range tgt.Vulnerabilities {
+							fmt.Printf("\t\t%d - %s Severity: %s Title: %s IsFixable: %T", j, vulli.PkgName, vulli.Severity, vulli.Title, (vulli.FixedVersion != ""))
+							if vvv {
+								fmt.Printf("InstalledVersion: %s FixedVersion %s", vulli.InstalledVersion, vulli.FixedVersion)
+							}
+							fmt.Println()
 						}
-						fmt.Println()
 					}
 				}
 			}

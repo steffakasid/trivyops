@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"regexp"
 	"strings"
 
 	"github.com/aquasecurity/trivy/pkg/report"
@@ -51,6 +52,7 @@ type Scan struct {
 	ID               string
 	JobName          string
 	ArtifactFileName string
+	Filter           string
 }
 
 func (s Scan) ScanGroup() (TrivyResults, error) {
@@ -63,23 +65,31 @@ func (s Scan) ScanGroup() (TrivyResults, error) {
 	if err != nil {
 		return nil, err
 	}
+	var re *regexp.Regexp
+	if s.Filter != "" {
+		re = regexp.MustCompile(s.Filter)
+	}
 
 	for _, proj := range projs {
-		logger.Infof("Scan project %s for trivy results\n", proj.NameWithNamespace)
-		projResult := &trivy{ProjName: proj.Name}
-		projResult.ReportResult, projResult.State, err = s.getTrivyResult(proj.ID, proj.DefaultBranch)
-		if err != nil {
-			logger.Warn(err)
+		if s.Filter == "" || len(re.FindAllString(proj.NameWithNamespace, -1)) > 0 {
+			logger.Infof("Scan project %s for trivy results\n", proj.NameWithNamespace)
+			projResult := &trivy{ProjName: proj.Name}
+			projResult.ReportResult, projResult.State, err = s.getTrivyResult(proj.ID, proj.DefaultBranch)
+			if err != nil {
+				logger.Warn(err)
+			} else {
+				logger.Debugln("Result", projResult)
+			}
+			projResult.Ignore, err = s.getTrivyIgnore(proj.ID, proj.DefaultBranch)
+			if err != nil {
+				logger.Warn(err)
+			} else {
+				logger.Debugln("Ignore", projResult.Ignore)
+			}
+			results = append(results, projResult)
 		} else {
-			logger.Debugln("Result", projResult)
+			logger.Debugln("Filter out", proj.NameWithNamespace)
 		}
-		projResult.Ignore, err = s.getTrivyIgnore(proj.ID, proj.DefaultBranch)
-		if err != nil {
-			logger.Warn(err)
-		} else {
-			logger.Debugln("Ignore", projResult.Ignore)
-		}
-		results = append(results, projResult)
 	}
 	return results, nil
 }
