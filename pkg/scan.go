@@ -127,7 +127,7 @@ func (s Scan) getTrivyResult(pid int, ref string) (report.Results, string, error
 
 	rdr, res, err := git.Jobs.DownloadArtifactsFile(pid, ref, &gitlab.DownloadArtifactsFileOptions{Job: gitlab.String(s.JobName)})
 	if err != nil {
-		if res.StatusCode == 404 {
+		if res != nil && res.StatusCode == 404 {
 			return nil, state, fmt.Errorf("no %s job result", s.JobName)
 		} else {
 			return nil, state, err
