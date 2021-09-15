@@ -18,7 +18,7 @@ import (
 
 const NoNextPage = -1
 
-func init() {
+func InitScanner(id, jobname, artifactFileName, filter string) scan {
 	gitToken := os.Getenv("GITLAB_TOKEN")
 	if gitToken == "" {
 		logger.Fatal("No GITLAB_TOKEN env var set!")
@@ -46,16 +46,18 @@ func init() {
 	if err != nil {
 		logger.Fatalf("Failed to create client: %v", err)
 	}
+
+	return scan{ID: id, JobName: jobname, ArtifactFileName: artifactFileName, Filter: filter}
 }
 
-type Scan struct {
+type scan struct {
 	ID               string
 	JobName          string
 	ArtifactFileName string
 	Filter           string
 }
 
-func (s Scan) ScanGroup() (TrivyResults, error) {
+func (s scan) ScanGroup() (TrivyResults, error) {
 	if s.ID == "" {
 		return nil, errors.New("no group id set")
 	}
@@ -97,7 +99,7 @@ func (s Scan) ScanGroup() (TrivyResults, error) {
 	return results, nil
 }
 
-func (s Scan) getAllGroupProjects(nextPage int) ([]*gitlab.Project, error) {
+func (s scan) getAllGroupProjects(nextPage int) ([]*gitlab.Project, error) {
 	var (
 		projs []*gitlab.Project
 		resp  *gitlab.Response
@@ -127,7 +129,7 @@ func (s Scan) getAllGroupProjects(nextPage int) ([]*gitlab.Project, error) {
 	return projs, nil
 }
 
-func (s Scan) getTrivyResult(pid int, ref string) (report.Results, string, error) {
+func (s scan) getTrivyResult(pid int, ref string) (report.Results, string, error) {
 	jobs, _, err := git.Jobs.ListProjectJobs(pid, &gitlab.ListJobsOptions{IncludeRetried: *gitlab.Bool(false)})
 	if err != nil {
 		return nil, "", err
@@ -164,7 +166,7 @@ func (s Scan) getTrivyResult(pid int, ref string) (report.Results, string, error
 	return *jsonResult, state, err
 }
 
-func (s Scan) unzipFromReader(rdr *bytes.Reader) ([]byte, error) {
+func (s scan) unzipFromReader(rdr *bytes.Reader) ([]byte, error) {
 	unzip, err := zip.NewReader(rdr, rdr.Size())
 	if err != nil {
 		logger.Error("Error unzip")
@@ -192,7 +194,7 @@ func (s Scan) unzipFromReader(rdr *bytes.Reader) ([]byte, error) {
 	return nil, fmt.Errorf("didn't find %s in zip", s.ArtifactFileName)
 }
 
-func (s Scan) getTrivyIgnore(pid int, ref string) ([]string, error) {
+func (s scan) getTrivyIgnore(pid int, ref string) ([]string, error) {
 	bt, res, err := git.RepositoryFiles.GetRawFile(pid, ".trivyignore", &gitlab.GetRawFileOptions{Ref: gitlab.String(ref)})
 	if err != nil {
 		if res.StatusCode == 404 {

@@ -71,6 +71,9 @@ func main() {
 		if filter != "" {
 			scan.Filter = filter
 		}
+
+		scan := pkg.InitScanner(args[0], trivyJobName, trivyFileName, filter)
+
 		trivyResults, err := scan.ScanGroup()
 		if err != nil {
 			log.Fatalf("Failed to scan trivy results: %s!", err)
