@@ -26,15 +26,15 @@ var (
 const maxNameLen = 50
 
 func init() {
-	flag.StringVar(&groupId, "-group-id", "", "Set group-id to scan for trivy results")
-	flag.StringVar(&trivyJobName, "-job-name", "scan_oci_image_trivy", "The gitlab ci jobname to check")
-	flag.StringVar(&trivyFileName, "-artifact-name", "trivy-results.json", "The artifact filename of the trivy result")
-	flag.StringVar(&filter, "-filter", "", "A golang regular expression to filter project name with namespace (e.g. (^.*/groupprefix.+$)|(^.*otherprefix.*))")
+	flag.StringVar(&groupId, "group-id", "", "Set group-id to scan for trivy results")
+	flag.StringVar(&trivyJobName, "job-name", "scan_oci_image_trivy", "The gitlab ci jobname to check")
+	flag.StringVar(&trivyFileName, "artifact-name", "trivy-results.json", "The artifact filename of the trivy result")
+	flag.StringVar(&filter, "filter", "", "A golang regular expression to filter project name with namespace (e.g. (^.*/groupprefix.+$)|(^.*otherprefix.*))")
 	flag.StringVar(&output, "o", "text", "Define how to output results [text, table]")
 	flag.BoolVar(&v, "v", false, "Get details")
 	flag.BoolVar(&vv, "vv", false, "Get more details")
 	flag.BoolVar(&vvv, "vvv", false, "Get even more details")
-	flag.BoolVar(&help, "-help", false, "Print help message")
+	flag.BoolVar(&help, "help", false, "Print help message")
 
 	flag.Usage = func() {
 		w := flag.CommandLine.Output() // may be os.Stderr - but not necessarily
