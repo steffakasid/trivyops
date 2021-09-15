@@ -15,18 +15,13 @@ import (
 )
 
 var (
-	groupId          string
-	trivyJobName     string
-	trivyFileName    string
-	output           string
-	filter           string
-	help, v, vv, vvv bool
+	trivyJobName, trivyFileName, output, filter string
+	help, v, vv, vvv                            bool
 )
 
 const maxNameLen = 50
 
 func init() {
-	flag.StringVar(&groupId, "group-id", "", "Set group-id to scan for trivy results")
 	flag.StringVar(&trivyJobName, "job-name", "scan_oci_image_trivy", "The gitlab ci jobname to check")
 	flag.StringVar(&trivyFileName, "artifact-name", "trivy-results.json", "The artifact filename of the trivy result")
 	flag.StringVar(&filter, "filter", "", "A golang regular expression to filter project name with namespace (e.g. (^.*/groupprefix.+$)|(^.*otherprefix.*))")
@@ -45,16 +40,19 @@ This tool can be used to receive all trivy results from a GitLab group. The tool
 scans all subgroups and prints out a result a GitLab CI trivy scan job and checks
 if there is a .trivyignore defined in the default branch.
 
+Usage:
+  trivyops [flags] GITLAB_GROUP_ID
+
 Variables:
   - GITLAB_TOKEN		- the GitLab token to access the Gitlab instance
   - GITLAB_HOST		- the GitLab host which should be accessed [Default: https://gitlab.com]
   - LOG_LEVEL			- the log level to use [Default: info]
 
 Examples:
-  trivyops --group-id 1234    				- get all trivy results from 1234
-  trivyops --group-id 1234 --filter ^blub.*	- get all trivy results from 1234 where name starts with blub
-  trivyops --group-id 1234 -o table			- output results as table (works well with less results)
-  trivyops --group-id 1234 -v					- get more details
+  trivyops 1234    				- get all trivy results from 1234
+  trivyops 1234 --filter ^blub.*	- get all trivy results from 1234 where name starts with blub
+  trivyops 1234 -o table			- output results as table (works well with less results)
+  trivyops 1234 -v					- get more details
 
 Flags:`)
 
@@ -67,9 +65,12 @@ func main() {
 	if help {
 		flag.Usage()
 	} else {
-		scan := pkg.Scan{ID: groupId, JobName: trivyJobName, ArtifactFileName: trivyFileName}
-		if filter != "" {
-			scan.Filter = filter
+		args := flag.Args()
+
+		if len(args) != 1 {
+			log.Printf("Require exactly one argument! got %s\n", args)
+			flag.Usage()
+			os.Exit(1)
 		}
 
 		scan := pkg.InitScanner(args[0], trivyJobName, trivyFileName, filter)
