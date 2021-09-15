@@ -16,10 +16,12 @@ import (
 
 var (
 	trivyJobName, trivyFileName, output, filter string
-	help, v, vv, vvv                            bool
+	help, v, vv, vvv, vers                      bool
 )
 
 const maxNameLen = 50
+
+var version = "0.1-dev"
 
 func init() {
 	flag.StringVar(&trivyJobName, "job-name", "scan_oci_image_trivy", "The gitlab ci jobname to check")
@@ -30,6 +32,7 @@ func init() {
 	flag.BoolVar(&vv, "vv", false, "Get more details")
 	flag.BoolVar(&vvv, "vvv", false, "Get even more details")
 	flag.BoolVar(&help, "help", false, "Print help message")
+	flag.BoolVar(&vers, "version", false, "Print version information")
 
 	flag.Usage = func() {
 		w := flag.CommandLine.Output() // may be os.Stderr - but not necessarily
@@ -62,7 +65,9 @@ Flags:`)
 }
 
 func main() {
-	if help {
+	if vers {
+		fmt.Printf("Trivyops version: %s\n", version)
+	} else if help {
 		flag.Usage()
 	} else {
 		args := flag.Args()
