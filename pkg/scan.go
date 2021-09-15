@@ -86,7 +86,10 @@ func (s Scan) ScanGroup() (TrivyResults, error) {
 			} else {
 				logger.WithField("Project", proj.Name).Debugln("Ignore", projResult.Ignore)
 			}
-			results = append(results, projResult)
+			projResult.check()
+			if projResult.Ignore != nil || (projResult.ReportResult != nil && projResult.Vulnerabilities.Count > 0) {
+				results = append(results, projResult)
+			}
 		} else {
 			logger.WithField("Project", proj.Name).Debugln("Filter out")
 		}

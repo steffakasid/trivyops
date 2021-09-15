@@ -26,19 +26,23 @@ type TrivyResults []*trivy
 
 func (t *TrivyResults) Check() {
 	for _, result := range *t {
-		vullies := vulnerabilities{}
-		for _, pkgResult := range result.ReportResult {
-			vullies.Count += len(pkgResult.Vulnerabilities)
-			for _, v := range pkgResult.Vulnerabilities {
-				if v.Severity == "CRITICAL" {
-					vullies.Critical++
-				} else if v.Severity == "HIGH" {
-					vullies.High++
-				}
+		result.check()
+	}
+}
+
+func (r *trivy) check() {
+	vullies := vulnerabilities{}
+	for _, pkgResult := range r.ReportResult {
+		vullies.Count += len(pkgResult.Vulnerabilities)
+		for _, v := range pkgResult.Vulnerabilities {
+			if v.Severity == "CRITICAL" {
+				vullies.Critical++
+			} else if v.Severity == "HIGH" {
+				vullies.High++
 			}
 		}
-		result.Vulnerabilities = vullies
 	}
+	r.Vulnerabilities = vullies
 }
 
 func (t TrivyResults) GetSummary(dv []types.DetectedVulnerability) (critical, high, medium, low, unkown int) {
