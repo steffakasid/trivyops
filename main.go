@@ -20,6 +20,7 @@ var (
 )
 
 const maxNameLen = 50
+const maxTitleLen = 50
 
 var version = "0.1-dev"
 
@@ -111,10 +112,13 @@ func printResultTxt(results pkg.TrivyResults) {
 
 func printResultDetailsTxt(res report.Results) {
 	maxTgtNLen := maxTgtNameLen(res)
+	lvl1 := strings.Repeat(" ", 2)
+	lvl2 := strings.Repeat(" ", 4)
 	for _, tgt := range res {
 		if v {
 			crit, hi, med, lo, un := pkg.GetSummary(tgt.Vulnerabilities)
-			fmt.Printf("\t%s| Critical %s | High %s | Medium %s | Low %s | Unkown %s\n",
+			fmt.Printf("%s%s| Critical %s | High %s | Medium %s | Low %s | Unkown %s\n",
+				lvl1,
 				padString(tgt.Target, maxTgtNLen),
 				padInt(crit, 3, " "),
 				padInt(hi, 3, " "),
@@ -122,14 +126,16 @@ func printResultDetailsTxt(res report.Results) {
 				padInt(lo, 3, " "),
 				padInt(un, 3, " "))
 		} else {
-			fmt.Printf("\t%s:\n", tgt.Target)
+			fmt.Printf("%s%s:\n", lvl1, tgt.Target)
 			maxVuNLen := maxPckNameLen(tgt.Vulnerabilities)
 			if len(tgt.Vulnerabilities) > 0 {
+				// TODO: Add header here
 				for _, vulli := range tgt.Vulnerabilities {
-					fmt.Printf("\t\t%s | Severity: %s | Title: %s | IsFixable: %t",
+					fmt.Printf("%s%s | Severity: %s | Title: %s | IsFixable: %t",
+						lvl2,
 						padString(vulli.PkgName, maxVuNLen),
 						vulli.Severity,
-						cut(vulli.Title, 150),
+						cut(vulli.Title, maxTitleLen),
 						(vulli.FixedVersion != ""))
 					if vvv {
 						fmt.Printf(" | InstalledVersion: %s | FixedVersion %s", vulli.InstalledVersion, vulli.FixedVersion)
@@ -137,7 +143,7 @@ func printResultDetailsTxt(res report.Results) {
 					fmt.Println()
 				}
 			} else {
-				fmt.Println("\t\tNo vulnerabilities found!")
+				fmt.Printf("%s No vulnerabilities found!\n", lvl2)
 			}
 		}
 	}
