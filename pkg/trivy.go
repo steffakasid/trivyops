@@ -45,7 +45,7 @@ func (r *trivy) check() {
 	r.Vulnerabilities = vullies
 }
 
-func (t TrivyResults) GetSummary(dv []types.DetectedVulnerability) (critical, high, medium, low, unkown int) {
+func GetSummary(dv []types.DetectedVulnerability) (critical, high, medium, low, unkown int) {
 	for _, v := range dv {
 		if v.Severity == "CRITICAL" {
 			critical++
