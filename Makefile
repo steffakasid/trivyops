@@ -35,7 +35,8 @@ install: ## build locally and copy bin into $(GOROOT)/bin
 	$(GOBUILD) -o $(GOBIN)/$(BINARY_NAME) -ldflags "-X main.version=$(VERSION)"
 
 binary: ## build the binary
-	CGO_ENABLED=0 GOOS=linux $(GOBUILD) -a -o build/$(BINARY_NAME) -installsuffix cgo -ldflags "-X main.version=$(VERSION)"
+	$(GOCLEAN)
+	@GOOS=${GOOS} GOARCH=${GOARCH} $(GOBUILD) -a -o $(BINARY_NAME) -ldflags "-X main.version=$(VERSION)"
 
 build-all:
 	$(GOCLEAN)
@@ -43,18 +44,18 @@ build-all:
 	@GOOS=darwin GOARCH=amd64 GOBIN=$(GOBIN) go build \
 			-tags release \
 			-ldflags '-X main.version=$(VERSION)' \
-			-o build/bizhubo-darwin-amd64
+			-o build/${BINARY_NAME}-${GOOS}-${GOARCH}
+	tar -czvf build/${BINARY_NAME}-${VERSION}-darwin-amd64.tar.gz build/${BINARY_NAME}-darwin-amd64
 	@GOOS=linux GOARCH=amd64 GOBIN=$(GOBIN) go build \
 			-tags release \
 			-ldflags '-X main.version=$(VERSION)' \
-			-o build/bizhubo-linux-amd64
+			-o build/${BINARY_NAME}-${GOOS}-${GOARCH}
+	tar -czvf build/${BINARY_NAME}-${VERSION}-linux-amd64.tar.gz build/${BINARY_NAME}-linux-amd64
 	@GOOS=windows GOARCH=amd64 GOBIN=$(GOBIN) go build \
 			-tags release \
 			-ldflags '-X main.version=$(VERSION)' \
-			-o build/bizhubo-windows-amd64.exe
-	tar -czvf build/bizhubo-${VERSION}-darwin-amd64.tar.gz build/bizhubo-darwin-amd64
-	tar -czvf build/bizhubo-${VERSION}-linux-amd64.tar.gz build/bizhubo-linux-amd64
-	tar -czvf build/bizhubo-${VERSION}-win-amd64.tar.gz build/bizhubo-windows-amd64.exe
+			-o build/${BINARY_NAME}-${GOOS}-${GOARCH}.exe
+	tar -czvf build/${BINARY_NAME}-${VERSION}-win-amd64.tar.gz build/${BINARY_NAME}-windows-amd64.exe
 
 image: binary ## build a local docker image
 	docker build -t ${BINARY_NAME}:local .
