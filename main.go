@@ -81,8 +81,8 @@ func main() {
 			os.Exit(1)
 		}
 
-		s := spinner.New(spinner.CharSets[9], 100*time.Millisecond) // Build our new spinner
-		s.Start()                                                   // Start the spinner                               // Run for some time to simulate work
+		s := spinner.New(spinner.CharSets[9], 100*time.Millisecond)
+		s.Start()
 
 		groupId := ""
 		if len(args) > 0 {
