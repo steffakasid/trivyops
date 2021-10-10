@@ -28,5 +28,5 @@ jobs:
         build_flags: -tags release
         build_command: make binary
         # ldflags: -X github.com/steffakasid/dof/cmd.version=${{ env.RELEASE_VERSION }}
-        binary_name: kusto-me
+        binary_name: trivyops
         extra_files: LICENSE README.md
