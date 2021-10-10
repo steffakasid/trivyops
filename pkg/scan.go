@@ -16,8 +16,6 @@ import (
 	"github.com/xanzy/go-gitlab"
 )
 
-const NoNextPage = -1
-
 func InitScanner(id, jobname, artifactFileName, filter string) scan {
 	gitToken := os.Getenv("GITLAB_TOKEN")
 	if gitToken == "" {
@@ -63,7 +61,7 @@ func (s scan) ScanGroup() (TrivyResults, error) {
 	}
 
 	results := TrivyResults{}
-	projs, err := s.getAllGroupProjects(NoNextPage)
+	projs, err := s.getAllGroupProjects()
 	if err != nil {
 		return nil, err
 	}
@@ -99,34 +97,30 @@ func (s scan) ScanGroup() (TrivyResults, error) {
 	return results, nil
 }
 
-func (s scan) getAllGroupProjects(nextPage int) ([]*gitlab.Project, error) {
-	var (
-		projs []*gitlab.Project
-		resp  *gitlab.Response
-		err   error
-	)
+func (s scan) getAllGroupProjects() ([]*gitlab.Project, error) {
+	allProjs := []*gitlab.Project{}
 	options := &gitlab.ListGroupProjectsOptions{
 		ListOptions: gitlab.ListOptions{
 			PerPage: 100,
+			Page:    1,
 		},
 		Archived:         gitlab.Bool(false),
 		IncludeSubgroups: gitlab.Bool(true),
 	}
-	if nextPage != NoNextPage {
-		options.ListOptions.Page = nextPage
-	}
-	projs, resp, err = git.Groups.ListGroupProjects(s.ID, options)
-	if err != nil {
-		return projs, err
-	}
-	if resp != nil && resp.NextPage > 0 {
-		projsR, err := s.getAllGroupProjects(resp.NextPage)
+
+	for {
+		projs, resp, err := git.Groups.ListGroupProjects(s.ID, options)
 		if err != nil {
-			return projs, err
+			return allProjs, err
 		}
-		projs = append(projs, projsR...)
+
+		allProjs = append(allProjs, projs...)
+
+		if resp.CurrentPage >= resp.TotalPages {
+			break
+		}
 	}
-	return projs, nil
+	return allProjs, nil
 }
 
 func (s scan) getTrivyResult(pid int, ref string) (report.Results, string, error) {
