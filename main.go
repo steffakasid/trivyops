@@ -7,9 +7,11 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/aquasecurity/trivy/pkg/report"
 	"github.com/aquasecurity/trivy/pkg/types"
+	"github.com/briandowns/spinner"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/steffakasid/trivy-scanner/pkg"
 )
@@ -78,6 +80,8 @@ func main() {
 			flag.Usage()
 			os.Exit(1)
 		}
+		s := spinner.New(spinner.CharSets[9], 100*time.Millisecond) // Build our new spinner
+		s.Start()                                                   // Start the spinner                               // Run for some time to simulate work
 
 		scan := pkg.InitScanner(args[0], trivyJobName, trivyFileName, filter)
 
@@ -86,11 +90,13 @@ func main() {
 			log.Fatalf("Failed to scan trivy results: %s!", err)
 		}
 		trivyResults.Check()
+		s.Stop()
 		if strings.ToLower(output) == "table" {
 			printResultTbl(trivyResults)
 		} else {
 			printResultTxt(trivyResults)
 		}
+
 	}
 }
 
