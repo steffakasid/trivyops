@@ -75,15 +75,21 @@ func main() {
 	} else {
 		args := flag.Args()
 
-		if len(args) != 1 {
-			log.Printf("Require exactly one argument! got %s\n", args)
+		if len(args) > 1 {
+			log.Printf("More then one argument provided: %s\n", args)
 			flag.Usage()
 			os.Exit(1)
 		}
+
 		s := spinner.New(spinner.CharSets[9], 100*time.Millisecond) // Build our new spinner
 		s.Start()                                                   // Start the spinner                               // Run for some time to simulate work
 
-		scan := pkg.InitScanner(args[0], trivyJobName, trivyFileName, filter)
+		groupId := ""
+		if len(args) > 0 {
+			groupId = args[0]
+		}
+
+		scan := pkg.InitScanner(groupId, trivyJobName, trivyFileName, filter)
 
 		trivyResults, err := scan.ScanGroup()
 		if err != nil {

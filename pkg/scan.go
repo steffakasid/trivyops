@@ -56,12 +56,18 @@ type scan struct {
 }
 
 func (s scan) ScanGroup() (TrivyResults, error) {
+	var (
+		projs []*gitlab.Project
+		err   error
+	)
 	if s.ID == "" {
-		return nil, errors.New("no group id set")
+		projs, err = s.getAllUserProjects()
+	} else {
+		projs, err = s.getAllGroupProjects()
 	}
 
 	results := TrivyResults{}
-	projs, err := s.getAllGroupProjects()
+
 	if err != nil {
 		return nil, err
 	}
@@ -119,6 +125,34 @@ func (s scan) getAllGroupProjects() ([]*gitlab.Project, error) {
 		if resp.CurrentPage >= resp.TotalPages {
 			break
 		}
+		options.Page = resp.NextPage
+	}
+	return allProjs, nil
+}
+
+func (s scan) getAllUserProjects() ([]*gitlab.Project, error) {
+	allProjs := []*gitlab.Project{}
+	options := &gitlab.ListProjectsOptions{
+		ListOptions: gitlab.ListOptions{
+			PerPage: 100,
+			Page:    1,
+		},
+		Archived:       gitlab.Bool(false),
+		MinAccessLevel: gitlab.AccessLevel(gitlab.DeveloperPermissions),
+	}
+
+	for {
+		projs, resp, err := git.Projects.ListProjects(options)
+		if err != nil {
+			return allProjs, err
+		}
+
+		allProjs = append(allProjs, projs...)
+
+		if resp.CurrentPage >= resp.TotalPages {
+			break
+		}
+		options.Page = resp.NextPage
 	}
 	return allProjs, nil
 }
