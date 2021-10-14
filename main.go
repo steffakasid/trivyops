@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -13,6 +12,8 @@ import (
 	"github.com/aquasecurity/trivy/pkg/types"
 	"github.com/briandowns/spinner"
 	"github.com/jedib0t/go-pretty/v6/table"
+	flag "github.com/spf13/pflag"
+	"github.com/spf13/viper"
 	"github.com/steffakasid/trivy-scanner/pkg"
 )
 
@@ -27,10 +28,10 @@ const maxTitleLen = 50
 var version = "0.1-dev"
 
 func init() {
-	flag.StringVar(&trivyJobName, "job-name", "scan_oci_image_trivy", "The gitlab ci jobname to check")
-	flag.StringVar(&trivyFileName, "artifact-name", "trivy-results.json", "The artifact filename of the trivy result")
-	flag.StringVar(&filter, "filter", "", "A golang regular expression to filter project name with namespace (e.g. (^.*/groupprefix.+$)|(^.*otherprefix.*))")
-	flag.StringVar(&output, "o", "text", "Define how to output results [text, table]")
+	flag.StringVarP(&trivyJobName, "job-name", "j", "scan_oci_image_trivy", "The gitlab ci jobname to check")
+	flag.StringVarP(&trivyFileName, "artifact-name", "a", "trivy-results.json", "The artifact filename of the trivy result")
+	flag.StringVarP(&filter, "filter", "f", "", "A golang regular expression to filter project name with namespace (e.g. (^.*/groupprefix.+$)|(^.*otherprefix.*))")
+	flag.StringVarP(&output, "output", "o", "text", "Define how to output results [text, table]")
 	flag.BoolVar(&v, "v", false, "Get details")
 	flag.BoolVar(&vv, "vv", false, "Get more details")
 	flag.BoolVar(&vvv, "vvv", false, "Get even more details")
@@ -38,7 +39,7 @@ func init() {
 	flag.BoolVar(&vers, "version", false, "Print version information")
 
 	flag.Usage = func() {
-		w := flag.CommandLine.Output() // may be os.Stderr - but not necessarily
+		w := os.Stderr
 
 		fmt.Fprintf(w, "Usage of %s: \n", os.Args[0])
 		fmt.Fprintln(w, `
@@ -65,6 +66,15 @@ Flags:`)
 		flag.PrintDefaults()
 	}
 	flag.Parse()
+
+	viper.BindPFlags(flag.CommandLine)
+	viper.SetConfigName("trivyops")
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath("$HOME/")
+	err := viper.ReadInConfig()
+	if err != nil {
+		panic(fmt.Errorf("fatal error config file: %w", err))
+	}
 }
 
 func main() {
