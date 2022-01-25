@@ -18,8 +18,7 @@ import (
 )
 
 var (
-	trivyJobName, trivyFileName, output, filter string
-	help, v, vv, vvv, vers                      bool
+	help, v, vv, vvv, vers bool
 )
 
 const maxNameLen = 50
@@ -28,10 +27,10 @@ const maxTitleLen = 50
 var version = "0.1-dev"
 
 func init() {
-	flag.StringVarP(&trivyJobName, "job-name", "j", "scan_oci_image_trivy", "The gitlab ci jobname to check")
-	flag.StringVarP(&trivyFileName, "artifact-name", "a", "trivy-results.json", "The artifact filename of the trivy result")
-	flag.StringVarP(&filter, "filter", "f", "", "A golang regular expression to filter project name with namespace (e.g. (^.*/groupprefix.+$)|(^.*otherprefix.*))")
-	flag.StringVarP(&output, "output", "o", "text", "Define how to output results [text, table]")
+	flag.StringP("job-name", "j", "scan_oci_image_trivy", "The gitlab ci jobname to check")
+	flag.StringP("artifact-name", "a", "trivy-results.json", "The artifact filename of the trivy result")
+	flag.StringP("filter", "f", "", "A golang regular expression to filter project name with namespace (e.g. (^.*/groupprefix.+$)|(^.*otherprefix.*))")
+	flag.StringP("output", "o", "text", "Define how to output results [text, table]")
 	flag.BoolVar(&v, "v", false, "Get details")
 	flag.BoolVar(&vv, "vv", false, "Get more details")
 	flag.BoolVar(&vvv, "vvv", false, "Get even more details")
@@ -68,8 +67,14 @@ Flags:`)
 	flag.Parse()
 
 	viper.BindPFlags(flag.CommandLine)
-	viper.SetConfigName("trivyops")
+
+	viper.SetDefault("GITLAB_TOKEN", "")
+	viper.SetDefault("GITLAB_HOST", "https://gitlab.com")
+	viper.SetDefault("LOG_LEVEL", "info")
+
+	viper.SetConfigName(".trivyops")
 	viper.SetConfigType("yaml")
+	viper.AutomaticEnv()
 	viper.AddConfigPath("$HOME/")
 	err := viper.ReadInConfig()
 	if err != nil {
@@ -99,7 +104,7 @@ func main() {
 			groupId = args[0]
 		}
 
-		scan := pkg.InitScanner(groupId, trivyJobName, trivyFileName, filter)
+		scan := pkg.InitScanner(groupId, viper.GetString("job-name"), viper.GetString("artifact-name"), viper.GetString("filter"))
 
 		trivyResults, err := scan.ScanGroup()
 		if err != nil {
@@ -107,7 +112,7 @@ func main() {
 		}
 		trivyResults.Check()
 		s.Stop()
-		if strings.ToLower(output) == "table" {
+		if strings.ToLower(viper.GetString("output")) == "table" {
 			printResultTbl(trivyResults)
 		} else {
 			printResultTxt(trivyResults)
@@ -188,7 +193,7 @@ func printResultTbl(results pkg.TrivyResults) {
 
 		summaryTable := newLightTableWriter()
 		summaryTable.AppendHeader(table.Row{"Job", "Status", "Scanned Packages", "Vulnerabilities"})
-		summaryTable.AppendRow(table.Row{trivyJobName, projResult.State, len(projResult.ReportResult), projResult.Vulnerabilities.Count})
+		summaryTable.AppendRow(table.Row{viper.GetString("job-name"), projResult.State, len(projResult.ReportResult), projResult.Vulnerabilities.Count})
 		projectTbl.AppendRow(table.Row{"Summary", summaryTable.Render()})
 		projectTbl.AppendSeparator()
 

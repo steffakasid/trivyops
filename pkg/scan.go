@@ -4,31 +4,27 @@ import (
 	"archive/zip"
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
-	"os"
 	"regexp"
 	"strings"
 
 	"github.com/aquasecurity/trivy/pkg/report"
 	logger "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	"github.com/xanzy/go-gitlab"
 )
 
 func InitScanner(id, jobname, artifactFileName, filter string) scan {
-	gitToken := os.Getenv("GITLAB_TOKEN")
+	gitToken := viper.GetString("GITLAB_TOKEN")
 	if gitToken == "" {
 		logger.Fatal("No GITLAB_TOKEN env var set!")
 	}
 
-	gitHost := os.Getenv("GITLAB_HOST")
-	if gitHost == "" {
-		gitHost = "https://gitlab.com"
-	}
+	gitHost := viper.GetString("GITLAB_HOST")
 
-	logLvl := os.Getenv("LOG_LEVEL")
-	if logLvl != "" {
+	logLvl := viper.GetString("LOG_LEVEL")
+
 		lvl, err := logger.ParseLevel(logLvl)
 
 		if err != nil {
@@ -36,9 +32,7 @@ func InitScanner(id, jobname, artifactFileName, filter string) scan {
 			lvl = logger.InfoLevel
 		}
 		logger.SetLevel(lvl)
-	}
 
-	var err error
 	logger.Debugf("Creating client for host %s", gitHost)
 	git, err = gitlab.NewClient(gitToken, gitlab.WithBaseURL(gitHost))
 	if err != nil {
