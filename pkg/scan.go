@@ -25,13 +25,13 @@ func InitScanner(id, jobname, artifactFileName, filter string) scan {
 
 	logLvl := viper.GetString("LOG_LEVEL")
 
-		lvl, err := logger.ParseLevel(logLvl)
+	lvl, err := logger.ParseLevel(logLvl)
 
-		if err != nil {
-			logger.Error(err)
-			lvl = logger.InfoLevel
-		}
-		logger.SetLevel(lvl)
+	if err != nil {
+		logger.Error(err)
+		lvl = logger.InfoLevel
+	}
+	logger.SetLevel(lvl)
 
 	logger.Debugf("Creating client for host %s", gitHost)
 	git, err = gitlab.NewClient(gitToken, gitlab.WithBaseURL(gitHost))
@@ -76,13 +76,17 @@ func (s scan) ScanGroup() (TrivyResults, error) {
 			projResult := &trivy{ProjName: proj.Name}
 			projResult.ReportResult, projResult.State, err = s.getTrivyResult(proj.ID, proj.DefaultBranch)
 			if err != nil {
-				logger.WithField("Project", proj.Name).Warnln(err)
+				logger.WithField("Project", proj.Name).Errorln(err)
+			} else if projResult == nil {
+				logger.WithField("Project", proj.Name).Infoln("No trivyresult found!")
 			} else {
 				logger.WithField("Project", proj.Name).Debugln("Result", projResult)
 			}
 			projResult.Ignore, err = s.getTrivyIgnore(proj.ID, proj.DefaultBranch)
 			if err != nil {
-				logger.WithField("Project", proj.Name).Warn(err)
+				logger.WithField("Project", proj.Name).Errorln(err)
+			} else if projResult.Ignore == nil {
+				logger.WithField("Project", proj.Name).Infoln("No trivyignore file found!")
 			} else {
 				logger.WithField("Project", proj.Name).Debugln("Ignore", projResult.Ignore)
 			}
@@ -168,7 +172,7 @@ func (s scan) getTrivyResult(pid int, ref string) (report.Results, string, error
 	rdr, res, err := git.Jobs.DownloadArtifactsFile(pid, ref, &gitlab.DownloadArtifactsFileOptions{Job: gitlab.String(s.JobName)})
 	if err != nil {
 		if res != nil && res.StatusCode == 404 {
-			return nil, state, fmt.Errorf("no %s job result", s.JobName)
+			return nil, state, nil
 		} else {
 			return nil, state, err
 		}
@@ -220,7 +224,7 @@ func (s scan) getTrivyIgnore(pid int, ref string) ([]string, error) {
 	bt, res, err := git.RepositoryFiles.GetRawFile(pid, ".trivyignore", &gitlab.GetRawFileOptions{Ref: gitlab.String(ref)})
 	if err != nil {
 		if res.StatusCode == 404 {
-			return nil, errors.New("no .trivyignore file found")
+			return nil, nil
 		} else {
 			return nil, err
 		}
