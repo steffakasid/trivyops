@@ -156,7 +156,7 @@ func (s scan) getAllUserProjects() ([]*gitlab.Project, error) {
 }
 
 func (s scan) getTrivyResult(pid int, ref string) (report.Results, string, error) {
-	jobs, _, err := git.Jobs.ListProjectJobs(pid, &gitlab.ListJobsOptions{IncludeRetried: *gitlab.Bool(false)})
+	jobs, _, err := git.Jobs.ListProjectJobs(pid, &gitlab.ListJobsOptions{IncludeRetried: gitlab.Bool(false)})
 	if err != nil {
 		return nil, "", err
 	}
