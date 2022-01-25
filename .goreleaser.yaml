@@ -38,13 +38,11 @@ brews:
     tap:
       owner: repo-owner
       name: homebrew-tap
-      # Optionally a token can be provided, if it differs from the token provided to GoReleaser
-      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
 
     # Template for the url which is determined by the given Token (github, gitlab or gitea)
     #
     # Default depends on the client.
-    url_template: "http://github.mycompany.com/foo/bar/releases/{{ .Tag }}/{{ .ArtifactName }}"
+    #url_template: "http://github.mycompany.com/foo/bar/releases/{{ .Tag }}/{{ .ArtifactName }}"
 
     # Git author used to commit to the repository.
     # Defaults are shown.
