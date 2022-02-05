@@ -31,24 +31,17 @@ changelog:
 # .goreleaser.yaml
 brews:
   -
-    # NOTE: make sure the url_template, the token and given repo (github or gitlab) owner and name are from the
-    # same kind. We will probably unify this in the next major version like it is done with scoop.
-
     # GitHub/GitLab repository to push the formula to
     tap:
-      owner: repo-owner
-      name: homebrew-tap
-
-    # Template for the url which is determined by the given Token (github, gitlab or gitea)
-    #
-    # Default depends on the client.
-    #url_template: "http://github.mycompany.com/foo/bar/releases/{{ .Tag }}/{{ .ArtifactName }}"
+      owner: steffakasid
+      name: homebrew-trivyops
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
 
     # Git author used to commit to the repository.
-    # Defaults are shown.
     commit_author:
       name: goreleaserbot
-      email: goreleaser@carlosbecker.com
+      email: goreleaser@steffen-rumpf.de
+
 
     # The project name and current git tag are used in the format string.
     commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
@@ -57,26 +50,6 @@ brews:
     # Default is the root folder.
     folder: Formula
 
-    # Caveats for the user of your binary.
-    # Default is empty.
-    caveats: "How to use this binary"
-
-    # Your app's homepage.
-    # Default is empty.
-    homepage: "https://example.com/"
-
-    # Template of your app's description.
-    # Default is empty.
-    description: "Software to create fast and easy drum rolls."
-
-    # SPDX identifier of your app's license.
-    # Default is empty.
-    license: "MIT"
-
-    # Setting this will prevent goreleaser to actually try to commit the updated
-    # formula - instead, the formula file will be stored on the dist folder only,
-    # leaving the responsibility of publishing it to the user.
-    # If set to auto, the release will not be uploaded to the homebrew tap
-    # in case there is an indicator for prerelease in the tag e.g. v1.0.0-rc1
-    # Default is false.
-    skip_upload: "true"
+    homepage: "https://github.com/steffakasid/trivy-project-scanner"
+    description: "This tool can be used to scan GitLab for trivy results"
+    license: "Apache-2.0"
