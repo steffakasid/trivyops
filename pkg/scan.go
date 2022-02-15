@@ -186,10 +186,15 @@ func (s scan) getTrivyResult(pid int, ref string) (report.Results, string, error
 	jsonReport := &report.Report{}
 	err = json.Unmarshal(bt, jsonReport)
 	if err != nil {
-		return nil, state, err
+		jsonResult := &report.Results{}
+		if err = json.Unmarshal(bt, jsonResult); err != nil {
+			return nil, state, err
+		} else {
+			return *jsonResult, state, nil
+		}
 	}
 
-	return jsonReport.Results, state, err
+	return jsonReport.Results, state, nil
 }
 
 func (s scan) unzipFromReader(rdr *bytes.Reader) ([]byte, error) {
