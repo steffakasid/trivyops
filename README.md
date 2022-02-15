@@ -47,7 +47,7 @@ if there is a .trivyignore defined in the default branch.
 ```yaml
 ---
 GITLAB_TOKEN: a;lsdkfya9s8df879
-GITLAB_HOST: https://git.tech.rz.db.de
+GITLAB_HOST: https://gitlab.com
 LOG_LEVEL: warn
 FILTER: ^dbs-businesshub\/(!smartlocker)|(bizhub.+)$
 ```
