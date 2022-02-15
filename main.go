@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"strconv"
@@ -26,7 +28,7 @@ func init() {
 	flag.StringP("job-name", "j", "scan_oci_image_trivy", "The gitlab ci jobname to check")
 	flag.StringP("artifact-name", "a", "trivy-results.json", "The artifact filename of the trivy result")
 	flag.StringP("filter", "f", "", "A golang regular expression to filter project name with namespace (e.g. (^.*/groupprefix.+$)|(^.*otherprefix.*))")
-	flag.StringP("output", "o", "text", "Define how to output results [text, table]")
+	flag.StringP("output", "o", "text", "Define how to output results [text, table, json]")
 	flag.Bool("v", false, "Get details")
 	flag.Bool("vv", false, "Get more details")
 	flag.Bool("vvv", false, "Get even more details")
@@ -111,10 +113,19 @@ func main() {
 		fmt.Println()
 		if strings.ToLower(viper.GetString("output")) == "table" {
 			printResultTbl(trivyResults)
+		} else if strings.ToLower(viper.GetString("output")) == "json" {
+			printResultJson(trivyResults)
 		} else {
 			printResultTxt(trivyResults)
 		}
 
+	}
+}
+
+func printResultJson(results pkg.TrivyResults) {
+	file, _ := json.Marshal(results)
+	if err := ioutil.WriteFile("result.json", file, 0644); err != nil {
+		panic(err)
 	}
 }
 
