@@ -49,7 +49,7 @@ Usage:
 
 Variables:
   - GITLAB_TOKEN		- the GitLab token to access the Gitlab instance
-  - GITLAB_HOST		- the GitLab host which should be accessed [Default: https://gitlab.com]
+  - GITLAB_HOST			- the GitLab host which should be accessed [Default: https://gitlab.com]
   - LOG_LEVEL			- the log level to use [Default: info]
 
 Examples:
