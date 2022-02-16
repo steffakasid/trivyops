@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"regexp"
 	"strings"
+	"sync"
 
 	"github.com/aquasecurity/trivy/pkg/report"
 	logger "github.com/sirupsen/logrus"
@@ -49,22 +50,45 @@ type scan struct {
 	Filter           string
 }
 
+var wg sync.WaitGroup
+
+const (
+	chunkSize = 10
+)
+
 func (s scan) ScanGroup() (TrivyResults, error) {
 	var (
 		projs []*gitlab.Project
 		err   error
 	)
 	if s.ID == "" {
-		projs, err = s.getAllUserProjects()
+		projs, err = getAllUserProjects()
 	} else {
-		projs, err = s.getAllGroupProjects()
+		projs, err = getAllGroupProjects(s.ID)
 	}
-
-	results := TrivyResults{}
 
 	if err != nil {
 		return nil, err
 	}
+
+	projectResults := make(chan *trivy)
+	for i := 0; i < len(projs); i += chunkSize {
+		if (i + chunkSize) > len(projs) {
+			go s.scanProjects(projs[i:len(projs)-1], projectResults)
+		} else {
+			go s.scanProjects(projs[i:i+chunkSize], projectResults)
+		}
+		wg.Add(1)
+	}
+	resultsChannel := make(chan TrivyResults)
+	go s.processResults(projectResults, resultsChannel)
+	wg.Wait()
+	close(projectResults)
+	results := <-resultsChannel
+	return results, nil
+}
+
+func (s scan) scanProjects(projs []*gitlab.Project, channel chan *trivy) {
 	var re *regexp.Regexp
 	if s.Filter != "" {
 		re = regexp.MustCompile(s.Filter)
@@ -72,15 +96,18 @@ func (s scan) ScanGroup() (TrivyResults, error) {
 
 	for _, proj := range projs {
 		if s.Filter == "" || len(re.FindAllString(proj.NameWithNamespace, -1)) > 0 {
+			var err error
+
 			logger.Infof("Scan project %s for trivy results\n", proj.NameWithNamespace)
-			projResult := &trivy{ProjName: proj.Name}
-			projResult.ReportResult, projResult.State, err = s.getTrivyResult(proj.ID, proj.DefaultBranch)
+			projResult, err := s.getTrivyJobResult(proj.ID, proj.DefaultBranch)
+			projResult.ProjName = proj.Name
+
 			if err != nil {
-				logger.WithField("Project", proj.Name).Errorln(err)
-			} else if projResult == nil {
-				logger.WithField("Project", proj.Name).Infoln("No trivyresult found!")
+				logger.WithField("Project", projResult.ProjName).Errorln(err)
+			} else if projResult.ReportResult == nil {
+				logger.WithField("Project", projResult.ProjName).Infoln("No trivyresult found!")
 			} else {
-				logger.WithField("Project", proj.Name).Debugln("Result", projResult)
+				logger.WithField("Project", projResult.ProjName).Debugln("Result", projResult)
 			}
 			projResult.Ignore, err = s.getTrivyIgnore(proj.ID, proj.DefaultBranch)
 			if err != nil {
@@ -90,81 +117,37 @@ func (s scan) ScanGroup() (TrivyResults, error) {
 			} else {
 				logger.WithField("Project", proj.Name).Debugln("Ignore", projResult.Ignore)
 			}
-			projResult.check()
-			if projResult.Ignore != nil || (projResult.ReportResult != nil && projResult.Vulnerabilities.Count > 0) {
-				results = append(results, projResult)
-			}
+
+			channel <- &projResult
 		} else {
 			logger.WithField("Project", proj.Name).Debugln("Filter out")
 		}
 	}
-	return results, nil
+	wg.Done()
 }
 
-func (s scan) getAllGroupProjects() ([]*gitlab.Project, error) {
-	allProjs := []*gitlab.Project{}
-	options := &gitlab.ListGroupProjectsOptions{
-		ListOptions: gitlab.ListOptions{
-			PerPage: 100,
-			Page:    1,
-		},
-		Archived:         gitlab.Bool(false),
-		IncludeSubgroups: gitlab.Bool(true),
-	}
-
-	for {
-		projs, resp, err := git.Groups.ListGroupProjects(s.ID, options)
-		if err != nil {
-			return allProjs, err
+func (s scan) processResults(projResults chan *trivy, resultsChannel chan TrivyResults) {
+	results := TrivyResults{}
+	for scanResult := range projResults {
+		scanResult.check()
+		if scanResult.Ignore != nil || (scanResult.ReportResult != nil && scanResult.Vulnerabilities.Count > 0) {
+			results = append(results, scanResult)
 		}
-
-		allProjs = append(allProjs, projs...)
-
-		if resp.CurrentPage >= resp.TotalPages {
-			break
-		}
-		options.Page = resp.NextPage
 	}
-	return allProjs, nil
+	resultsChannel <- results
+	close(resultsChannel)
 }
 
-func (s scan) getAllUserProjects() ([]*gitlab.Project, error) {
-	allProjs := []*gitlab.Project{}
-	options := &gitlab.ListProjectsOptions{
-		ListOptions: gitlab.ListOptions{
-			PerPage: 100,
-			Page:    1,
-		},
-		Archived:       gitlab.Bool(false),
-		MinAccessLevel: gitlab.AccessLevel(gitlab.DeveloperPermissions),
-	}
-
-	for {
-		projs, resp, err := git.Projects.ListProjects(options)
-		if err != nil {
-			return allProjs, err
-		}
-
-		allProjs = append(allProjs, projs...)
-
-		if resp.CurrentPage >= resp.TotalPages {
-			break
-		}
-		options.Page = resp.NextPage
-	}
-	return allProjs, nil
-}
-
-func (s scan) getTrivyResult(pid int, ref string) (report.Results, string, error) {
+func (s scan) getTrivyJobResult(pid int, ref string) (trivy, error) {
+	projResult := trivy{}
 	jobs, _, err := git.Jobs.ListProjectJobs(pid, &gitlab.ListJobsOptions{IncludeRetried: gitlab.Bool(false)})
 	if err != nil {
-		return nil, "", err
+		return projResult, err
 	}
 
-	var state string
 	for _, job := range jobs {
 		if job.Name == s.JobName {
-			state = job.Status
+			projResult.State = job.Status
 			break
 		}
 	}
@@ -172,15 +155,15 @@ func (s scan) getTrivyResult(pid int, ref string) (report.Results, string, error
 	rdr, res, err := git.Jobs.DownloadArtifactsFile(pid, ref, &gitlab.DownloadArtifactsFileOptions{Job: gitlab.String(s.JobName)})
 	if err != nil {
 		if res != nil && res.StatusCode == 404 {
-			return nil, state, nil
+			return projResult, nil
 		} else {
-			return nil, state, err
+			return projResult, err
 		}
 	}
 
 	bt, err := s.unzipFromReader(rdr)
 	if err != nil {
-		return nil, state, err
+		return projResult, err
 	}
 
 	jsonReport := &report.Report{}
@@ -188,13 +171,33 @@ func (s scan) getTrivyResult(pid int, ref string) (report.Results, string, error
 	if err != nil {
 		jsonResult := &report.Results{}
 		if err = json.Unmarshal(bt, jsonResult); err != nil {
-			return nil, state, err
+			return projResult, err
 		} else {
-			return *jsonResult, state, nil
+			projResult.ReportResult = *jsonResult
+			return projResult, nil
 		}
 	}
 
-	return jsonReport.Results, state, nil
+	projResult.ReportResult = jsonReport.Results
+	return projResult, err
+}
+
+func (s scan) getTrivyIgnore(pid int, ref string) ([]string, error) {
+	bt, res, err := git.RepositoryFiles.GetRawFile(pid, ".trivyignore", &gitlab.GetRawFileOptions{Ref: gitlab.String(ref)})
+	if err != nil {
+		if res.StatusCode == 404 {
+			return nil, nil
+		} else {
+			return nil, err
+		}
+	}
+	var ignores []string
+	for _, str := range strings.Split(string(bt), "\n") {
+		if !strings.HasPrefix(str, "#") {
+			ignores = append(ignores, str)
+		}
+	}
+	return ignores, nil
 }
 
 func (s scan) unzipFromReader(rdr *bytes.Reader) ([]byte, error) {
@@ -217,28 +220,10 @@ func (s scan) unzipFromReader(rdr *bytes.Reader) ([]byte, error) {
 			if err != nil {
 				return nil, err
 			}
-			logger.Debug("read %d byte", len(bt))
+			logger.Debugf("read %d byte", len(bt))
 			rc.Close()
 			return bt, nil
 		}
 	}
 	return nil, fmt.Errorf("didn't find %s in zip", s.ArtifactFileName)
-}
-
-func (s scan) getTrivyIgnore(pid int, ref string) ([]string, error) {
-	bt, res, err := git.RepositoryFiles.GetRawFile(pid, ".trivyignore", &gitlab.GetRawFileOptions{Ref: gitlab.String(ref)})
-	if err != nil {
-		if res.StatusCode == 404 {
-			return nil, nil
-		} else {
-			return nil, err
-		}
-	}
-	var ignores []string
-	for _, str := range strings.Split(string(bt), "\n") {
-		if !strings.HasPrefix(str, "#") {
-			ignores = append(ignores, str)
-		}
-	}
-	return ignores, nil
 }
