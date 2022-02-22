@@ -75,7 +75,7 @@ func getAllUserProjects() ([]*gitlab.Project, error) {
 	projChannel := make(chan wrapper, resp.TotalPages)
 	allProjs = append(allProjs, projs...)
 
-	for i := 1; i <= resp.TotalPages; i++ {
+	for i := 2; i <= resp.TotalPages; i++ {
 		options.ListOptions.Page = i
 		wg.Add(1)
 		go listProjectsWrapper(*options, projChannel, &wg)
