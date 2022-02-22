@@ -21,6 +21,7 @@ const (
 	ARTIFACT     = "artifact-name"
 	FILTER       = "filter"
 	OUTPUT       = "output"
+	OUTPUT_FILE  = "output-file"
 	DAEMON       = "daemon"
 	V            = "v"
 	VV           = "vv"
@@ -38,6 +39,7 @@ func init() {
 	flag.StringP(ARTIFACT, "a", "trivy-results.json", "The artifact filename of the trivy result")
 	flag.StringP(FILTER, "f", "", "A golang regular expression to filter project name with namespace (e.g. (^.*/groupprefix.+$)|(^.*otherprefix.*))")
 	flag.StringP(OUTPUT, "o", "text", "Define how to output results [text, table, json]")
+	flag.String(OUTPUT_FILE, "", "Define a file to output the result json")
 	flag.BoolP(DAEMON, "d", false, "Set trivyops to deamon mode to be able to publish prometheus metrics")
 	flag.Bool(V, false, "Get details")
 	flag.Bool(VV, false, "Get more details")
