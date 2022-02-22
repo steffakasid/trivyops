@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/briandowns/spinner"
+	logger "github.com/sirupsen/logrus"
 	flag "github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"github.com/steffakasid/trivy-scanner/pkg"
@@ -15,17 +16,34 @@ import (
 
 var version = "0.1-dev"
 
+const (
+	JOB_NAME     = "job-name"
+	ARTIFACT     = "artifact-name"
+	FILTER       = "filter"
+	OUTPUT       = "output"
+	DAEMON       = "daemon"
+	V            = "v"
+	VV           = "vv"
+	VVV          = "vvv"
+	HELP         = "help"
+	VERSION      = "version"
+	TOKEN        = "GITLAB_TOKEN"
+	HOST         = "GITLAB_HOST"
+	LOG_LEVEL    = "LOG_LEVEL"
+	METRICS_PORT = "METRICS_PORT"
+)
+
 func init() {
-	flag.StringP("job-name", "j", "scan_oci_image_trivy", "The gitlab ci jobname to check")
-	flag.StringP("artifact-name", "a", "trivy-results.json", "The artifact filename of the trivy result")
-	flag.StringP("filter", "f", "", "A golang regular expression to filter project name with namespace (e.g. (^.*/groupprefix.+$)|(^.*otherprefix.*))")
-	flag.StringP("output", "o", "text", "Define how to output results [text, table, json]")
-	flag.BoolP("daemon", "d", false, "Set trivyops to deamon mode to be able to publish prometheus metrics")
-	flag.Bool("v", false, "Get details")
-	flag.Bool("vv", false, "Get more details")
-	flag.Bool("vvv", false, "Get even more details")
-	flag.Bool("help", false, "Print help message")
-	flag.Bool("version", false, "Print version information")
+	flag.StringP(JOB_NAME, "j", "scan_oci_image_trivy", "The gitlab ci jobname to check")
+	flag.StringP(ARTIFACT, "a", "trivy-results.json", "The artifact filename of the trivy result")
+	flag.StringP(FILTER, "f", "", "A golang regular expression to filter project name with namespace (e.g. (^.*/groupprefix.+$)|(^.*otherprefix.*))")
+	flag.StringP(OUTPUT, "o", "text", "Define how to output results [text, table, json]")
+	flag.BoolP(DAEMON, "d", false, "Set trivyops to deamon mode to be able to publish prometheus metrics")
+	flag.Bool(V, false, "Get details")
+	flag.Bool(VV, false, "Get more details")
+	flag.Bool(VVV, false, "Get even more details")
+	flag.Bool(HELP, false, "Print help message")
+	flag.Bool(VERSION, false, "Print version information")
 
 	flag.Usage = func() {
 		w := os.Stderr
@@ -43,6 +61,7 @@ Variables:
   - GITLAB_TOKEN		- the GitLab token to access the Gitlab instance
   - GITLAB_HOST			- the GitLab host which should be accessed [Default: https://gitlab.com]
   - LOG_LEVEL			- the log level to use [Default: info]
+  - METRICS_PORT		- the metrics endpoint when running in daemon mode [Default: 2112]
 
 Examples:
   trivyops 1234    				- get all trivy results from 1234
@@ -56,28 +75,43 @@ Flags:`)
 	}
 	flag.Parse()
 
-	viper.BindPFlags(flag.CommandLine)
+	err := viper.BindPFlags(flag.CommandLine)
+	if err != nil {
+		logger.Error(err)
+	}
 
-	viper.BindEnv("GITLAB_TOKEN")
-	viper.SetDefault("GITLAB_HOST", "https://gitlab.com")
-	viper.SetDefault("LOG_LEVEL", "info")
+	err = viper.BindEnv(TOKEN)
+	if err != nil {
+		logger.Error(err)
+	}
+	viper.SetDefault(HOST, "https://gitlab.com")
+	viper.SetDefault(LOG_LEVEL, "info")
+	viper.SetDefault(METRICS_PORT, 2112)
 
 	viper.SetConfigName(".trivyops")
 	viper.SetConfigType("yaml")
 	viper.AutomaticEnv()
 	viper.AddConfigPath("$HOME/")
-	err := viper.ReadInConfig()
+	err = viper.ReadInConfig()
 	if err != nil {
-		fmt.Println(err)
+		logger.Error(err)
 	}
 }
 
 var scan pkg.Scan
 
 func main() {
-	if viper.GetBool("version") {
+	lvl, err := logger.ParseLevel(viper.GetString(LOG_LEVEL))
+
+	if err != nil {
+		logger.Error(err)
+		lvl = logger.InfoLevel
+	}
+	logger.SetLevel(lvl)
+
+	if viper.GetBool(VERSION) {
 		fmt.Printf("Trivyops version: %s\n", version)
-	} else if viper.GetBool("help") {
+	} else if viper.GetBool(HELP) {
 		flag.Usage()
 	} else {
 		args := flag.Args()
@@ -92,12 +126,12 @@ func main() {
 		if len(args) > 0 {
 			groupId = args[0]
 		}
-		scan = pkg.InitScanner(groupId, viper.GetString("job-name"), viper.GetString("artifact-name"), viper.GetString("filter"))
+		scan = pkg.InitScanner(groupId, viper.GetString(JOB_NAME), viper.GetString(ARTIFACT), viper.GetString(FILTER), viper.GetString(TOKEN), viper.GetString(HOST), viper.GetString(LOG_LEVEL))
 
-		if viper.GetBool("daemon") {
-			doScanWithOutput()
-		} else {
+		if viper.GetBool(DAEMON) {
 			startDaemon()
+		} else {
+			doScanWithOutput()
 		}
 	}
 }
@@ -108,14 +142,14 @@ func doScanWithOutput() {
 
 	trivyResults, err := scan.ScanGroup()
 	if err != nil {
-		log.Fatalf("Failed to scan trivy results: %s!", err)
+		logger.Fatalf("Failed to scan trivy results: %s!", err)
 	}
 	trivyResults.Check()
 	s.Stop()
 	fmt.Println()
-	if strings.ToLower(viper.GetString("output")) == "table" {
+	if strings.ToLower(viper.GetString(OUTPUT)) == "table" {
 		printResultTbl(trivyResults)
-	} else if strings.ToLower(viper.GetString("output")) == "json" {
+	} else if strings.ToLower(viper.GetString(OUTPUT)) == "json" {
 		printResultJson(trivyResults)
 	} else {
 		printResultTxt(trivyResults)

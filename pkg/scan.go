@@ -12,30 +12,20 @@ import (
 
 	"github.com/aquasecurity/trivy/pkg/report"
 	logger "github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 	"github.com/xanzy/go-gitlab"
 )
 
-func InitScanner(id, jobname, artifactFileName, filter string) Scan {
-	gitToken := viper.GetString("GITLAB_TOKEN")
-	if gitToken == "" {
+var git *gitlab.Client
+
+func InitScanner(id, jobname, artifactFileName, filter string, token string, host string, logLevel string) Scan {
+	var err error
+
+	if token == "" {
 		logger.Fatal("No GITLAB_TOKEN env var set!")
 	}
 
-	gitHost := viper.GetString("GITLAB_HOST")
-
-	logLvl := viper.GetString("LOG_LEVEL")
-
-	lvl, err := logger.ParseLevel(logLvl)
-
-	if err != nil {
-		logger.Error(err)
-		lvl = logger.InfoLevel
-	}
-	logger.SetLevel(lvl)
-
-	logger.Debugf("Creating client for host %s", gitHost)
-	git, err = gitlab.NewClient(gitToken, gitlab.WithBaseURL(gitHost))
+	logger.Debugf("Creating client for host %s", host)
+	git, err = gitlab.NewClient(token, gitlab.WithBaseURL(host))
 	if err != nil {
 		logger.Fatalf("Failed to create client: %v", err)
 	}

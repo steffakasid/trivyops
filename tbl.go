@@ -26,11 +26,11 @@ func printResultTbl(results pkg.TrivyResults) {
 
 		summaryTable := newLightTableWriter()
 		summaryTable.AppendHeader(table.Row{"Job", "Status", "Scanned Packages", "Vulnerabilities"})
-		summaryTable.AppendRow(table.Row{viper.GetString("job-name"), projResult.State, len(projResult.ReportResult), projResult.Vulnerabilities.Count})
+		summaryTable.AppendRow(table.Row{viper.GetString(JOB_NAME), projResult.State, len(projResult.ReportResult), projResult.Vulnerabilities.Count})
 		projectTbl.AppendRow(table.Row{"Summary", summaryTable.Render()})
 		projectTbl.AppendSeparator()
 
-		if viper.GetBool("v") || viper.GetBool("vv") || viper.GetBool("vvv") {
+		if viper.GetBool(V) || viper.GetBool(VV) || viper.GetBool(VVV) {
 			printResultDetailsTbl(projectTbl, projResult.ReportResult)
 		}
 		tw.AppendRow(table.Row{projectTbl.Render()})
@@ -44,7 +44,7 @@ func printResultDetailsTbl(projTbl table.Writer, res report.Results) {
 	for _, tgt := range res {
 		detailsLvl2 := table.NewWriter()
 		detailsLvl2.SetStyle(table.StyleLight)
-		if (viper.GetBool("vv") || viper.GetBool("vvv")) && len(tgt.Vulnerabilities) > 0 {
+		if (viper.GetBool(VV) || viper.GetBool(VVV)) && len(tgt.Vulnerabilities) > 0 {
 			detailsLvl2.SetColumnConfigs([]table.ColumnConfig{
 				{Number: 1, WidthMax: 30},
 				{Number: 2, WidthMax: 30},
@@ -55,13 +55,13 @@ func printResultDetailsTbl(projTbl table.Writer, res report.Results) {
 				{Number: 7, WidthMin: 15, WidthMax: 15},
 			})
 			headerRow := table.Row{"Pkg", "ID", "Severity", "Title", "IsFixable"}
-			if viper.GetBool("vvv") {
+			if viper.GetBool(VVV) {
 				headerRow = append(headerRow, "InstalledVersion", "FixedVersion")
 			}
 			detailsLvl2.AppendHeader(headerRow)
 			for _, pkg := range tgt.Vulnerabilities {
 				row := table.Row{pkg.PkgName, pkg.VulnerabilityID, pkg.Severity, pkg.Title, (pkg.FixedVersion != "")}
-				if viper.GetBool("vvv") {
+				if viper.GetBool(VVV) {
 					row = append(row, pkg.InstalledVersion, pkg.FixedVersion)
 				}
 				detailsLvl2.AppendRow(row)

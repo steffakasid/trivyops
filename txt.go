@@ -26,7 +26,7 @@ func printResultTxt(results pkg.TrivyResults) {
 			padInt(len(projResult.ReportResult), 3, " "),
 			padInt(projResult.Vulnerabilities.Count, 3, " "),
 			(len(projResult.Ignore) > 0))
-		if viper.GetBool("v") || viper.GetBool("vv") || viper.GetBool("vvv") {
+		if viper.GetBool(V) || viper.GetBool(VV) || viper.GetBool(VVV) {
 			printResultDetailsTxt(projResult.ReportResult)
 		}
 	}
@@ -37,7 +37,7 @@ func printResultDetailsTxt(res report.Results) {
 	lvl1 := strings.Repeat(" ", 2)
 	lvl2 := strings.Repeat(" ", 4)
 	for _, tgt := range res {
-		if viper.GetBool("v") {
+		if viper.GetBool(V) {
 			crit, hi, med, lo, un := pkg.GetSummary(tgt.Vulnerabilities)
 			fmt.Printf("%s%s| Critical %s | High %s | Medium %s | Low %s | Unkown %s\n",
 				lvl1,
@@ -59,7 +59,7 @@ func printResultDetailsTxt(res report.Results) {
 						vulli.Severity,
 						cut(vulli.Title, maxTitleLen),
 						(vulli.FixedVersion != ""))
-					if viper.GetBool("vvv") {
+					if viper.GetBool(VVV) {
 						fmt.Printf(" | InstalledVersion: %s | FixedVersion %s", vulli.InstalledVersion, vulli.FixedVersion)
 					}
 					fmt.Println()

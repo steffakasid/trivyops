@@ -3,10 +3,7 @@ package pkg
 import (
 	"github.com/aquasecurity/trivy/pkg/report"
 	"github.com/aquasecurity/trivy/pkg/types"
-	"github.com/xanzy/go-gitlab"
 )
-
-var git *gitlab.Client
 
 type trivy struct {
 	ProjId          int
