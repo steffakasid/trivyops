@@ -16,7 +16,7 @@ import (
 	"github.com/xanzy/go-gitlab"
 )
 
-func InitScanner(id, jobname, artifactFileName, filter string) scan {
+func InitScanner(id, jobname, artifactFileName, filter string) Scan {
 	gitToken := viper.GetString("GITLAB_TOKEN")
 	if gitToken == "" {
 		logger.Fatal("No GITLAB_TOKEN env var set!")
@@ -40,10 +40,10 @@ func InitScanner(id, jobname, artifactFileName, filter string) scan {
 		logger.Fatalf("Failed to create client: %v", err)
 	}
 
-	return scan{ID: id, JobName: jobname, ArtifactFileName: artifactFileName, Filter: filter}
+	return Scan{ID: id, JobName: jobname, ArtifactFileName: artifactFileName, Filter: filter}
 }
 
-type scan struct {
+type Scan struct {
 	ID               string
 	JobName          string
 	ArtifactFileName string
@@ -56,7 +56,7 @@ const (
 	chunkSize = 10
 )
 
-func (s scan) ScanGroup() (TrivyResults, error) {
+func (s Scan) ScanGroup() (TrivyResults, error) {
 	var (
 		projs []*gitlab.Project
 		err   error
@@ -88,7 +88,7 @@ func (s scan) ScanGroup() (TrivyResults, error) {
 	return results, nil
 }
 
-func (s scan) scanProjects(projs []*gitlab.Project, channel chan *trivy) {
+func (s Scan) scanProjects(projs []*gitlab.Project, channel chan *trivy) {
 	var re *regexp.Regexp
 	if s.Filter != "" {
 		re = regexp.MustCompile(s.Filter)
@@ -100,6 +100,7 @@ func (s scan) scanProjects(projs []*gitlab.Project, channel chan *trivy) {
 
 			logger.Infof("Scan project %s for trivy results\n", proj.NameWithNamespace)
 			projResult, err := s.getTrivyJobResult(proj.ID, proj.DefaultBranch)
+			projResult.ProjId = proj.ID
 			projResult.ProjName = proj.Name
 
 			if err != nil {
@@ -126,7 +127,7 @@ func (s scan) scanProjects(projs []*gitlab.Project, channel chan *trivy) {
 	wg.Done()
 }
 
-func (s scan) processResults(projResults chan *trivy, resultsChannel chan TrivyResults) {
+func (s Scan) processResults(projResults chan *trivy, resultsChannel chan TrivyResults) {
 	results := TrivyResults{}
 	for scanResult := range projResults {
 		scanResult.check()
@@ -138,7 +139,7 @@ func (s scan) processResults(projResults chan *trivy, resultsChannel chan TrivyR
 	close(resultsChannel)
 }
 
-func (s scan) getTrivyJobResult(pid int, ref string) (trivy, error) {
+func (s Scan) getTrivyJobResult(pid int, ref string) (trivy, error) {
 	projResult := trivy{}
 	jobs, _, err := git.Jobs.ListProjectJobs(pid, &gitlab.ListJobsOptions{IncludeRetried: gitlab.Bool(false)})
 	if err != nil {
@@ -182,7 +183,7 @@ func (s scan) getTrivyJobResult(pid int, ref string) (trivy, error) {
 	return projResult, err
 }
 
-func (s scan) getTrivyIgnore(pid int, ref string) ([]string, error) {
+func (s Scan) getTrivyIgnore(pid int, ref string) ([]string, error) {
 	bt, res, err := git.RepositoryFiles.GetRawFile(pid, ".trivyignore", &gitlab.GetRawFileOptions{Ref: gitlab.String(ref)})
 	if err != nil {
 		if res.StatusCode == 404 {
@@ -200,7 +201,7 @@ func (s scan) getTrivyIgnore(pid int, ref string) ([]string, error) {
 	return ignores, nil
 }
 
-func (s scan) unzipFromReader(rdr *bytes.Reader) ([]byte, error) {
+func (s Scan) unzipFromReader(rdr *bytes.Reader) ([]byte, error) {
 	unzip, err := zip.NewReader(rdr, rdr.Size())
 	if err != nil {
 		logger.Error("Error unzip")

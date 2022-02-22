@@ -9,6 +9,7 @@ import (
 var git *gitlab.Client
 
 type trivy struct {
+	ProjId          int
 	ProjName        string
 	State           string
 	Vulnerabilities vulnerabilities
