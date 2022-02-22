@@ -5,6 +5,12 @@ This tool can be used to receive all trivy results from a GitLab group. The tool
 scans all subgroups and prints out a result a GitLab CI trivy scan job and checks
 if there is a .trivyignore defined in the default branch.
 
+## Installation:
+
+`brew install steffakasid/trivyops/trivyops`
+
+Or `brew tap steffakasid/trivyops` and then `brew install trivyops`.
+
 ## Usage:
   `trivyops [flags] GITLAB_GROUP_ID`
 
