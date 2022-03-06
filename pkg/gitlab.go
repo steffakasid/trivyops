@@ -7,12 +7,20 @@ import (
 	"github.com/xanzy/go-gitlab"
 )
 
+type GitLabGroups interface {
+	ListGroupProjects(gid interface{}, opt *gitlab.ListGroupProjectsOptions, options ...gitlab.RequestOptionFunc) ([]*gitlab.Project, *gitlab.Response, error)
+}
+
+type GitLabProjects interface {
+	ListProjects(opt *gitlab.ListProjectsOptions, options ...gitlab.RequestOptionFunc) ([]*gitlab.Project, *gitlab.Response, error)
+}
+
 type wrapper struct {
 	projs []*gitlab.Project
 	err   error
 }
 
-func getAllGroupProjects(groupId string) ([]*gitlab.Project, error) {
+func getAllGroupProjects(groupId string, gitlabGroups GitLabGroups) ([]*gitlab.Project, error) {
 	allProjs := []*gitlab.Project{}
 	var options *gitlab.ListGroupProjectsOptions = &gitlab.ListGroupProjectsOptions{
 		ListOptions: gitlab.ListOptions{
@@ -24,7 +32,7 @@ func getAllGroupProjects(groupId string) ([]*gitlab.Project, error) {
 	}
 	var wg sync.WaitGroup
 
-	projs, resp, err := git.Groups.ListGroupProjects(groupId, options)
+	projs, resp, err := gitlabGroups.ListGroupProjects(groupId, options)
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +42,7 @@ func getAllGroupProjects(groupId string) ([]*gitlab.Project, error) {
 	for i := 2; i <= resp.TotalPages; i++ {
 		options.Page = i
 		wg.Add(1)
-		go listGroupProjectsWrapper(groupId, *options, projChannel, &wg)
+		go listGroupProjectsWrapper(groupId, gitlabGroups, *options, projChannel, &wg)
 	}
 	wg.Wait()
 	close(projChannel)
@@ -50,13 +58,13 @@ func getAllGroupProjects(groupId string) ([]*gitlab.Project, error) {
 	return allProjs, nil
 }
 
-func listGroupProjectsWrapper(grpId string, options gitlab.ListGroupProjectsOptions, resultChannel chan wrapper, wg *sync.WaitGroup) {
-	projs, _, err := git.Groups.ListGroupProjects(grpId, &options)
+func listGroupProjectsWrapper(grpId string, gitlabGroups GitLabGroups, options gitlab.ListGroupProjectsOptions, resultChannel chan wrapper, wg *sync.WaitGroup) {
+	projs, _, err := gitlabGroups.ListGroupProjects(grpId, &options)
 	resultChannel <- wrapper{projs, err}
 	wg.Done()
 }
 
-func getAllUserProjects() ([]*gitlab.Project, error) {
+func getAllUserProjects(gitlabProjects GitLabProjects) ([]*gitlab.Project, error) {
 	allProjs := []*gitlab.Project{}
 	options := &gitlab.ListProjectsOptions{
 		ListOptions: gitlab.ListOptions{
@@ -68,7 +76,7 @@ func getAllUserProjects() ([]*gitlab.Project, error) {
 	}
 	var wg sync.WaitGroup
 
-	projs, resp, err := git.Projects.ListProjects(options)
+	projs, resp, err := gitlabProjects.ListProjects(options)
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +86,7 @@ func getAllUserProjects() ([]*gitlab.Project, error) {
 	for i := 2; i <= resp.TotalPages; i++ {
 		options.ListOptions.Page = i
 		wg.Add(1)
-		go listProjectsWrapper(*options, projChannel, &wg)
+		go listProjectsWrapper(*options, gitlabProjects, projChannel, &wg)
 	}
 	wg.Wait()
 	close(projChannel)
@@ -94,8 +102,8 @@ func getAllUserProjects() ([]*gitlab.Project, error) {
 	return allProjs, nil
 }
 
-func listProjectsWrapper(options gitlab.ListProjectsOptions, resultCHannel chan wrapper, wg *sync.WaitGroup) {
-	projs, _, err := git.Projects.ListProjects(&options)
+func listProjectsWrapper(options gitlab.ListProjectsOptions, gitlabProjects GitLabProjects, resultCHannel chan wrapper, wg *sync.WaitGroup) {
+	projs, _, err := gitlabProjects.ListProjects(&options)
 	resultCHannel <- wrapper{projs, err}
 	wg.Done()
 }

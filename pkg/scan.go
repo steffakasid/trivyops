@@ -12,29 +12,49 @@ import (
 
 	"github.com/aquasecurity/trivy/pkg/types"
 	logger "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	"github.com/xanzy/go-gitlab"
 )
 
-var git *gitlab.Client
+type GitLabJobs interface {
+	ListProjectJobs(pid interface{}, opts *gitlab.ListJobsOptions, options ...gitlab.RequestOptionFunc) ([]*gitlab.Job, *gitlab.Response, error)
+	DownloadArtifactsFile(pid interface{}, refName string, opt *gitlab.DownloadArtifactsFileOptions, options ...gitlab.RequestOptionFunc) (*bytes.Reader, *gitlab.Response, error)
+}
 
-func InitScanner(id, jobname, artifactFileName, filter string, token string, host string, logLevel string) Scan {
-	var err error
+type GitLabRepositoryFiles interface {
+	GetRawFile(pid interface{}, fileName string, opt *gitlab.GetRawFileOptions, options ...gitlab.RequestOptionFunc) ([]byte, *gitlab.Response, error)
+}
 
-	if token == "" {
+func InitScanner(id, jobname, artifactFileName, filter, token, host, logLevel string) Scan {
+	gitToken := viper.GetString("GITLAB_TOKEN")
+	if gitToken == "" {
 		logger.Fatal("No GITLAB_TOKEN env var set!")
 	}
 
-	logger.Debugf("Creating client for host %s", host)
-	git, err = gitlab.NewClient(token, gitlab.WithBaseURL(host))
+	gitHost := viper.GetString("GITLAB_HOST")
+
+	logLvl := viper.GetString("LOG_LEVEL")
+
+	lvl, err := logger.ParseLevel(logLvl)
+
+	if err != nil {
+		logger.Error(err)
+		lvl = logger.InfoLevel
+	}
+	logger.SetLevel(lvl)
+
+	logger.Debugf("Creating client for host %s", gitHost)
+	git, err := gitlab.NewClient(gitToken, gitlab.WithBaseURL(gitHost))
 	if err != nil {
 		logger.Fatalf("Failed to create client: %v", err)
 	}
 
-	return Scan{ID: id, JobName: jobname, ArtifactFileName: artifactFileName, Filter: filter}
+	return Scan{ID: id, GitLabClient: git, JobName: jobname, ArtifactFileName: artifactFileName, Filter: filter}
 }
 
 type Scan struct {
 	ID               string
+	GitLabClient     *gitlab.Client
 	JobName          string
 	ArtifactFileName string
 	Filter           string
@@ -52,9 +72,9 @@ func (s Scan) ScanGroup() (TrivyResults, error) {
 		err   error
 	)
 	if s.ID == "" {
-		projs, err = getAllUserProjects()
+		projs, err = getAllUserProjects(s.GitLabClient.Projects)
 	} else {
-		projs, err = getAllGroupProjects(s.ID)
+		projs, err = getAllGroupProjects(s.ID, s.GitLabClient.Groups)
 	}
 
 	if err != nil {
@@ -89,7 +109,7 @@ func (s Scan) scanProjects(projs []*gitlab.Project, channel chan *trivy) {
 			var err error
 
 			logger.Infof("Scan project %s for trivy results\n", proj.NameWithNamespace)
-			projResult, err := s.getTrivyJobResult(proj.ID, proj.DefaultBranch)
+			projResult, err := s.getTrivyJobResult(proj.ID, proj.DefaultBranch, s.GitLabClient.Jobs)
 			projResult.ProjId = proj.ID
 			projResult.ProjName = proj.Name
 
@@ -100,7 +120,7 @@ func (s Scan) scanProjects(projs []*gitlab.Project, channel chan *trivy) {
 			} else {
 				logger.WithField("Project", projResult.ProjName).Debugln("Result", projResult)
 			}
-			projResult.Ignore, err = s.getTrivyIgnore(proj.ID, proj.DefaultBranch)
+			projResult.Ignore, err = s.getTrivyIgnore(proj.ID, proj.DefaultBranch, s.GitLabClient.RepositoryFiles)
 			if err != nil {
 				logger.WithField("Project", proj.Name).Errorln(err)
 			} else if projResult.Ignore == nil {
@@ -129,9 +149,9 @@ func (s Scan) processResults(projResults chan *trivy, resultsChannel chan TrivyR
 	close(resultsChannel)
 }
 
-func (s Scan) getTrivyJobResult(pid int, ref string) (trivy, error) {
+func (s Scan) getTrivyJobResult(pid int, ref string, gitlabJobs GitLabJobs) (trivy, error) {
 	projResult := trivy{}
-	jobs, _, err := git.Jobs.ListProjectJobs(pid, &gitlab.ListJobsOptions{IncludeRetried: gitlab.Bool(false)})
+	jobs, _, err := gitlabJobs.ListProjectJobs(pid, &gitlab.ListJobsOptions{IncludeRetried: gitlab.Bool(false)})
 	if err != nil {
 		return projResult, err
 	}
@@ -143,7 +163,7 @@ func (s Scan) getTrivyJobResult(pid int, ref string) (trivy, error) {
 		}
 	}
 
-	rdr, res, err := git.Jobs.DownloadArtifactsFile(pid, ref, &gitlab.DownloadArtifactsFileOptions{Job: gitlab.String(s.JobName)})
+	rdr, res, err := gitlabJobs.DownloadArtifactsFile(pid, ref, &gitlab.DownloadArtifactsFileOptions{Job: gitlab.String(s.JobName)})
 	if err != nil {
 		if res != nil && res.StatusCode == 404 {
 			return projResult, nil
@@ -173,8 +193,8 @@ func (s Scan) getTrivyJobResult(pid int, ref string) (trivy, error) {
 	return projResult, err
 }
 
-func (s Scan) getTrivyIgnore(pid int, ref string) ([]string, error) {
-	bt, res, err := git.RepositoryFiles.GetRawFile(pid, ".trivyignore", &gitlab.GetRawFileOptions{Ref: gitlab.String(ref)})
+func (s Scan) getTrivyIgnore(pid int, ref string, gitlabRepoFiles GitLabRepositoryFiles) ([]string, error) {
+	bt, res, err := gitlabRepoFiles.GetRawFile(pid, ".trivyignore", &gitlab.GetRawFileOptions{Ref: gitlab.String(ref)})
 	if err != nil {
 		if res.StatusCode == 404 {
 			return nil, nil
