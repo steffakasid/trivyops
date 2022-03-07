@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/aquasecurity/trivy/pkg/report"
+	"github.com/aquasecurity/trivy/pkg/types"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/spf13/viper"
 	"github.com/steffakasid/trivy-scanner/pkg"
@@ -40,7 +40,7 @@ func printResultTbl(results pkg.TrivyResults) {
 	fmt.Println(tw.Render())
 }
 
-func printResultDetailsTbl(projTbl table.Writer, res report.Results) {
+func printResultDetailsTbl(projTbl table.Writer, res types.Results) {
 	for _, tgt := range res {
 		detailsLvl2 := table.NewWriter()
 		detailsLvl2.SetStyle(table.StyleLight)

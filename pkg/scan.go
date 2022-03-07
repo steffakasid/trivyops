@@ -10,7 +10,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/aquasecurity/trivy/pkg/report"
+	"github.com/aquasecurity/trivy/pkg/types"
 	logger "github.com/sirupsen/logrus"
 	"github.com/xanzy/go-gitlab"
 )
@@ -157,10 +157,10 @@ func (s Scan) getTrivyJobResult(pid int, ref string) (trivy, error) {
 		return projResult, err
 	}
 
-	jsonReport := &report.Report{}
+	jsonReport := &types.Report{}
 	err = json.Unmarshal(bt, jsonReport)
 	if err != nil {
-		jsonResult := &report.Results{}
+		jsonResult := &types.Results{}
 		if err = json.Unmarshal(bt, jsonResult); err != nil {
 			return projResult, err
 		} else {

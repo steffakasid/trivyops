@@ -5,7 +5,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/aquasecurity/trivy/pkg/report"
 	"github.com/aquasecurity/trivy/pkg/types"
 	"github.com/spf13/viper"
 	"github.com/steffakasid/trivy-scanner/pkg"
@@ -32,7 +31,7 @@ func printResultTxt(results pkg.TrivyResults) {
 	}
 }
 
-func printResultDetailsTxt(res report.Results) {
+func printResultDetailsTxt(res types.Results) {
 	maxTgtNLen := maxTgtNameLen(res)
 	lvl1 := strings.Repeat(" ", 2)
 	lvl2 := strings.Repeat(" ", 4)
@@ -84,7 +83,7 @@ func maxProjNameLen(projs pkg.TrivyResults) int {
 	return maxLen
 }
 
-func maxTgtNameLen(results report.Results) int {
+func maxTgtNameLen(results types.Results) int {
 	maxLen := 0
 	for _, res := range results {
 		targetLen := len(res.Target)

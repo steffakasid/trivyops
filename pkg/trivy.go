@@ -1,7 +1,6 @@
 package pkg
 
 import (
-	"github.com/aquasecurity/trivy/pkg/report"
 	"github.com/aquasecurity/trivy/pkg/types"
 )
 
@@ -11,7 +10,7 @@ type trivy struct {
 	State           string
 	Vulnerabilities vulnerabilities
 	Ignore          []string
-	ReportResult    report.Results
+	ReportResult    types.Results
 }
 
 type vulnerabilities struct {
