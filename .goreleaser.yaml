@@ -50,6 +50,8 @@ changelog:
 # .goreleaser.yaml
 brews:
   -
+    ids:
+    - cli
     # GitHub/GitLab repository to push the formula to
     tap:
       owner: steffakasid
