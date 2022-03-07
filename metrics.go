@@ -12,6 +12,7 @@ import (
 	"github.com/robfig/cron/v3"
 	logger "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"github.com/steffakasid/trivy-scanner/pkg"
 )
 
 func startDaemon() {
@@ -23,7 +24,7 @@ func startDaemon() {
 		logger.Fatal(err)
 	}
 	http.Handle("/metrics", promhttp.Handler())
-	err = http.ListenAndServe(fmt.Sprintf(":%d", viper.GetInt(METRICS_PORT)), nil)
+	err = http.ListenAndServe(fmt.Sprintf(":%d", viper.GetInt(pkg.METRICS_PORT)), nil)
 
 	if err != nil {
 		logger.Fatal(err)

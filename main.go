@@ -17,21 +17,17 @@ import (
 var version = "0.1-dev"
 
 const (
-	JOB_NAME     = "job-name"
-	ARTIFACT     = "artifact-name"
-	FILTER       = "filter"
-	OUTPUT       = "output"
-	OUTPUT_FILE  = "output-file"
-	DAEMON       = "daemon"
-	V            = "v"
-	VV           = "vv"
-	VVV          = "vvv"
-	HELP         = "help"
-	VERSION      = "version"
-	TOKEN        = "GITLAB_TOKEN"
-	HOST         = "GITLAB_HOST"
-	LOG_LEVEL    = "LOG_LEVEL"
-	METRICS_PORT = "METRICS_PORT"
+	JOB_NAME    = "job-name"
+	ARTIFACT    = "artifact-name"
+	FILTER      = "filter"
+	OUTPUT      = "output"
+	OUTPUT_FILE = "output-file"
+	DAEMON      = "daemon"
+	V           = "v"
+	VV          = "vv"
+	VVV         = "vvv"
+	HELP        = "help"
+	VERSION     = "version"
 )
 
 func init() {
@@ -82,28 +78,13 @@ Flags:`)
 		logger.Error(err)
 	}
 
-	err = viper.BindEnv(TOKEN)
-	if err != nil {
-		logger.Error(err)
-	}
-	viper.SetDefault(HOST, "https://gitlab.com")
-	viper.SetDefault(LOG_LEVEL, "info")
-	viper.SetDefault(METRICS_PORT, 2112)
-
-	viper.SetConfigName(".trivyops")
-	viper.SetConfigType("yaml")
-	viper.AutomaticEnv()
-	viper.AddConfigPath("$HOME/")
-	err = viper.ReadInConfig()
-	if err != nil {
-		logger.Error(err)
-	}
+	pkg.InitConfig()
 }
 
 var scan pkg.Scan
 
 func main() {
-	lvl, err := logger.ParseLevel(viper.GetString(LOG_LEVEL))
+	lvl, err := logger.ParseLevel(viper.GetString(pkg.LOG_LEVEL))
 
 	if err != nil {
 		logger.Error(err)
@@ -128,7 +109,7 @@ func main() {
 		if len(args) > 0 {
 			groupId = args[0]
 		}
-		scan = pkg.InitScanner(groupId, viper.GetString(JOB_NAME), viper.GetString(ARTIFACT), viper.GetString(FILTER), viper.GetString(TOKEN), viper.GetString(HOST), viper.GetString(LOG_LEVEL))
+		scan = pkg.InitScanner(groupId, viper.GetString(JOB_NAME), viper.GetString(ARTIFACT), viper.GetString(FILTER), viper.GetString(pkg.GTILAB_TOKEN), viper.GetString(pkg.GITLAB_HOST), viper.GetString(pkg.LOG_LEVEL))
 
 		if viper.GetBool(DAEMON) {
 			startDaemon()
