@@ -21,7 +21,15 @@ builds:
       - amd64
       - arm64
 archives:
-  - replacements:
+  - builds:
+      - container
+    replacements:
+      linux: Linux
+      amd64: x86_64
+    name_template: "{{ .ProjectName }}_cgo_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+  - builds:
+      - cli
+    replacements:
       darwin: Darwin
       linux: Linux
       windows: Windows
