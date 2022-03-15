@@ -1,25 +1,13 @@
 package pkg
 
 import (
-	"archive/zip"
-	"bytes"
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
 	"regexp"
-	"strings"
 	"sync"
 
-	"github.com/aquasecurity/trivy/pkg/types"
 	logger "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"github.com/xanzy/go-gitlab"
 )
-
-type GitLabJobs interface {
-	ListProjectJobs(pid interface{}, opts *gitlab.ListJobsOptions, options ...gitlab.RequestOptionFunc) ([]*gitlab.Job, *gitlab.Response, error)
-	DownloadArtifactsFile(pid interface{}, refName string, opt *gitlab.DownloadArtifactsFileOptions, options ...gitlab.RequestOptionFunc) (*bytes.Reader, *gitlab.Response, error)
-}
 
 type GitLabRepositoryFiles interface {
 	GetRawFile(pid interface{}, fileName string, opt *gitlab.GetRawFileOptions, options ...gitlab.RequestOptionFunc) ([]byte, *gitlab.Response, error)
@@ -60,8 +48,6 @@ type Scan struct {
 	Filter           string
 }
 
-var wg sync.WaitGroup
-
 const (
 	chunkSize = 10
 )
@@ -81,12 +67,13 @@ func (s Scan) ScanGroup() (TrivyResults, error) {
 		return nil, err
 	}
 
+	var wg sync.WaitGroup
 	projectResults := make(chan *trivy)
 	for i := 0; i < len(projs); i += chunkSize {
 		if (i + chunkSize) > len(projs) {
-			go s.scanProjects(projs[i:len(projs)-1], projectResults)
+			go s.scanProjects(projs[i:len(projs)-1], projectResults, &wg)
 		} else {
-			go s.scanProjects(projs[i:i+chunkSize], projectResults)
+			go s.scanProjects(projs[i:i+chunkSize], projectResults, &wg)
 		}
 		wg.Add(1)
 	}
@@ -98,7 +85,7 @@ func (s Scan) ScanGroup() (TrivyResults, error) {
 	return results, nil
 }
 
-func (s Scan) scanProjects(projs []*gitlab.Project, channel chan *trivy) {
+func (s Scan) scanProjects(projs []*gitlab.Project, channel chan *trivy, wg *sync.WaitGroup) {
 	var re *regexp.Regexp
 	if s.Filter != "" {
 		re = regexp.MustCompile(s.Filter)
@@ -106,30 +93,22 @@ func (s Scan) scanProjects(projs []*gitlab.Project, channel chan *trivy) {
 
 	for _, proj := range projs {
 		if s.Filter == "" || len(re.FindAllString(proj.NameWithNamespace, -1)) > 0 {
-			var err error
-
 			logger.Infof("Scan project %s for trivy results\n", proj.NameWithNamespace)
-			projResult, err := s.getTrivyJobResult(proj.ID, proj.DefaultBranch, s.GitLabClient.Jobs)
-			projResult.ProjId = proj.ID
-			projResult.ProjName = proj.Name
 
-			if err != nil {
-				logger.WithField("Project", projResult.ProjName).Errorln(err)
-			} else if projResult.ReportResult == nil {
-				logger.WithField("Project", projResult.ProjName).Infoln("No trivyresult found!")
-			} else {
-				logger.WithField("Project", projResult.ProjName).Debugln("Result", projResult)
+			projResult := &trivy{
+				ProjId:   proj.ID,
+				ProjName: proj.Name,
 			}
-			projResult.Ignore, err = s.getTrivyIgnore(proj.ID, proj.DefaultBranch, s.GitLabClient.RepositoryFiles)
-			if err != nil {
-				logger.WithField("Project", proj.Name).Errorln(err)
-			} else if projResult.Ignore == nil {
-				logger.WithField("Project", proj.Name).Infoln("No trivyignore file found!")
-			} else {
-				logger.WithField("Project", proj.Name).Debugln("Ignore", projResult.Ignore)
-			}
+			err := projResult.getTrivyJobState(s.JobName, s.GitLabClient.Jobs)
+			logIfError(proj.Name, err)
 
-			channel <- &projResult
+			err = projResult.getTrivyResult(proj.DefaultBranch, s.JobName, s.ArtifactFileName, s.GitLabClient.Jobs)
+			logIfError(proj.Name, err)
+
+			err = projResult.getTrivyIgnore(proj.DefaultBranch, s.GitLabClient.RepositoryFiles)
+			logIfError(proj.Name, err)
+
+			channel <- projResult
 		} else {
 			logger.WithField("Project", proj.Name).Debugln("Filter out")
 		}
@@ -149,92 +128,8 @@ func (s Scan) processResults(projResults chan *trivy, resultsChannel chan TrivyR
 	close(resultsChannel)
 }
 
-func (s Scan) getTrivyJobResult(pid int, ref string, gitlabJobs GitLabJobs) (trivy, error) {
-	projResult := trivy{}
-	jobs, _, err := gitlabJobs.ListProjectJobs(pid, &gitlab.ListJobsOptions{IncludeRetried: gitlab.Bool(false)})
+func logIfError(projectName string, err error) {
 	if err != nil {
-		return projResult, err
+		logger.WithField("Project", projectName).Error(err)
 	}
-
-	for _, job := range jobs {
-		if job.Name == s.JobName {
-			projResult.State = job.Status
-			break
-		}
-	}
-
-	rdr, res, err := gitlabJobs.DownloadArtifactsFile(pid, ref, &gitlab.DownloadArtifactsFileOptions{Job: gitlab.String(s.JobName)})
-	if err != nil {
-		if res != nil && res.StatusCode == 404 {
-			return projResult, nil
-		} else {
-			return projResult, err
-		}
-	}
-
-	bt, err := s.unzipFromReader(rdr)
-	if err != nil {
-		return projResult, err
-	}
-
-	jsonReport := &types.Report{}
-	err = json.Unmarshal(bt, jsonReport)
-	if err != nil {
-		jsonResult := &types.Results{}
-		if err = json.Unmarshal(bt, jsonResult); err != nil {
-			return projResult, err
-		} else {
-			projResult.ReportResult = *jsonResult
-			return projResult, nil
-		}
-	}
-
-	projResult.ReportResult = jsonReport.Results
-	return projResult, err
-}
-
-func (s Scan) getTrivyIgnore(pid int, ref string, gitlabRepoFiles GitLabRepositoryFiles) ([]string, error) {
-	bt, res, err := gitlabRepoFiles.GetRawFile(pid, ".trivyignore", &gitlab.GetRawFileOptions{Ref: gitlab.String(ref)})
-	if err != nil {
-		if res.StatusCode == 404 {
-			return nil, nil
-		} else {
-			return nil, err
-		}
-	}
-	var ignores []string
-	for _, str := range strings.Split(string(bt), "\n") {
-		if !strings.HasPrefix(str, "#") {
-			ignores = append(ignores, str)
-		}
-	}
-	return ignores, nil
-}
-
-func (s Scan) unzipFromReader(rdr *bytes.Reader) ([]byte, error) {
-	unzip, err := zip.NewReader(rdr, rdr.Size())
-	if err != nil {
-		logger.Error("Error unzip")
-		return nil, err
-	}
-
-	for _, file := range unzip.File {
-		if file.Name == s.ArtifactFileName {
-			rc, err := file.Open()
-
-			if err != nil {
-				logger.Error("Error file open")
-				return nil, err
-			}
-
-			bt, err := ioutil.ReadAll(rc)
-			if err != nil {
-				return nil, err
-			}
-			logger.Debugf("read %d byte", len(bt))
-			rc.Close()
-			return bt, nil
-		}
-	}
-	return nil, fmt.Errorf("didn't find %s in zip", s.ArtifactFileName)
 }
