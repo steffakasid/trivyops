@@ -64,4 +64,12 @@ FILTER: ^dbs-businesshub\/(!smartlocker)|(bizhub.+)$
 
 `LOG_LEVEL` - the log level to use [Default: info]
 
-All other flags can also be set via config file
+All flags can also be set via config file
+
+## Configuration precedence
+
+. Command line flags
+. Env variables
+. Config file
+
+This means the config file has the lowest priority an will be overwritten by the other configuration methods.

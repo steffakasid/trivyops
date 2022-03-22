@@ -43,9 +43,6 @@ func InitConfig() {
 	viper.SetConfigType(configFileType)
 	viper.SetConfigName(configFileName)
 
-	viper.AutomaticEnv()
-	setLogLevel()
-
 	usedConfigFile := getConfigFilename(home)
 	if usedConfigFile != "" {
 		cleartext, err := decrypt.File(usedConfigFile, configFileType)
@@ -66,6 +63,8 @@ func InitConfig() {
 				logger.Debug("Using sops encrypted config file:", viper.ConfigFileUsed())
 			}
 		}
+		viper.AutomaticEnv()
+		setLogLevel()
 	} else {
 		logger.Debug("No config file used!")
 	}
