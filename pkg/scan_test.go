@@ -3,6 +3,7 @@ package pkg
 import (
 	"bytes"
 	"errors"
+	"math/rand"
 	"net/http"
 	"os"
 	"testing"
@@ -33,12 +34,23 @@ func TestGetTrivyJobState(t *testing.T) {
 	}
 	projId := 1123
 
-	listProjsOpts := &gitlab.ListJobsOptions{IncludeRetried: gitlab.Bool(false)}
-	scan.GitLabClient.JobsClient.(*mocks.GitLabJobs).EXPECT().ListProjectJobs(projId, listProjsOpts).Return([]*gitlab.Job{{ID: 1, Name: scan.JobName, Status: "success"}}, &gitlab.Response{TotalItems: 1, TotalPages: 1}, nil).Once()
+	t.Run("success", func(t *testing.T) {
+		mockListProjectJobs(t, projId, scan.JobName, 1, scan.GitLabClient.JobsClient.(*mocks.GitLabJobs))
 
-	state, err := scan.getTrivyJobState(scan.JobName, projId)
-	assert.NoError(t, err)
-	assert.Equal(t, "success", *state)
+		state, err := scan.getTrivyJobState(scan.JobName, projId)
+		assert.NoError(t, err)
+		assert.Equal(t, "success", *state)
+	})
+
+	t.Run("error", func(t *testing.T) {
+		mockListProjectJobs(t, projId, scan.JobName, 1, scan.GitLabClient.JobsClient.(*mocks.GitLabJobs), 1)
+
+		state, err := scan.getTrivyJobState(scan.JobName, projId)
+		assert.Error(t, err)
+		assert.EqualError(t, err, "Fail")
+		assert.Nil(t, state)
+	})
+
 }
 
 func TestGetTrivyResult(t *testing.T) {
@@ -48,32 +60,37 @@ func TestGetTrivyResult(t *testing.T) {
 		GitLabClient:     InitMock(),
 	}
 	projId := 1123
+	branch := "main"
 
-	downloadOpts := &gitlab.DownloadArtifactsFileOptions{Job: gitlab.String(scan.JobName)}
-	artifactsFile, err := os.ReadFile("../test/result.zip")
-	assert.NoError(t, err)
+	t.Run("success", func(t *testing.T) {
+		mockDownloadArtifactsFile(t, projId, branch, scan.JobName, 1, scan.GitLabClient.JobsClient.(*mocks.GitLabJobs))
 
-	scan.GitLabClient.JobsClient.(*mocks.GitLabJobs).EXPECT().DownloadArtifactsFile(projId, "main", downloadOpts).Return(bytes.NewReader(artifactsFile), &gitlab.Response{TotalItems: 1, TotalPages: 1}, nil).Once()
+		results, err := scan.getTrivyResult("main", scan.JobName, scan.ArtifactFileName, projId)
+		assert.NoError(t, err)
+		assert.Len(t, results, 6)
+	})
 
-	results, err := scan.getTrivyResult("main", scan.JobName, scan.ArtifactFileName, projId)
-	assert.NoError(t, err)
-	assert.Len(t, results, 6)
+	t.Run("error", func(t *testing.T) {
+		mockDownloadArtifactsFile(t, projId, branch, scan.JobName, 1, scan.GitLabClient.JobsClient.(*mocks.GitLabJobs), 1)
+
+		results, err := scan.getTrivyResult("main", scan.JobName, scan.ArtifactFileName, projId)
+		assert.Error(t, err)
+		assert.EqualError(t, err, "Fail")
+		assert.Nil(t, results)
+	})
+
 }
 
 func TestGetTrivyIgnore(t *testing.T) {
 	branch := "main"
-	opts := &gitlab.GetRawFileOptions{Ref: gitlab.String(branch)}
+	projId := 1123
 
 	t.Run("success", func(t *testing.T) {
 		scan := Scan{
 			GitLabClient: InitMock(),
 		}
-		projId := 1123
 
-		bt, err := os.ReadFile("../test/.trivyignore")
-		assert.NoError(t, err)
-
-		scan.GitLabClient.RepositoryFiles.(*mocks.GitLabRepositoryFiles).EXPECT().GetRawFile(projId, ".trivyignore", opts).Return(bt, &gitlab.Response{TotalItems: 1, TotalPages: 1}, nil).Once()
+		mockGetRawFile(t, projId, branch, 1, scan.GitLabClient.RepositoryFiles.(*mocks.GitLabRepositoryFiles))
 
 		trivyIgnore, err := scan.getTrivyIgnore(projId, branch)
 		assert.NoError(t, err)
@@ -84,11 +101,95 @@ func TestGetTrivyIgnore(t *testing.T) {
 		scan := Scan{
 			GitLabClient: InitMock(),
 		}
-		projId := 1123
 
-		scan.GitLabClient.RepositoryFiles.(*mocks.GitLabRepositoryFiles).EXPECT().GetRawFile(projId, ".trivyignore", opts).Return([]byte{}, &gitlab.Response{Response: &http.Response{StatusCode: 404}, TotalItems: 1, TotalPages: 1}, errors.New("No such file")).Once()
+		mockGetRawFile(t, projId, branch, 1, scan.GitLabClient.RepositoryFiles.(*mocks.GitLabRepositoryFiles), 1)
 		trivyIgnore, err := scan.getTrivyIgnore(projId, branch)
 		assert.Len(t, trivyIgnore, 0)
-		assert.Nil(t, err)
+		assert.Error(t, err)
+		assert.EqualError(t, err, "No such file")
 	})
+}
+
+func mockListProjectJobs(t *testing.T, projId int, jobName string, numCalls int, mock *mocks.GitLabJobs, errCall ...int) {
+	listProjsOpts := &gitlab.ListJobsOptions{
+		IncludeRetried: gitlab.Bool(false),
+	}
+
+	resp := &gitlab.Response{
+		TotalItems: 1,
+		TotalPages: 1,
+		Response: &http.Response{
+			Status: "200",
+		},
+	}
+
+	for i := 1; i <= numCalls; i++ {
+		if isErrorCall(errCall, i) {
+			resp.Response = &http.Response{
+				Status: "500",
+			}
+			mock.EXPECT().ListProjectJobs(projId, listProjsOpts).Return(nil, resp, errors.New("Fail")).Once()
+		} else {
+			mock.EXPECT().ListProjectJobs(projId, listProjsOpts).Return([]*gitlab.Job{{ID: rand.Int(), Name: jobName, Status: "success"}}, resp, nil).Once()
+		}
+	}
+}
+
+func mockDownloadArtifactsFile(t *testing.T, projId int, branch string, jobName string, numCalls int, mock *mocks.GitLabJobs, errCall ...int) {
+	downloadOpts := &gitlab.DownloadArtifactsFileOptions{
+		Job: gitlab.String(jobName),
+	}
+	resp := &gitlab.Response{
+		TotalItems: 1,
+		TotalPages: 1,
+		Response: &http.Response{
+			Status: "200",
+		},
+	}
+	artifactsFile, err := os.ReadFile("../test/result.zip")
+	assert.NoError(t, err)
+	for i := 1; i <= numCalls; i++ {
+		if isErrorCall(errCall, i) {
+			resp.Response = &http.Response{
+				Status: "500",
+			}
+			mock.EXPECT().DownloadArtifactsFile(projId, branch, downloadOpts).Return(nil, resp, errors.New("Fail")).Once()
+		} else {
+			mock.EXPECT().DownloadArtifactsFile(projId, branch, downloadOpts).Return(bytes.NewReader(artifactsFile), resp, nil).Once()
+		}
+	}
+}
+
+func mockGetRawFile(t *testing.T, projId int, branch string, numCalls int, mock *mocks.GitLabRepositoryFiles, errCall ...int) {
+	opts := &gitlab.GetRawFileOptions{
+		Ref: gitlab.String(branch),
+	}
+	resp := &gitlab.Response{
+		TotalItems: 1,
+		TotalPages: 1,
+		Response: &http.Response{
+			Status: "200",
+		},
+	}
+	bt, err := os.ReadFile("../test/.trivyignore")
+	assert.NoError(t, err)
+	for i := 1; i <= numCalls; i++ {
+		if isErrorCall(errCall, i) {
+			resp.Response = &http.Response{
+				Status: "500",
+			}
+			mock.EXPECT().GetRawFile(projId, ".trivyignore", opts).Return([]byte{}, resp, errors.New("No such file")).Once()
+		} else {
+			mock.EXPECT().GetRawFile(projId, ".trivyignore", opts).Return(bt, resp, nil).Once()
+		}
+	}
+}
+
+func isErrorCall(errCalls []int, callNo int) bool {
+	for _, errCall := range errCalls {
+		if errCall == callNo {
+			return true
+		}
+	}
+	return false
 }
