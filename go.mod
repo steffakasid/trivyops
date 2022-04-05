@@ -30,9 +30,9 @@ require (
 	github.com/Azure/go-autorest/autorest/validation v0.3.1 // indirect
 	github.com/Azure/go-autorest/logger v0.2.1 // indirect
 	github.com/Azure/go-autorest/tracing v0.6.0 // indirect
-	github.com/aquasecurity/fanal v0.0.0-20220330150111-4487565cbf7a // indirect
-	github.com/aquasecurity/trivy-db v0.0.0-20220327074450-74195d9604b2
-	github.com/aws/aws-sdk-go v1.43.31 // indirect
+	github.com/aquasecurity/fanal v0.0.0-20220303162345-c9ce7695b042 // indirect
+	github.com/aquasecurity/trivy-db v0.0.0-20220301110918-72c736e4cef6
+	github.com/aws/aws-sdk-go v1.43.12 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/caarlos0/env/v6 v6.9.1 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect

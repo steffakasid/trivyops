@@ -12,6 +12,7 @@ import (
 	flag "github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"github.com/steffakasid/trivy-scanner/pkg"
+	"github.com/xanzy/go-gitlab"
 )
 
 var version = "0.1-dev"
@@ -123,7 +124,17 @@ func doScanWithOutput() {
 	s := spinner.New(spinner.CharSets[9], 100*time.Millisecond)
 	s.Start()
 
-	trivyResults, err := scan.ScanGroup()
+	var (
+		projs []*gitlab.Project
+		err   error
+	)
+
+	projs, err = scan.GitLabClient.GetProjects(scan.ID)
+
+	if err != nil {
+		logger.Fatal(err)
+	}
+	trivyResults, err := scan.ScanGroup(projs)
 	if err != nil {
 		logger.Fatalf("Failed to scan trivy results: %s!", err)
 	}

@@ -32,7 +32,12 @@ func startDaemon() {
 }
 
 func recordMetrics() {
-	trivyResults, err := scan.ScanGroup()
+	projs, err := scan.GitLabClient.GetProjects(scan.ID)
+	if err != nil {
+		logger.Errorf("failed getting projects: %v", err)
+	}
+
+	trivyResults, err := scan.ScanGroup(projs)
 
 	if err != nil {
 		logger.Error(err)
