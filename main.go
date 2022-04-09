@@ -11,7 +11,7 @@ import (
 	logger "github.com/sirupsen/logrus"
 	flag "github.com/spf13/pflag"
 	"github.com/spf13/viper"
-	"github.com/steffakasid/trivy-scanner/pkg"
+	"github.com/steffakasid/trivy-scanner/internal"
 	"github.com/xanzy/go-gitlab"
 )
 
@@ -79,19 +79,14 @@ Flags:`)
 		logger.Error(err)
 	}
 
-	pkg.InitConfig()
+	internal.InitConfig()
 }
 
-var scan pkg.Scan
+var scan *internal.Scan
 
 func main() {
-	lvl, err := logger.ParseLevel(viper.GetString(pkg.LOG_LEVEL))
 
-	if err != nil {
-		logger.Error(err)
-		lvl = logger.InfoLevel
-	}
-	logger.SetLevel(lvl)
+	internal.SetLogLevel()
 
 	if viper.GetBool(VERSION) {
 		fmt.Printf("Trivyops version: %s\n", version)
@@ -106,11 +101,34 @@ func main() {
 			os.Exit(1)
 		}
 
+		gitToken := viper.GetString("GITLAB_TOKEN")
+		if gitToken == "" {
+			logger.Fatal("no GITLAB_TOKEN env var set!")
+		}
+
+		gitHost := viper.GetString("GITLAB_HOST")
+
+		logger.Debugf("Creating client for host %s", gitHost)
+		git, err := gitlab.NewClient(gitToken, gitlab.WithBaseURL(gitHost))
+		if err != nil {
+			logger.Fatalf("failed to create GitLab client: %v", err)
+		}
+
 		groupId := ""
 		if len(args) > 0 {
 			groupId = args[0]
 		}
-		scan = pkg.InitScanner(groupId, viper.GetString(JOB_NAME), viper.GetString(ARTIFACT), viper.GetString(FILTER), viper.GetString(pkg.GTILAB_TOKEN), viper.GetString(pkg.GITLAB_HOST), viper.GetString(pkg.LOG_LEVEL))
+		scan, err = internal.InitScanner(groupId,
+			viper.GetString(JOB_NAME),
+			viper.GetString(ARTIFACT),
+			viper.GetString(FILTER),
+			viper.GetString(internal.GTILAB_TOKEN),
+			viper.GetString(internal.GITLAB_HOST),
+			viper.GetString(internal.LOG_LEVEL),
+			git)
+		if err != nil {
+			logger.Fatalf("Error initializing scanner: %v", err)
+		}
 
 		if viper.GetBool(DAEMON) {
 			startDaemon()

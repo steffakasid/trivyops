@@ -1,9 +1,9 @@
-package pkg
+package internal
 
 import (
 	"testing"
 
-	"github.com/steffakasid/trivy-scanner/pkg/mocks"
+	"github.com/steffakasid/trivy-scanner/internal/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/xanzy/go-gitlab"
 )

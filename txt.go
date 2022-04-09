@@ -7,7 +7,7 @@ import (
 
 	"github.com/aquasecurity/trivy/pkg/types"
 	"github.com/spf13/viper"
-	"github.com/steffakasid/trivy-scanner/pkg"
+	"github.com/steffakasid/trivy-scanner/internal"
 )
 
 const (
@@ -15,7 +15,7 @@ const (
 	maxTitleLen = 50
 )
 
-func printResultTxt(results pkg.TrivyResults) {
+func printResultTxt(results internal.TrivyResults) {
 	maxProjNLen := maxProjNameLen(results)
 	for i, projResult := range results {
 		fmt.Printf("[%s]: %s | Job State: %s | Scanned Packages: %s | Vulnerabilities found: %s | .trivyignore: %t\n",
@@ -37,7 +37,7 @@ func printResultDetailsTxt(res types.Results) {
 	lvl2 := strings.Repeat(" ", 4)
 	for _, tgt := range res {
 		if viper.GetBool(V) {
-			crit, hi, med, lo, un := pkg.GetSummary(tgt.Vulnerabilities)
+			crit, hi, med, lo, un := internal.GetSummary(tgt.Vulnerabilities)
 			fmt.Printf("%s%s| Critical %s | High %s | Medium %s | Low %s | Unkown %s\n",
 				lvl1,
 				padString(tgt.Target, maxTgtNLen),
@@ -70,7 +70,7 @@ func printResultDetailsTxt(res types.Results) {
 	}
 }
 
-func maxProjNameLen(projs pkg.TrivyResults) int {
+func maxProjNameLen(projs internal.TrivyResults) int {
 	maxLen := 0
 	for _, proj := range projs {
 		projNLen := len(proj.ProjName)
@@ -99,11 +99,11 @@ func maxTgtNameLen(results types.Results) int {
 func maxPckNameLen(vullies []types.DetectedVulnerability) int {
 	maxLen := 0
 	for _, vul := range vullies {
-		pkgNameLen := len(vul.PkgName)
-		if pkgNameLen > maxNameLen {
+		internalNameLen := len(vul.PkgName)
+		if internalNameLen > maxNameLen {
 			return maxNameLen
-		} else if pkgNameLen > maxLen {
-			maxLen = pkgNameLen
+		} else if internalNameLen > maxLen {
+			maxLen = internalNameLen
 		}
 	}
 	return maxLen

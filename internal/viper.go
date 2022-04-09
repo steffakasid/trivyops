@@ -1,4 +1,4 @@
-package pkg
+package internal
 
 import (
 	"bytes"
@@ -52,19 +52,17 @@ func InitConfig() {
 			if err := viper.ReadInConfig(); err != nil {
 				logger.Warnf("Error reading config. %s. Are you using a config?", err)
 			} else {
-				setLogLevel()
 				logger.Debug("Using config file:", viper.ConfigFileUsed())
 			}
 		} else {
 			if err := viper.ReadConfig(bytes.NewBuffer(cleartext)); err != nil {
 				logger.Fatal(err)
 			} else {
-				setLogLevel()
 				logger.Debug("Using sops encrypted config file:", viper.ConfigFileUsed())
 			}
 		}
 		viper.AutomaticEnv()
-		setLogLevel()
+		SetLogLevel()
 	} else {
 		logger.Debug("No config file used!")
 	}
@@ -90,7 +88,7 @@ func getConfigFilename(homedir string) string {
 	return ""
 }
 
-func setLogLevel() {
+func SetLogLevel() {
 	lvl, err := logger.ParseLevel(viper.GetString(LOG_LEVEL))
 	if err == nil {
 		logger.SetLevel(lvl)

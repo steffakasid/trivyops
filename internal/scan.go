@@ -1,4 +1,4 @@
-package pkg
+package internal
 
 import (
 	"encoding/json"
@@ -9,33 +9,10 @@ import (
 
 	"github.com/aquasecurity/trivy/pkg/types"
 	logger "github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 	"github.com/xanzy/go-gitlab"
 )
 
-func InitScanner(id, jobname, artifactFileName, filter, token, host, logLevel string) Scan {
-	gitToken := viper.GetString("GITLAB_TOKEN")
-	if gitToken == "" {
-		logger.Fatal("No GITLAB_TOKEN env var set!")
-	}
-
-	gitHost := viper.GetString("GITLAB_HOST")
-
-	logLvl := viper.GetString("LOG_LEVEL")
-
-	lvl, err := logger.ParseLevel(logLvl)
-
-	if err != nil {
-		logger.Error(err)
-		lvl = logger.InfoLevel
-	}
-	logger.SetLevel(lvl)
-
-	logger.Debugf("Creating client for host %s", gitHost)
-	git, err := gitlab.NewClient(gitToken, gitlab.WithBaseURL(gitHost))
-	if err != nil {
-		logger.Fatalf("Failed to create client: %v", err)
-	}
+func InitScanner(id, jobname, artifactFileName, filter, token, host, logLevel string, git *gitlab.Client) (*Scan, error) {
 
 	c := GitLabClient{
 		GroupsClient:    git.Groups,
@@ -44,7 +21,14 @@ func InitScanner(id, jobname, artifactFileName, filter, token, host, logLevel st
 		RepositoryFiles: git.RepositoryFiles,
 	}
 
-	return Scan{ID: id, GitLabClient: c, JobName: jobname, ArtifactFileName: artifactFileName, Filter: filter}
+	var reFilter *regexp.Regexp
+	var err error
+	if filter != "" {
+		reFilter, err = regexp.Compile(filter)
+		return nil, fmt.Errorf("%s is not a valid regex: %v", filter, err)
+	}
+
+	return &Scan{ID: id, GitLabClient: c, JobName: jobname, ArtifactFileName: artifactFileName, Filter: reFilter}, nil
 }
 
 type Scan struct {
@@ -52,7 +36,7 @@ type Scan struct {
 	GitLabClient     GitLabClient
 	JobName          string
 	ArtifactFileName string
-	Filter           string
+	Filter           *regexp.Regexp
 }
 
 const (
@@ -80,14 +64,10 @@ func (s Scan) ScanGroup(projs []*gitlab.Project) (TrivyResults, error) {
 }
 
 func (s Scan) scanProjects(projs []*gitlab.Project, channel chan *trivy, wg *sync.WaitGroup) {
-	var re *regexp.Regexp
-	if s.Filter != "" {
-		re = regexp.MustCompile(s.Filter)
-	}
 
 	for _, proj := range projs {
 		// FIXME: rausziehen???
-		if s.Filter == "" || len(re.FindAllString(proj.NameWithNamespace, -1)) > 0 {
+		if s.Filter != nil || len(s.Filter.FindAllString(proj.NameWithNamespace, -1)) > 0 {
 			logger.Infof("Scan project %s for trivy results\n", proj.NameWithNamespace)
 
 			projResult := &trivy{
