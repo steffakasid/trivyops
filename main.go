@@ -114,6 +114,13 @@ func main() {
 			logger.Fatalf("failed to create GitLab client: %v", err)
 		}
 
+		client := &internal.GitLabClient{
+			GroupsClient:    git.Groups,
+			ProjectsClient:  git.Projects,
+			JobsClient:      git.Jobs,
+			RepositoryFiles: git.RepositoryFiles,
+		}
+
 		groupId := ""
 		if len(args) > 0 {
 			groupId = args[0]
@@ -122,10 +129,7 @@ func main() {
 			viper.GetString(JOB_NAME),
 			viper.GetString(ARTIFACT),
 			viper.GetString(FILTER),
-			viper.GetString(internal.GTILAB_TOKEN),
-			viper.GetString(internal.GITLAB_HOST),
-			viper.GetString(internal.LOG_LEVEL),
-			git)
+			client)
 		if err != nil {
 			logger.Fatalf("Error initializing scanner: %v", err)
 		}
@@ -152,7 +156,7 @@ func doScanWithOutput() {
 	if err != nil {
 		logger.Fatal(err)
 	}
-	trivyResults, err := scan.ScanGroup(projs)
+	trivyResults, err := scan.ScanProjects(projs)
 	if err != nil {
 		logger.Fatalf("Failed to scan trivy results: %s!", err)
 	}

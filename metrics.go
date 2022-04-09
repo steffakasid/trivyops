@@ -37,7 +37,7 @@ func recordMetrics() {
 		logger.Errorf("failed getting projects: %v", err)
 	}
 
-	trivyResults, err := scan.ScanGroup(projs)
+	trivyResults, err := scan.ScanProjects(projs)
 
 	if err != nil {
 		logger.Error(err)

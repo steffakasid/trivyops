@@ -12,38 +12,33 @@ import (
 	"github.com/xanzy/go-gitlab"
 )
 
-func InitScanner(id, jobname, artifactFileName, filter, token, host, logLevel string, git *gitlab.Client) (*Scan, error) {
-
-	c := GitLabClient{
-		GroupsClient:    git.Groups,
-		ProjectsClient:  git.Projects,
-		JobsClient:      git.Jobs,
-		RepositoryFiles: git.RepositoryFiles,
-	}
-
-	var reFilter *regexp.Regexp
-	var err error
-	if filter != "" {
-		reFilter, err = regexp.Compile(filter)
-		return nil, fmt.Errorf("%s is not a valid regex: %v", filter, err)
-	}
-
-	return &Scan{ID: id, GitLabClient: c, JobName: jobname, ArtifactFileName: artifactFileName, Filter: reFilter}, nil
-}
+const (
+	chunkSize = 10
+)
 
 type Scan struct {
 	ID               string
-	GitLabClient     GitLabClient
+	GitLabClient     *GitLabClient
 	JobName          string
 	ArtifactFileName string
 	Filter           *regexp.Regexp
 }
 
-const (
-	chunkSize = 10
-)
+func InitScanner(id, jobname, artifactFileName, filter string, gitLabClient *GitLabClient) (*Scan, error) {
 
-func (s Scan) ScanGroup(projs []*gitlab.Project) (TrivyResults, error) {
+	var reFilter *regexp.Regexp
+	var err error
+	if filter != "" {
+		reFilter, err = regexp.Compile(filter)
+		if err != nil {
+			return nil, fmt.Errorf("%s is not a valid regex: %v", filter, err)
+		}
+	}
+
+	return &Scan{ID: id, GitLabClient: gitLabClient, JobName: jobname, ArtifactFileName: artifactFileName, Filter: reFilter}, nil
+}
+
+func (s Scan) ScanProjects(projs []*gitlab.Project) (TrivyResults, error) {
 
 	var wg sync.WaitGroup
 	projectResults := make(chan *trivy)
@@ -66,7 +61,6 @@ func (s Scan) ScanGroup(projs []*gitlab.Project) (TrivyResults, error) {
 func (s Scan) scanProjects(projs []*gitlab.Project, channel chan *trivy, wg *sync.WaitGroup) {
 
 	for _, proj := range projs {
-		// FIXME: rausziehen???
 		if s.Filter != nil || len(s.Filter.FindAllString(proj.NameWithNamespace, -1)) > 0 {
 			logger.Infof("Scan project %s for trivy results\n", proj.NameWithNamespace)
 
@@ -94,7 +88,7 @@ func (s Scan) scanProjects(projs []*gitlab.Project, channel chan *trivy, wg *syn
 
 			channel <- projResult
 		} else {
-			logger.WithField("Project", proj.Name).Debugln("Filter out")
+			logger.WithField("Project", proj.Name).Debugln("Filtered out")
 		}
 	}
 	wg.Done()
