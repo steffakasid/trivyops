@@ -6,10 +6,10 @@ import (
 	"github.com/aquasecurity/trivy/pkg/types"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/spf13/viper"
-	"github.com/steffakasid/trivy-scanner/pkg"
+	"github.com/steffakasid/trivy-scanner/internal"
 )
 
-func printResultTbl(results pkg.TrivyResults) {
+func printResultTbl(results internal.TrivyResults) {
 
 	tw := newLightTableWriter()
 	tw.SetAutoIndex(true)
@@ -54,15 +54,15 @@ func printResultDetailsTbl(projTbl table.Writer, res types.Results) {
 				{Number: 6, WidthMin: 17, WidthMax: 17},
 				{Number: 7, WidthMin: 15, WidthMax: 15},
 			})
-			headerRow := table.Row{"Pkg", "ID", "Severity", "Title", "IsFixable"}
+			headerRow := table.Row{"internal", "ID", "Severity", "Title", "IsFixable"}
 			if viper.GetBool(VVV) {
 				headerRow = append(headerRow, "InstalledVersion", "FixedVersion")
 			}
 			detailsLvl2.AppendHeader(headerRow)
-			for _, pkg := range tgt.Vulnerabilities {
-				row := table.Row{pkg.PkgName, pkg.VulnerabilityID, pkg.Severity, pkg.Title, (pkg.FixedVersion != "")}
+			for _, internal := range tgt.Vulnerabilities {
+				row := table.Row{internal.PkgName, internal.VulnerabilityID, internal.Severity, internal.Title, (internal.FixedVersion != "")}
 				if viper.GetBool(VVV) {
-					row = append(row, pkg.InstalledVersion, pkg.FixedVersion)
+					row = append(row, internal.InstalledVersion, internal.FixedVersion)
 				}
 				detailsLvl2.AppendRow(row)
 			}
@@ -71,7 +71,7 @@ func printResultDetailsTbl(projTbl table.Writer, res types.Results) {
 			projTbl.AppendRow(table.Row{tgt.Target, "No vulnerabilities found"})
 		} else {
 			detailsLvl2.AppendHeader(table.Row{"Critical", "High", "Medium", "Low", "Unkown"})
-			crit, hi, med, lo, un := pkg.GetSummary(tgt.Vulnerabilities)
+			crit, hi, med, lo, un := internal.GetSummary(tgt.Vulnerabilities)
 			detailsLvl2.AppendRow(table.Row{crit, hi, med, lo, un})
 			detailsLvl2.AppendFooter(table.Row{"", "", "", "Sum", crit + hi + med + lo + un})
 			projTbl.AppendRow(table.Row{tgt.Target, detailsLvl2.Render()})

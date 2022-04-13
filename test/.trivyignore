@@ -1,0 +1,4 @@
+# lodash: Prototype pollution in utilities function
+CVE-2018-16487
+# curl: Use-after-free when closing \"easy\" handle in Curl_close()
+CVE-2018-16840
