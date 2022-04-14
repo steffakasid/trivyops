@@ -61,11 +61,11 @@ func InitConfig() {
 				logger.Debug("Using sops encrypted config file:", viper.ConfigFileUsed())
 			}
 		}
-		viper.AutomaticEnv()
-		SetLogLevel()
 	} else {
 		logger.Debug("No config file used!")
 	}
+	viper.AutomaticEnv()
+	SetLogLevel()
 }
 
 func getConfigFilename(homedir string) string {
