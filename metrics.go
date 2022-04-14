@@ -66,7 +66,7 @@ func recordMetrics() {
 			opts := prometheus.GaugeOpts{
 				Namespace:   "trivy",
 				Subsystem:   "exporter",
-				Name:        projectName,
+				Name:        "findings",
 				Help:        "this is a cached result updated every 2 hours",
 				ConstLabels: labels,
 			}
