@@ -55,6 +55,8 @@ func recordMetrics() {
 			logger.Debugf("Add Prjoect %s\n", projectName)
 
 			labels := map[string]string{
+				"Project":         trivy.ProjName,
+				"Id":              strconv.Itoa(trivy.ProjId),
 				"Vulnerabilities": strconv.Itoa(trivy.Vulnerabilities.Count),
 				"High":            strconv.Itoa(trivy.Vulnerabilities.High),
 				"Critical":        strconv.Itoa(trivy.Vulnerabilities.Critical),
