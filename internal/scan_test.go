@@ -63,13 +63,35 @@ func TestScanGroup(t *testing.T) {
 	artifactFilename := "trivy-result.json"
 	branch := "unittest"
 
-	t.Run("success", func(t *testing.T) {
+	t.Run("success with filter", func(t *testing.T) {
 		projs := generateProjects(50, branch)
 		mockGit := InitMock()
 		mockListProjectJobsForProject(t, projs, jobName, mockGit.JobsClient.(*mocks.GitLabJobs), 10, 15)
 		mockDownloadArtifactsFileForProjects(t, projs, branch, jobName, mockGit.JobsClient.(*mocks.GitLabJobs), 25, 30)
 		mockGetRawFileForProjects(t, projs, branch, mockGit.RepositoryFiles.(*mocks.GitLabRepositoryFiles), 44, 45, 46)
-		scan, err := InitScanner(grpID, jobName, artifactFilename, ".*th.*", mockGit)
+		scan, err := InitScanner(grpID, jobName, artifactFilename, ".*ro.*", mockGit)
+
+		assert.NoError(t, err)
+		result, err := scan.ScanProjects(projs)
+		assert.NoError(t, err)
+		assert.NotNil(t, result)
+		assert.Len(t, result, 50)
+		assertProjNoState(t, result, 10)
+		assertProjNoState(t, result, 15)
+		assertProjNoResult(t, result, 25)
+		assertProjNoResult(t, result, 30)
+		assertProjNoIgnore(t, result, 44)
+		assertProjNoIgnore(t, result, 45)
+		assertProjNoIgnore(t, result, 46)
+	})
+
+	t.Run("success without filter", func(t *testing.T) {
+		projs := generateProjects(50, branch)
+		mockGit := InitMock()
+		mockListProjectJobsForProject(t, projs, jobName, mockGit.JobsClient.(*mocks.GitLabJobs), 10, 15)
+		mockDownloadArtifactsFileForProjects(t, projs, branch, jobName, mockGit.JobsClient.(*mocks.GitLabJobs), 25, 30)
+		mockGetRawFileForProjects(t, projs, branch, mockGit.RepositoryFiles.(*mocks.GitLabRepositoryFiles), 44, 45, 46)
+		scan, err := InitScanner(grpID, jobName, artifactFilename, "", mockGit)
 
 		assert.NoError(t, err)
 		result, err := scan.ScanProjects(projs)
@@ -198,9 +220,10 @@ func generateProjects(number int, branch string) []*gitlab.Project {
 
 	for i := 0; i < number; i++ {
 		projs = append(projs, &gitlab.Project{
-			ID:            i,
-			Name:          fmt.Sprintf("proj%d", i),
-			DefaultBranch: branch,
+			ID:                i,
+			Name:              fmt.Sprintf("proj%d", i),
+			NameWithNamespace: fmt.Sprintf("namespace/proj%d", i),
+			DefaultBranch:     branch,
 		})
 	}
 	return projs

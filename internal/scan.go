@@ -61,7 +61,7 @@ func (s Scan) ScanProjects(projs []*gitlab.Project) (TrivyResults, error) {
 func (s Scan) scanProjects(projs []*gitlab.Project, channel chan *trivy, wg *sync.WaitGroup) {
 
 	for _, proj := range projs {
-		if s.Filter != nil || len(s.Filter.FindAllString(proj.NameWithNamespace, -1)) > 0 {
+		if s.Filter == nil || len(s.Filter.FindAllString(proj.NameWithNamespace, -1)) > 0 {
 			logger.Infof("Scan project %s for trivy results\n", proj.NameWithNamespace)
 
 			projResult := &trivy{
