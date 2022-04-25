@@ -1,5 +1,9 @@
 # trivy-project-svanner
 
+image:https://img.shields.io/badge/License-Apache%202.0-blue.svg[link="http://www.apache.org/licenses/LICENSE-2.0"]
+image:https://github.com/steffakasid/trivyops/actions/workflows/codeql-analysis.yml/badge.svg[link:https://github.com/steffakasid/trivyops/actions/workflows/codeql-analysis.yml]
+image:https://github.com/steffakasid/trivyops/actions/workflows/release.yml/badge.svg[link:https://github.com/steffakasid/trivyops/actions/workflows/release.yml]
+image:https://github.com/steffakasid/trivyops/actions/workflows/go-test.yml/badge.svg[link:https://github.com/steffakasid/trivyops/actions/workflows/go-test.yml]
 
 This tool can be used to receive all trivy results from a GitLab group. The tool
 scans all subgroups and prints out a result a GitLab CI trivy scan job and checks
@@ -12,7 +16,7 @@ if there is a .trivyignore defined in the default branch.
 Or `brew tap steffakasid/trivyops` and then `brew install trivyops`.
 
 ## Usage:
-  `trivyops [flags] GITLAB_GROUP_ID`
+`trivyops [flags] GITLAB_GROUP_ID`
 
 ## Variables:
   - `GITLAB_TOKEN`                - the GitLab token to access the Gitlab instance
