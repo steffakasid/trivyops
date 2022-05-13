@@ -17,10 +17,11 @@ const (
 )
 
 const (
-	GITLAB_HOST  = "GITLAB_HOST"
-	GTILAB_TOKEN = "GITLAB_TOKEN"
-	LOG_LEVEL    = "LOG_LEVEL"
-	METRICS_PORT = "METRICS_PORT"
+	GITLAB_HOST     = "GITLAB_HOST"
+	GTILAB_TOKEN    = "GITLAB_TOKEN"
+	GITLAB_GROUP_ID = "GITLAB_GROUP_ID"
+	LOG_LEVEL       = "LOG_LEVEL"
+	METRICS_PORT    = "METRICS_PORT"
 )
 
 func init() {
@@ -31,6 +32,7 @@ func init() {
 	viper.SetDefault(GITLAB_HOST, "https://gitlab.com")
 	viper.SetDefault(LOG_LEVEL, "info")
 	viper.SetDefault(METRICS_PORT, 2112)
+	viper.BindEnv(GITLAB_GROUP_ID)
 }
 
 func InitConfig() {

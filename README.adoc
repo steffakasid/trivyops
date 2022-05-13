@@ -19,9 +19,10 @@ Or `brew tap steffakasid/trivyops` and then `brew install trivyops`.
 `trivyops [flags] GITLAB_GROUP_ID`
 
 ## Variables:
-  - `GITLAB_TOKEN`                - the GitLab token to access the Gitlab instance
+  - `GITLAB_TOKEN`        - the GitLab token to access the Gitlab instance
   - `GITLAB_HOST`         - the GitLab host which should be accessed [Default: https://gitlab.com]
-  - `LOG_LEVEL`                   - the log level to use [Default: info]
+  - `GITLAB_GROUP_ID`		  - the GitLab group ID to scan (only be used if not given per argument)
+  - `LOG_LEVEL`           - the log level to use [Default: info]
 
 ## Examples:
 `trivyops 1234` - get all trivy results from 1234
@@ -52,21 +53,16 @@ Or `brew tap steffakasid/trivyops` and then `brew install trivyops`.
 
 `[--version]` Print version information
 
-# Configuration
+## Configuration
 
 ```yaml
 ---
 GITLAB_TOKEN: a;lsdkfya9s8df879
 GITLAB_HOST: https://gitlab.com
+GITLAB_GROUP_ID: 12345
 LOG_LEVEL: warn
 FILTER: ^dbs-businesshub\/(!smartlocker)|(bizhub.+)$
 ```
-
-`GITLAB_TOKEN` - the GitLab token to access the Gitlab instance
-
-`GITLAB_HOST` - the GitLab host which should be accessed [Default: https://gitlab.com]
-
-`LOG_LEVEL` - the log level to use [Default: info]
 
 All flags can also be set via config file
 

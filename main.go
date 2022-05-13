@@ -59,11 +59,12 @@ Usage:
 Variables:
   - GITLAB_TOKEN		- the GitLab token to access the Gitlab instance
   - GITLAB_HOST			- the GitLab host which should be accessed [Default: https://gitlab.com]
+  - GITLAB_GROUP_ID		- the GitLab group ID to scan (only be used if not given per argument)
   - LOG_LEVEL			- the log level to use [Default: info]
   - METRICS_PORT		- the metrics endpoint when running in daemon mode [Default: 2112]
 
 Examples:
-  trivyops 1234    				- get all trivy results from 1234
+  trivyops 1234    					- get all trivy results from 1234
   trivyops 1234 --filter ^blub.*	- get all trivy results from 1234 where name starts with blub
   trivyops 1234 -o table			- output results as table (works well with less results)
   trivyops 1234 -v					- get more details
@@ -101,12 +102,12 @@ func main() {
 			os.Exit(1)
 		}
 
-		gitToken := viper.GetString("GITLAB_TOKEN")
+		gitToken := viper.GetString(internal.GTILAB_TOKEN)
 		if gitToken == "" {
-			logger.Fatal("no GITLAB_TOKEN env var set!")
+			logger.Fatalf("no %s env var set!", internal.GTILAB_TOKEN)
 		}
 
-		gitHost := viper.GetString("GITLAB_HOST")
+		gitHost := viper.GetString(internal.GITLAB_HOST)
 
 		logger.Debugf("Creating client for host %s", gitHost)
 		git, err := gitlab.NewClient(gitToken, gitlab.WithBaseURL(gitHost))
@@ -122,8 +123,10 @@ func main() {
 		}
 
 		groupId := ""
-		if len(args) > 0 {
+		if len(args) == 1 {
 			groupId = args[0]
+		} else {
+			groupId = viper.GetString(internal.GITLAB_GROUP_ID)
 		}
 		scan, err = internal.InitScanner(groupId,
 			viper.GetString(JOB_NAME),
