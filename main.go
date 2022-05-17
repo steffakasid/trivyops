@@ -62,6 +62,7 @@ Variables:
   - GITLAB_GROUP_ID		- the GitLab group ID to scan (only be used if not given per argument)
   - LOG_LEVEL			- the log level to use [Default: info]
   - METRICS_PORT		- the metrics endpoint when running in daemon mode [Default: 2112]
+  - METRICS_CRON		- the cron string used to define how often metrics results are gathered from GitLab [Default: @every 6h]
 
 Examples:
   trivyops 1234    					- get all trivy results from 1234

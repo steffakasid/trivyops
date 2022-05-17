@@ -19,7 +19,7 @@ func startDaemon() {
 	logger.Debug("Starting metrics daemon...")
 	c := cron.New()
 	recordMetrics()
-	_, err := c.AddFunc("@every 6h", recordMetrics)
+	_, err := c.AddFunc(viper.GetString(internal.METRICS_CRON), recordMetrics)
 	if err != nil {
 		logger.Fatal(err)
 	}
