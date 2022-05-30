@@ -38,7 +38,7 @@ func mockListGroupProjects(mock *mocks.GitLabGroups, numCalls int, grpId string)
 				Page:    i,
 			},
 			Archived:         gitlab.Bool(false),
-			IncludeSubgroups: gitlab.Bool(true),
+			IncludeSubGroups: gitlab.Bool(true),
 		}
 		projects := []*gitlab.Project{
 			{

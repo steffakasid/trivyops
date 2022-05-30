@@ -53,7 +53,7 @@ func (c GitLabClient) GetAllGroupProjects(groupId string) ([]*gitlab.Project, er
 			Page:    1,
 		},
 		Archived:         gitlab.Bool(false),
-		IncludeSubgroups: gitlab.Bool(true),
+		IncludeSubGroups: gitlab.Bool(true),
 	}
 	var wg sync.WaitGroup
 
