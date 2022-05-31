@@ -20,6 +20,20 @@ builds:
     goarch:
       - amd64
       - arm64
+dockers:
+  - ids:
+    - container
+
+    goos: linux
+    goarch: amd64
+    
+    image_templates:
+    - "docker.io/steffakasid/{{ .ProjectName }}:{{ .Tag }}"
+    - "docker.io/steffakasid/{{ .ProjectName }}:{{ .Tag }}-{{ .Env.GO_VERSION }}"
+    - "docker.io/steffakasid/{{ .ProjectName }}:v{{ .Major }}"
+    - "docker.io/steffakasid/{{ .ProjectName }}:latest"
+
+    dockerfile: build/Dockerfile
 archives:
   - id: container
     builds:
@@ -47,7 +61,6 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
-# .goreleaser.yaml
 brews:
   -
     ids:
