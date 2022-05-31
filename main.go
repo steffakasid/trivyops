@@ -62,6 +62,7 @@ Variables:
   - GITLAB_GROUP_ID		- the GitLab group ID to scan (only be used if not given per argument)
   - LOG_LEVEL			- the log level to use [Default: info]
   - METRICS_PORT		- the metrics endpoint when running in daemon mode [Default: 2112]
+  - METRICS_CRON		- the cron string used to define how often metrics results are gathered from GitLab [Default: @every 6h]
 
 Examples:
   trivyops 1234    					- get all trivy results from 1234
@@ -94,20 +95,7 @@ func main() {
 	} else if viper.GetBool(HELP) {
 		flag.Usage()
 	} else {
-		args := flag.Args()
-
-		if len(args) > 1 {
-			log.Printf("More then one argument provided: %s\n", args)
-			flag.Usage()
-			os.Exit(1)
-		}
-
-		gitToken := viper.GetString(internal.GTILAB_TOKEN)
-		if gitToken == "" {
-			logger.Fatalf("no %s env var set!", internal.GTILAB_TOKEN)
-		}
-
-		gitHost := viper.GetString(internal.GITLAB_HOST)
+		args, gitToken, gitHost := validateArgsNEnv()
 
 		logger.Debugf("Creating client for host %s", gitHost)
 		git, err := gitlab.NewClient(gitToken, gitlab.WithBaseURL(gitHost))
@@ -143,6 +131,24 @@ func main() {
 			doScanWithOutput()
 		}
 	}
+}
+
+func validateArgsNEnv() ([]string, string, string) {
+	args := flag.Args()
+
+	if len(args) > 1 {
+		log.Printf("More then one argument provided: %s\n", args)
+		flag.Usage()
+		os.Exit(1)
+	}
+
+	gitToken := viper.GetString("GITLAB_TOKEN")
+	if gitToken == "" {
+		logger.Fatal("no GITLAB_TOKEN env var set!")
+	}
+
+	gitHost := viper.GetString("GITLAB_HOST")
+	return args, gitToken, gitHost
 }
 
 func doScanWithOutput() {
