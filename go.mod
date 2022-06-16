@@ -3,7 +3,7 @@ module github.com/steffakasid/trivy-scanner
 go 1.18
 
 require (
-	github.com/aquasecurity/trivy v0.28.1
+	github.com/aquasecurity/trivy v0.29.0
 	github.com/briandowns/spinner v1.18.1
 	github.com/jedib0t/go-pretty/v6 v6.3.2
 	github.com/prometheus/client_golang v1.12.2
@@ -23,7 +23,7 @@ require (
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/alecthomas/chroma v0.10.0 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
-	github.com/aquasecurity/defsec v0.59.0 // indirect
+	github.com/aquasecurity/defsec v0.68.1 // indirect
 	github.com/dlclark/regexp2 v1.4.0 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
 	github.com/go-git/gcfg v1.5.0 // indirect
@@ -58,7 +58,7 @@ require (
 	github.com/Azure/go-autorest/autorest/validation v0.3.1 // indirect
 	github.com/Azure/go-autorest/logger v0.2.1 // indirect
 	github.com/Azure/go-autorest/tracing v0.6.0 // indirect
-	github.com/aquasecurity/fanal v0.0.0-20220531175057-9b184f35f0b2 // indirect
+	github.com/aquasecurity/fanal v0.0.0-20220615115521-e411bc995c6d // indirect
 	github.com/aquasecurity/trivy-db v0.0.0-20220602091213-39d8a6798e07
 	github.com/aws/aws-sdk-go v1.44.25 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
@@ -116,7 +116,7 @@ require (
 	google.golang.org/api v0.81.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20220531173845-685668d2de03 // indirect
-	google.golang.org/grpc v1.46.2 // indirect
+	google.golang.org/grpc v1.47.0 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
 	gopkg.in/ini.v1 v1.66.6 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
