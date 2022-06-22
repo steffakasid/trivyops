@@ -132,6 +132,7 @@ github.com/apparentlymart/go-textseg/v13 v13.0.0/go.mod h1:ZK2fH7c4NqDTLtiYLvIkE
 github.com/aquasecurity/defsec v0.59.0 h1:BmX5j5Y7+IhJ4hKYGIJWMcmVUqaIiTjtEqL5doT995Q=
 github.com/aquasecurity/defsec v0.59.0/go.mod h1:42FxKif2itz+MHFlJ3TJjdroL9Jzj3THoexlueBTU5w=
 github.com/aquasecurity/defsec v0.68.1/go.mod h1:xUmN8mHLF2RCITp9v6HH+vkqfnfAX6BsIC5pbCwzg9k=
+github.com/aquasecurity/defsec v0.68.3/go.mod h1:m59o8MPMXFbMgulxFOvFRW8tVg4gcnqZ9Gi3uvd/6zg=
 github.com/aquasecurity/fanal v0.0.0-20220531175057-9b184f35f0b2 h1:2REfJ3wguj82NSFDVRzMcrdMfkTX62rRG5oFO4a4uaU=
 github.com/aquasecurity/fanal v0.0.0-20220531175057-9b184f35f0b2/go.mod h1:N8NsnhVyJF1WkuACwJGcYRl71Er2EZ7LbrDccn94ezk=
 github.com/aquasecurity/fanal v0.0.0-20220615115521-e411bc995c6d h1:PK31RZ2JDs0QxVC0NjinSR1GDK8nrGDgR2b9ibMm1n4=
@@ -142,6 +143,8 @@ github.com/aquasecurity/trivy v0.29.0 h1:u7JaIlHXyNxjqExQVYRCieDEs+tQidq1k6GQ5kv
 github.com/aquasecurity/trivy v0.29.0/go.mod h1:rY7quMwE0sUPbMlnhtw/IbNqndKpGDpp3imUyojTmww=
 github.com/aquasecurity/trivy v0.29.1 h1:PzwPAPpYuXHxOYSQsJ2FtpO30K3K5mkcfWi17IVI1M8=
 github.com/aquasecurity/trivy v0.29.1/go.mod h1:rY7quMwE0sUPbMlnhtw/IbNqndKpGDpp3imUyojTmww=
+github.com/aquasecurity/trivy v0.29.2 h1:pEiUkyG/FYo2cblE2o614ltkQj165hHANJFlavCo3dk=
+github.com/aquasecurity/trivy v0.29.2/go.mod h1:SgYyLWGbomLUeP2YubM3WCAT7e71QVu5PmBCqfqjPzA=
 github.com/aquasecurity/trivy-db v0.0.0-20220529074744-52aae6b1b2d3 h1:av7drLHE6GtzM3y3G3XClN3SSZBgmgobktWdKtSKqH8=
 github.com/aquasecurity/trivy-db v0.0.0-20220529074744-52aae6b1b2d3/go.mod h1:/nULgnDeq/JMPMVwE1dmf4kWlYn++7VrM3O2naj4BHA=
 github.com/aquasecurity/trivy-db v0.0.0-20220602091213-39d8a6798e07 h1:EZfv20xfeW4Pj3yOjdzc+PnVvxJYgY7a0E0F3ewRsLI=
