@@ -3,7 +3,7 @@ module github.com/steffakasid/trivy-scanner
 go 1.18
 
 require (
-	github.com/aquasecurity/trivy v0.29.1
+	github.com/aquasecurity/trivy v0.29.2
 	github.com/briandowns/spinner v1.18.1
 	github.com/jedib0t/go-pretty/v6 v6.3.3
 	github.com/prometheus/client_golang v1.12.2
@@ -23,7 +23,7 @@ require (
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/alecthomas/chroma v0.10.0 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
-	github.com/aquasecurity/defsec v0.68.1 // indirect
+	github.com/aquasecurity/defsec v0.68.3 // indirect
 	github.com/dlclark/regexp2 v1.4.0 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
 	github.com/go-git/gcfg v1.5.0 // indirect
