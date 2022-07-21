@@ -136,6 +136,7 @@ github.com/aquasecurity/defsec v0.59.0/go.mod h1:42FxKif2itz+MHFlJ3TJjdroL9Jzj3T
 github.com/aquasecurity/defsec v0.68.1/go.mod h1:xUmN8mHLF2RCITp9v6HH+vkqfnfAX6BsIC5pbCwzg9k=
 github.com/aquasecurity/defsec v0.68.3/go.mod h1:m59o8MPMXFbMgulxFOvFRW8tVg4gcnqZ9Gi3uvd/6zg=
 github.com/aquasecurity/defsec v0.68.6/go.mod h1:m59o8MPMXFbMgulxFOvFRW8tVg4gcnqZ9Gi3uvd/6zg=
+github.com/aquasecurity/defsec v0.68.10/go.mod h1:NdjAkq2LAbsu3sFHbWfA+DDR5BxiajELQAMUrfJ6PFg=
 github.com/aquasecurity/fanal v0.0.0-20220531175057-9b184f35f0b2 h1:2REfJ3wguj82NSFDVRzMcrdMfkTX62rRG5oFO4a4uaU=
 github.com/aquasecurity/fanal v0.0.0-20220531175057-9b184f35f0b2/go.mod h1:N8NsnhVyJF1WkuACwJGcYRl71Er2EZ7LbrDccn94ezk=
 github.com/aquasecurity/fanal v0.0.0-20220615115521-e411bc995c6d h1:PK31RZ2JDs0QxVC0NjinSR1GDK8nrGDgR2b9ibMm1n4=
@@ -150,6 +151,8 @@ github.com/aquasecurity/trivy v0.29.2 h1:pEiUkyG/FYo2cblE2o614ltkQj165hHANJFlavC
 github.com/aquasecurity/trivy v0.29.2/go.mod h1:SgYyLWGbomLUeP2YubM3WCAT7e71QVu5PmBCqfqjPzA=
 github.com/aquasecurity/trivy v0.30.0 h1:ROXmfc0yAvC74Y3OmJIsU5W4YTCumPe71gfyU62FOZM=
 github.com/aquasecurity/trivy v0.30.0/go.mod h1:nof9lzBJYR8fjy6yyISgxR06ExLb/nLG7nfAm1vfmeI=
+github.com/aquasecurity/trivy v0.30.2 h1:nwx5W8a6DkivMLDKJOMFev9W/1Zr8MLj+gmTbWU5WmE=
+github.com/aquasecurity/trivy v0.30.2/go.mod h1:Oe/eyAqNzCi8VNZPRLStcTNBr7G8mOLKC2z2Hz6oYl4=
 github.com/aquasecurity/trivy-db v0.0.0-20220529074744-52aae6b1b2d3 h1:av7drLHE6GtzM3y3G3XClN3SSZBgmgobktWdKtSKqH8=
 github.com/aquasecurity/trivy-db v0.0.0-20220529074744-52aae6b1b2d3/go.mod h1:/nULgnDeq/JMPMVwE1dmf4kWlYn++7VrM3O2naj4BHA=
 github.com/aquasecurity/trivy-db v0.0.0-20220602091213-39d8a6798e07 h1:EZfv20xfeW4Pj3yOjdzc+PnVvxJYgY7a0E0F3ewRsLI=
@@ -452,6 +455,7 @@ github.com/kylelemons/godebug v0.0.0-20170820004349-d65d576e9348/go.mod h1:B69LE
 github.com/kylelemons/godebug v1.1.0 h1:RPNrshWIDI6G2gRW9EHilWtl7Z6Sb1BR0xunSBf0SNc=
 github.com/liamg/iamgo v0.0.6 h1:VUzOnf39c7QYQfXzOr9upTmIqikmipqu1AvSIoX36PQ=
 github.com/liamg/iamgo v0.0.6/go.mod h1:Kk6ZxBF/GQqG9nnaUjIi6jf+WXNpeOTyhwc6gnguaZQ=
+github.com/liamg/iamgo v0.0.9/go.mod h1:Kk6ZxBF/GQqG9nnaUjIi6jf+WXNpeOTyhwc6gnguaZQ=
 github.com/liamg/jfather v0.0.7 h1:Xf78zS263yfT+xr2VSo6+kyAy4ROlCacRqJG7s5jt4k=
 github.com/liamg/jfather v0.0.7/go.mod h1:xXBGiBoiZ6tmHhfy5Jzw8sugzajwYdi6VosIpB3/cPM=
 github.com/liamg/memoryfs v1.4.1 h1:Kuq+1seUuy0wXL5N+bKHbFXilukRNnPqPU+Ld2RDHgc=
