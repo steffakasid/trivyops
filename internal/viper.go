@@ -8,7 +8,7 @@ import (
 
 	logger "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"go.mozilla.org/sops/decrypt"
+	"go.mozilla.org/sops/decrypt/v3"
 )
 
 const (
