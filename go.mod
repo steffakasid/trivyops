@@ -13,37 +13,44 @@ require (
 	github.com/spf13/viper v1.12.0
 	github.com/xanzy/go-gitlab v0.71.0
 	go.mozilla.org/sops/v3 v3.7.3
-	go.mozilla.org/sops/v3 v3.7.3
 )
 
 require (
-	github.com/Microsoft/go-winio v0.5.2 // indirect
+	filippo.io/age v1.0.0 // indirect
 	github.com/ProtonMail/go-crypto v0.0.0-20220517143526-88bb52951d5b // indirect
-	github.com/acomagu/bufpipe v1.0.3 // indirect
-	github.com/agext/levenshtein v1.2.3 // indirect
-	github.com/alecthomas/chroma v0.10.0 // indirect
-	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
-	github.com/aquasecurity/defsec v0.68.10 // indirect
-	github.com/dlclark/regexp2 v1.4.0 // indirect
-	github.com/emirpasic/gods v1.18.1 // indirect
-	github.com/go-git/gcfg v1.5.0 // indirect
-	github.com/go-git/go-billy/v5 v5.3.1 // indirect
-	github.com/go-git/go-git/v5 v5.4.2 // indirect
-	github.com/google/uuid v1.3.0 // indirect
+	github.com/armon/go-metrics v0.3.10 // indirect
+	github.com/armon/go-radix v1.0.0 // indirect
+	github.com/blang/semver v3.5.1+incompatible // indirect
+	github.com/cenkalti/backoff/v3 v3.2.2 // indirect
+	github.com/go-test/deep v1.0.3 // indirect
+	github.com/golang/snappy v0.0.4 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.0.0-20220520183353-fd19c99a87aa // indirect
-	github.com/hashicorp/hcl/v2 v2.12.0 // indirect
-	github.com/imdario/mergo v0.3.13 // indirect
-	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
-	github.com/kevinburke/ssh_config v1.2.0 // indirect
-	github.com/liamg/iamgo v0.0.9 // indirect
-	github.com/liamg/jfather v0.0.7 // indirect
-	github.com/owenrumney/squealer v1.1.0 // indirect
+	github.com/hashicorp/errwrap v1.1.0 // indirect
+	github.com/hashicorp/go-hclog v1.2.0 // indirect
+	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
+	github.com/hashicorp/go-multierror v1.1.1 // indirect
+	github.com/hashicorp/go-plugin v1.4.3 // indirect
+	github.com/hashicorp/go-rootcerts v1.0.2 // indirect
+	github.com/hashicorp/go-secure-stdlib/mlock v0.1.2 // indirect
+	github.com/hashicorp/go-secure-stdlib/parseutil v0.1.3 // indirect
+	github.com/hashicorp/go-secure-stdlib/strutil v0.1.2 // indirect
+	github.com/hashicorp/go-sockaddr v1.0.2 // indirect
+	github.com/hashicorp/go-uuid v1.0.3 // indirect
+	github.com/hashicorp/go-version v1.4.0 // indirect
+	github.com/hashicorp/golang-lru v0.5.4 // indirect
+	github.com/hashicorp/vault/api v1.5.0 // indirect
+	github.com/hashicorp/vault/sdk v0.4.1 // indirect
+	github.com/hashicorp/yamux v0.0.0-20211028200310-0bc27b27de87 // indirect
+	github.com/mitchellh/copystructure v1.2.0 // indirect
+	github.com/mitchellh/go-testing-interface v1.14.1 // indirect
+	github.com/mitchellh/reflectwalk v1.0.2 // indirect
+	github.com/oklog/run v1.1.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.1 // indirect
-	github.com/sergi/go-diff v1.2.0 // indirect
-	github.com/xanzy/ssh-agent v0.3.1 // indirect
-	github.com/zclconf/go-cty v1.10.0 // indirect
-	golang.org/x/exp v0.0.0-20220518171630-0b5c67f07fdf // indirect
-	gopkg.in/warnings.v0 v0.1.2 // indirect
+	github.com/pierrec/lz4 v2.6.1+incompatible // indirect
+	github.com/ryanuber/go-glob v1.0.0 // indirect
+	go.uber.org/atomic v1.9.0 // indirect
+	gopkg.in/square/go-jose.v2 v2.6.0 // indirect
+	gopkg.in/urfave/cli.v1 v1.20.0 // indirect
 )
 
 require (
@@ -59,7 +66,6 @@ require (
 	github.com/Azure/go-autorest/autorest/validation v0.3.1 // indirect
 	github.com/Azure/go-autorest/logger v0.2.1 // indirect
 	github.com/Azure/go-autorest/tracing v0.6.0 // indirect
-	github.com/aquasecurity/fanal v0.0.0-20220615115521-e411bc995c6d // indirect
 	github.com/aquasecurity/trivy-db v0.0.0-20220801073337-2c0339bb9085
 	github.com/aws/aws-sdk-go v1.44.46 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
@@ -90,7 +96,6 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
-	github.com/mozilla-services/yaml v0.0.0-20201007153854-c369669a6625 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
