@@ -1,4 +1,4 @@
-# trivy-project-scanner
+# trivyops
 
 This tool can be used to receive all trivy results from a GitLab group. As docker container it runs in daemon mode and provides a [Prometheus](https://prometheus.io/) metrics endpoint.
 
