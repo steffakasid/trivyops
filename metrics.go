@@ -20,6 +20,7 @@ func startDaemon() {
 	c := cron.New()
 	recordMetrics()
 	_, err := c.AddFunc(viper.GetString(internal.METRICS_CRON), recordMetrics)
+	c.Start()
 	if err != nil {
 		logger.Fatal(err)
 	}
