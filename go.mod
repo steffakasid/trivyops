@@ -11,7 +11,7 @@ require (
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.14.0
-	github.com/xanzy/go-gitlab v0.76.0
+	github.com/xanzy/go-gitlab v0.77.0
 	go.mozilla.org/sops/v3 v3.7.3
 )
 
