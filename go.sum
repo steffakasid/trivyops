@@ -176,6 +176,8 @@ github.com/blang/semver v3.5.1+incompatible h1:cQNTCjp13qL8KC3Nbxr/y2Bqb63oX6wdn
 github.com/blang/semver v3.5.1+incompatible/go.mod h1:kRBLl5iJ+tD4TcOOxsy/0fnwebNt5EWlYSAyrTnjyyk=
 github.com/briandowns/spinner v1.19.0 h1:s8aq38H+Qju89yhp89b4iIiMzMm8YN3p6vGpwyh/a8E=
 github.com/briandowns/spinner v1.19.0/go.mod h1:mQak9GHqbspjC/5iUx3qMlIho8xBS/ppAL/hX5SmPJU=
+github.com/briandowns/spinner v1.20.0 h1:GQq1Yf1KyzYT8CY19GzWrDKP6hYOFB6J72Ks7d8aO1U=
+github.com/briandowns/spinner v1.20.0/go.mod h1:TcwZHb7Wb6vn/+bcVv1UXEzaA4pLS7yznHlkY/HzH44=
 github.com/caarlos0/env/v6 v6.9.3 h1:Tyg69hoVXDnpO5Qvpsu8EoquarbPyQb+YwExWHP8wWU=
 github.com/caarlos0/env/v6 v6.9.3/go.mod h1:hvp/ryKXKipEkcuYjs9mI4bBCg+UI0Yhgm5Zu0ddvwc=
 github.com/caarlos0/env/v6 v6.10.0 h1:lA7sxiGArZ2KkiqpOQNf8ERBRWI+v8MWIH+eGjSN22I=
