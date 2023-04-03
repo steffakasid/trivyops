@@ -3,7 +3,7 @@ module github.com/steffakasid/trivy-scanner
 go 1.19
 
 require (
-	github.com/aquasecurity/trivy v0.38.3
+	github.com/aquasecurity/trivy v0.39.0
 	github.com/briandowns/spinner v1.23.0
 	github.com/jedib0t/go-pretty/v6 v6.4.6
 	github.com/prometheus/client_golang v1.14.0
@@ -72,7 +72,7 @@ require (
 	github.com/Azure/go-autorest/autorest/validation v0.3.1 // indirect
 	github.com/Azure/go-autorest/logger v0.2.1 // indirect
 	github.com/Azure/go-autorest/tracing v0.6.0 // indirect
-	github.com/aquasecurity/trivy-db v0.0.0-20230320084803-91fc6e248bca
+	github.com/aquasecurity/trivy-db 9646c280a9fc
 	github.com/aws/aws-sdk-go v1.44.212 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/caarlos0/env/v6 v6.10.1 // indirect
