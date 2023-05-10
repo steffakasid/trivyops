@@ -73,7 +73,7 @@ require (
 	github.com/Azure/go-autorest/autorest/validation v0.3.1 // indirect
 	github.com/Azure/go-autorest/logger v0.2.1 // indirect
 	github.com/Azure/go-autorest/tracing v0.6.0 // indirect
-	github.com/aquasecurity/trivy-db v0.0.0-20230508125330-8c31e50cd3d9
+	github.com/aquasecurity/trivy-db v0.0.0-20230510092128-bd7af5d5a8b2
 	github.com/aws/aws-sdk-go v1.44.234 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
