@@ -111,6 +111,8 @@ github.com/aquasecurity/trivy v0.42.1 h1:rBDGiilP1jdrc5/dyyZ41ESAVb9hOMwginHVn97
 github.com/aquasecurity/trivy v0.42.1/go.mod h1:mbwzUAyy3YdVGYvuqtd1E2ylhfz/k39lMNdJQlU2TZQ=
 github.com/aquasecurity/trivy v0.43.0 h1:+sXiWM1wEpyTC/wL3YoGvd+EIzQMpFP3093C4amWpj4=
 github.com/aquasecurity/trivy v0.43.0/go.mod h1:xsaMbRaK9/EqCx9l5Y4u42Q/YXHwTuaQcI8umv8JiMs=
+github.com/aquasecurity/trivy v0.43.1 h1:p1zxj4OQ4GfYsQnJsSl13B1LRmfhp1ahSEmS7uTnVQQ=
+github.com/aquasecurity/trivy v0.43.1/go.mod h1:q5xIkiurEA6+Ht9cs3Ut85vzUBq4y1N4s7r9AvloEcQ=
 github.com/aquasecurity/trivy-db v0.0.0-20230403081710-9646c280a9fc h1:hJw3c2vwjwdllqBQJYKBrOO3SwP0LJBsjcKWERiyI+g=
 github.com/aquasecurity/trivy-db v0.0.0-20230403081710-9646c280a9fc/go.mod h1:XPLhRNig0PSec0u5Lf1fBtSBxyI/2LNwtoZCmd9nmlQ=
 github.com/aquasecurity/trivy-db v0.0.0-20230416090516-43d9fc88b5e6 h1:0k5DcTEGqZ88+H4vUi9db3SQfWt1xv1yr8vJ2XGpU+g=
@@ -1063,6 +1065,8 @@ google.golang.org/protobuf v1.29.1 h1:7QBf+IK2gx70Ap/hDsOmam3GE0v9HicjfEdAxE62Uo
 google.golang.org/protobuf v1.29.1/go.mod h1:HV8QOd/L58Z+nl8r43ehVNZIU/HEI6OcFqwMG9pJV4I=
 google.golang.org/protobuf v1.30.0 h1:kPPoIgf3TsEvrm0PFe15JQ+570QVxYzEvvHqChK+cng=
 google.golang.org/protobuf v1.30.0/go.mod h1:HV8QOd/L58Z+nl8r43ehVNZIU/HEI6OcFqwMG9pJV4I=
+google.golang.org/protobuf v1.31.0 h1:g0LDEJHgrBl9N9r17Ru3sqWhkIx2NB67okBHPwC7hs8=
+google.golang.org/protobuf v1.31.0/go.mod h1:HV8QOd/L58Z+nl8r43ehVNZIU/HEI6OcFqwMG9pJV4I=
 gopkg.in/alecthomas/kingpin.v2 v2.2.6/go.mod h1:FMv+mEhP44yOT+4EoQTLFTRgOQ1FBLkstjWtayDeSgw=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
