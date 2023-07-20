@@ -11,7 +11,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.16.0
-	github.com/xanzy/go-gitlab v0.87.0
+	github.com/xanzy/go-gitlab v0.88.0
 	go.mozilla.org/sops/v3 v3.7.3
 )
 
@@ -74,7 +74,7 @@ require (
 	github.com/Azure/go-autorest/autorest/validation v0.3.1 // indirect
 	github.com/Azure/go-autorest/logger v0.2.1 // indirect
 	github.com/Azure/go-autorest/tracing v0.6.0 // indirect
-	github.com/aquasecurity/trivy-db v0.0.0-20230719065609-69e55d6cfcb9
+	github.com/aquasecurity/trivy-db v0.0.0-20230720110326-bc8f5bf9bfcc
 	github.com/aws/aws-sdk-go v1.44.245 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
