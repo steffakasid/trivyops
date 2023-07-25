@@ -153,6 +153,8 @@ github.com/aquasecurity/trivy-db v0.0.0-20230719065609-69e55d6cfcb9 h1:Riuk08Ia8
 github.com/aquasecurity/trivy-db v0.0.0-20230719065609-69e55d6cfcb9/go.mod h1:cXuqKo+FaMY0ixJNoUcyDHdfCBRPWOysI2Td8N4fRsg=
 github.com/aquasecurity/trivy-db v0.0.0-20230720110326-bc8f5bf9bfcc h1:dbEX69+8D5aPXrAJEGxeNtts/MMXexseFg24RFRkhXo=
 github.com/aquasecurity/trivy-db v0.0.0-20230720110326-bc8f5bf9bfcc/go.mod h1:st35g9O0ecDGBqnRHNFFz8imlDD3GWTCwo1WyJixI2c=
+github.com/aquasecurity/trivy-db v0.0.0-20230725082528-05620b00f6c4 h1:ARMj8Gyc1zyt0+23A0nPxL8zWtb3mGiWA6jWobR5PMU=
+github.com/aquasecurity/trivy-db v0.0.0-20230725082528-05620b00f6c4/go.mod h1:st35g9O0ecDGBqnRHNFFz8imlDD3GWTCwo1WyJixI2c=
 github.com/armon/go-metrics v0.3.9/go.mod h1:4O98XIr/9W0sxpJ8UaYkvjk10Iff7SnFrb4QAOwNTFc=
 github.com/armon/go-metrics v0.4.0 h1:yCQqn7dwca4ITXb+CbubHmedzaQYHhNhrEXLYUeEe8Q=
 github.com/armon/go-metrics v0.4.0/go.mod h1:E6amYzXo6aW1tqzoZGT755KkbgrJsSdpwZ+3JqfkOG4=
