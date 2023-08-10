@@ -115,6 +115,8 @@ github.com/aquasecurity/trivy v0.43.1 h1:p1zxj4OQ4GfYsQnJsSl13B1LRmfhp1ahSEmS7uT
 github.com/aquasecurity/trivy v0.43.1/go.mod h1:q5xIkiurEA6+Ht9cs3Ut85vzUBq4y1N4s7r9AvloEcQ=
 github.com/aquasecurity/trivy v0.44.0 h1:g7vC3di5S2CrnJw0zBmf+CU8Kgrt9zq+Zj5ji99Q7bc=
 github.com/aquasecurity/trivy v0.44.0/go.mod h1:OTjCAcrU3eTA10Xt4d4P6EJkBXPWPxBCXA4NaX3gEQ8=
+github.com/aquasecurity/trivy v0.44.1 h1:KcYhS/sNheabe6U3NTVYb+NSMg34OzWzWv5VyPbCl0c=
+github.com/aquasecurity/trivy v0.44.1/go.mod h1:jVUjY3SwpovchdasfIoY/3P3w9u6UyhcFo1lyXQvHe8=
 github.com/aquasecurity/trivy-db v0.0.0-20230403081710-9646c280a9fc h1:hJw3c2vwjwdllqBQJYKBrOO3SwP0LJBsjcKWERiyI+g=
 github.com/aquasecurity/trivy-db v0.0.0-20230403081710-9646c280a9fc/go.mod h1:XPLhRNig0PSec0u5Lf1fBtSBxyI/2LNwtoZCmd9nmlQ=
 github.com/aquasecurity/trivy-db v0.0.0-20230416090516-43d9fc88b5e6 h1:0k5DcTEGqZ88+H4vUi9db3SQfWt1xv1yr8vJ2XGpU+g=
@@ -173,6 +175,8 @@ github.com/aws/aws-sdk-go v1.44.234 h1:8YbQ5AhpgV/cC7jYX8qS34Am/vcn2ZoIFJ1qIgwOL
 github.com/aws/aws-sdk-go v1.44.234/go.mod h1:aVsgQcEevwlmQ7qHE9I3h+dtQgpqhFB+i8Phjh7fkwI=
 github.com/aws/aws-sdk-go v1.44.245 h1:KtY2s4q31/kn33AdV63R5t77mdxsI7rq3YT7Mgo805M=
 github.com/aws/aws-sdk-go v1.44.245/go.mod h1:aVsgQcEevwlmQ7qHE9I3h+dtQgpqhFB+i8Phjh7fkwI=
+github.com/aws/aws-sdk-go v1.44.273 h1:CX8O0gK+cGrgUyv7bgJ6QQP9mQg7u5mweHdNzULH47c=
+github.com/aws/aws-sdk-go v1.44.273/go.mod h1:aVsgQcEevwlmQ7qHE9I3h+dtQgpqhFB+i8Phjh7fkwI=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
 github.com/beorn7/perks v1.0.0/go.mod h1:KWe93zE9D1o94FZ5RNwFwVgaQK1VOXiVxmqh+CedLV8=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
