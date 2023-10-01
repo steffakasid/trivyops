@@ -75,6 +75,8 @@ github.com/aquasecurity/trivy-db v0.0.0-20230925190054-2a8ff07d48cc h1:/8qMNJFQX
 github.com/aquasecurity/trivy-db v0.0.0-20230925190054-2a8ff07d48cc/go.mod h1:y6HstYX/kTxFLuojCZ8S72LyHGzUuiiXnaVYCDGUdSE=
 github.com/aquasecurity/trivy-db v0.0.0-20230927082224-b7e0a5886daa h1:Rj/QHdHqvTlLItHPAqQ8ovM3Oqz8vm3av/xzoMNJ0oA=
 github.com/aquasecurity/trivy-db v0.0.0-20230927082224-b7e0a5886daa/go.mod h1:y6HstYX/kTxFLuojCZ8S72LyHGzUuiiXnaVYCDGUdSE=
+github.com/aquasecurity/trivy-db v0.0.0-20231001162546-0155e8b2d9e3 h1:blGXGaHLutJelUAfp34NLU5/nTARI5mQPsjYjGrQ1e8=
+github.com/aquasecurity/trivy-db v0.0.0-20231001162546-0155e8b2d9e3/go.mod h1:cj9/QmD9N3OZnKQMp+/DvdV+ym3HyIkd4e+F0ZM3ZGs=
 github.com/armon/go-radix v0.0.0-20180808171621-7fddfc383310/go.mod h1:ufUuZ+zHj4x4TnLV4JWEpy2hxWSpsRywHrMgIH9cCH8=
 github.com/aws/aws-sdk-go-v2 v1.21.0 h1:gMT0IW+03wtYJhRqTVYn0wLzwdnK9sRMcxmtfGzRdJc=
 github.com/aws/aws-sdk-go-v2 v1.21.0/go.mod h1:/RfNgGmRxI+iFOB1OeJUyxiU+9s88k3pfHvDagGEp0M=
