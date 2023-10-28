@@ -81,6 +81,8 @@ github.com/aquasecurity/trivy v0.45.1 h1:JjkrawgNpVUV6mxtFX635I3MhzDqmGkze46Snyg
 github.com/aquasecurity/trivy v0.45.1/go.mod h1:3cawI6q9o32pPGXhuGEIWWwUCSMAzRk/FhsEdA4eW1k=
 github.com/aquasecurity/trivy v0.46.0 h1:ryVH2WeLIDNXIMYIMtAzX+VD6/BWcLIkey48LLDD7PU=
 github.com/aquasecurity/trivy v0.46.0/go.mod h1:BBaRaoRvF2KrGzXo9UwMeNwNIxQgxfNw7nlpi1X2lnI=
+github.com/aquasecurity/trivy v0.46.1 h1:YYqPwWTWXSYXgvExbopENlUP3Eztd+gTznnD+ZbHWvc=
+github.com/aquasecurity/trivy v0.46.1/go.mod h1:jOm8rwmwcZ2w9myAiOvS30MjKmJvpHTWRvUzPSXAvyw=
 github.com/aquasecurity/trivy-db v0.0.0-20230925190054-2a8ff07d48cc h1:/8qMNJFQXEjmwMOP0CxBG3dw1ScsIbFgigoE+PJzGxo=
 github.com/aquasecurity/trivy-db v0.0.0-20230925190054-2a8ff07d48cc/go.mod h1:y6HstYX/kTxFLuojCZ8S72LyHGzUuiiXnaVYCDGUdSE=
 github.com/aquasecurity/trivy-db v0.0.0-20230927082224-b7e0a5886daa h1:Rj/QHdHqvTlLItHPAqQ8ovM3Oqz8vm3av/xzoMNJ0oA=
