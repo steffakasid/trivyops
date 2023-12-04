@@ -101,6 +101,8 @@ github.com/aquasecurity/trivy-db v0.0.0-20231102003934-9b6052fceebd h1:qmgbJa5F9
 github.com/aquasecurity/trivy-db v0.0.0-20231102003934-9b6052fceebd/go.mod h1:HjsKOyECaNYlo5ALsBbQZAIVencPex+AruHG7K7/i6o=
 github.com/aquasecurity/trivy-db v0.0.0-20231106053131-81d747dba6ac h1:C8J7nnUltwuSNN9ZCSmhqHrKq0pQlXkviNS/JmNkRr4=
 github.com/aquasecurity/trivy-db v0.0.0-20231106053131-81d747dba6ac/go.mod h1:HjsKOyECaNYlo5ALsBbQZAIVencPex+AruHG7K7/i6o=
+github.com/aquasecurity/trivy-db v0.0.0-20231204103057-c212f374b52e h1:OTpQo2K6Q8zWEqmH80fXfB2B70M0xPCokKcpe4se7p8=
+github.com/aquasecurity/trivy-db v0.0.0-20231204103057-c212f374b52e/go.mod h1:be2LyewzGxgRtlH1jJDklu1PxdT99IzE/6Qs98EjmKs=
 github.com/armon/go-radix v0.0.0-20180808171621-7fddfc383310/go.mod h1:ufUuZ+zHj4x4TnLV4JWEpy2hxWSpsRywHrMgIH9cCH8=
 github.com/aws/aws-sdk-go-v2 v1.21.0 h1:gMT0IW+03wtYJhRqTVYn0wLzwdnK9sRMcxmtfGzRdJc=
 github.com/aws/aws-sdk-go-v2 v1.21.0/go.mod h1:/RfNgGmRxI+iFOB1OeJUyxiU+9s88k3pfHvDagGEp0M=
@@ -725,6 +727,8 @@ golang.org/x/text v0.7.0/go.mod h1:mrYo+phRRbMaCq/xk9113O4dZlRixOauAjOtrjsXDZ8=
 golang.org/x/text v0.8.0/go.mod h1:e1OnstbJyHTd6l/uOt8jFFHp6TRDWZR/bV3emEE/zU8=
 golang.org/x/text v0.13.0 h1:ablQoSUd0tRdKxZewP80B+BaqeKJuVhuRxj/dkrun3k=
 golang.org/x/text v0.13.0/go.mod h1:TvPlkZtksWOMsz7fbANvkp4WM8x/WCo/om8BMLbz+aE=
+golang.org/x/text v0.14.0 h1:ScX5w1eTa3QqT8oi6+ziP7dTV1S2+ALU0bI+0zXKWiQ=
+golang.org/x/text v0.14.0/go.mod h1:18ZOQIKpY8NJVqYksKHtTdi31H5itFRjB5/qKTNYzSU=
 golang.org/x/time v0.0.0-20181108054448-85acf8d2951c/go.mod h1:tRJNPiyCQ0inRvYxbN9jk5I+vvW/OXSQhTDSoE431IQ=
 golang.org/x/time v0.0.0-20190308202827-9d24e82272b4/go.mod h1:tRJNPiyCQ0inRvYxbN9jk5I+vvW/OXSQhTDSoE431IQ=
 golang.org/x/time v0.0.0-20191024005414-555d28b269f0/go.mod h1:tRJNPiyCQ0inRvYxbN9jk5I+vvW/OXSQhTDSoE431IQ=

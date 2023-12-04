@@ -80,7 +80,7 @@ require (
 
 require (
 	cloud.google.com/go/compute v1.23.0 // indirect
-	github.com/aquasecurity/trivy-db v0.0.0-20231106053131-81d747dba6ac
+	github.com/aquasecurity/trivy-db v0.0.0-20231204103057-c212f374b52e
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
@@ -122,7 +122,7 @@ require (
 	golang.org/x/oauth2 v0.12.0 // indirect
 	golang.org/x/sys v0.13.0 // indirect
 	golang.org/x/term v0.13.0 // indirect
-	golang.org/x/text v0.13.0 // indirect
+	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/api v0.146.0 // indirect
