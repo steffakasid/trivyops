@@ -88,7 +88,7 @@ require (
 
 require (
 	cloud.google.com/go/compute v1.25.0 // indirect
-	github.com/aquasecurity/trivy-db v0.0.0-20240502062805-dece64c97a96
+	github.com/aquasecurity/trivy-db v0.0.0-20240516042723-b8fe1376ffcd
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
