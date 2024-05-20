@@ -37,6 +37,8 @@ github.com/ProtonMail/go-crypto v1.1.0-alpha.0 h1:nHGfwXmFvJrSR9xu8qL7BkO4DqTHXE
 github.com/ProtonMail/go-crypto v1.1.0-alpha.0/go.mod h1:rA3QumHc/FZ8pAHreoekgiAbzpNsfQAosU5td4SnOrE=
 github.com/aquasecurity/trivy v0.51.1 h1:dyRtODzG82sCBdeDEWlgkke2KGoF4Kibiiwy220ZNv8=
 github.com/aquasecurity/trivy v0.51.1/go.mod h1:Ou1vfjfGTpgHpPUkEhepPE4yXaNxXRIXN4KdBkjYsQo=
+github.com/aquasecurity/trivy v0.51.2 h1:C5rb5TsEiwGEKQzKc4f2qsJVd5uG+C2aMx+zF+7KOWY=
+github.com/aquasecurity/trivy v0.51.2/go.mod h1:/O2z/ySpHOiVOpiPGwZny3EFs/7Jis6et0nn6mlf6n4=
 github.com/aquasecurity/trivy-db v0.0.0-20240502062805-dece64c97a96 h1:DrNdewCpWJRfR1ELSh7SFjcG0gZ8Wf+BAUwjhbVsC4M=
 github.com/aquasecurity/trivy-db v0.0.0-20240502062805-dece64c97a96/go.mod h1:M/7mf9j/+ZcggVZktgp/L+7Ksp3rCo3+ji7R6YBEYdU=
 github.com/aquasecurity/trivy-db v0.0.0-20240516042723-b8fe1376ffcd h1:OD4qRkSOmFg2FaDMNb48NOWKgbczpdvBQlAtVzgv/kY=
