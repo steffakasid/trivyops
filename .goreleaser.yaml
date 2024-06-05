@@ -1,3 +1,4 @@
+version: 2
 project_name: trivyops
 before:
   hooks:
@@ -55,7 +56,7 @@ brews:
     ids:
     - cli
     # GitHub/GitLab repository to push the formula to
-    tap:
+    repository:
       owner: steffakasid
       name: homebrew-trivyops
       token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
@@ -71,7 +72,7 @@ brews:
 
     # Folder inside the repository to put the formula.
     # Default is the root folder.
-    folder: Formula
+    directory: Formula
 
     homepage: "https://github.com/steffakasid/trivyops"
     description: "This tool can be used to scan GitLab for trivy results"
