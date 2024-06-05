@@ -2,7 +2,7 @@ module github.com/steffakasid/trivy-scanner
 
 go 1.22.0
 
-toolchain go1.22.3
+toolchain go1.22.4
 
 require (
 	github.com/aquasecurity/trivy v0.52.0
