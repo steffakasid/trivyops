@@ -34,7 +34,7 @@ func init() {
 	viper.SetDefault(LOG_LEVEL, "info")
 	viper.SetDefault(METRICS_PORT, 2112)
 	viper.BindEnv(GITLAB_GROUP_ID)
-	viper.SetDefault(METRICS_CRON, "@every 6h")
+	viper.SetDefault(METRICS_CRON, "@every 1h")
 }
 
 func InitConfig() {
