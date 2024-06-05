@@ -26,7 +26,7 @@ func printResultTbl(results internal.TrivyResults) {
 
 		summaryTable := newLightTableWriter()
 		summaryTable.AppendHeader(table.Row{"Job", "Status", "Scanned Packages", "Vulnerabilities"})
-		summaryTable.AppendRow(table.Row{viper.GetString(JOB_NAME), projResult.State, len(projResult.ReportResult), projResult.Vulnerabilities.Count})
+		summaryTable.AppendRow(table.Row{viper.GetString(internal.JOB_NAME), projResult.State, len(projResult.ReportResult), projResult.Vulnerabilities.Count})
 		projectTbl.AppendRow(table.Row{"Summary", summaryTable.Render()})
 		projectTbl.AppendSeparator()
 

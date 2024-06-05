@@ -62,7 +62,7 @@ func updateRegister() {
 			"Vulnerabilities": strconv.Itoa(trivy.Vulnerabilities.Count),
 			"High":            strconv.Itoa(trivy.Vulnerabilities.High),
 			"Critical":        strconv.Itoa(trivy.Vulnerabilities.Critical),
-			"ScannedJobName":  viper.GetString(JOB_NAME),
+			"ScannedJobName":  viper.GetString(internal.JOB_NAME),
 			"JobState":        trivy.State,
 			"trivyignore":     trivyIgnore,
 		}
