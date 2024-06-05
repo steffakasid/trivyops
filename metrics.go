@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/robfig/cron/v3"
 	logger "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"github.com/steffakasid/trivy-scanner/internal"
