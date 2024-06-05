@@ -18,8 +18,6 @@ import (
 var version = "0.1-dev"
 
 const (
-	JOB_NAME    = "job-name"
-	ARTIFACT    = "artifact-name"
 	FILTER      = "filter"
 	OUTPUT      = "output"
 	OUTPUT_FILE = "output-file"
@@ -32,8 +30,6 @@ const (
 )
 
 func init() {
-	flag.StringP(JOB_NAME, "j", "scan_oci_image_trivy", "The gitlab ci jobname to check")
-	flag.StringP(ARTIFACT, "a", "trivy-results.json", "The artifact filename of the trivy result")
 	flag.StringP(FILTER, "f", "", "A golang regular expression to filter project name with namespace (e.g. (^.*/groupprefix.+$)|(^.*otherprefix.*))")
 	flag.StringP(OUTPUT, "o", "text", "Define how to output results [text, table, json]")
 	flag.String(OUTPUT_FILE, "", "Define a file to output the result json")
@@ -57,6 +53,8 @@ Usage:
   trivyops [flags] GITLAB_GROUP_ID
 
 Variables:
+  - JOB_NAME  			- The gitlab ci jobname to check [Default "scan_oci_image_trivy"]
+  - ARTIFACT		    - The artifact filename of the trivy result [Default: "trivy-results.json"]
   - GITLAB_TOKEN		- the GitLab token to access the Gitlab instance
   - GITLAB_HOST			- the GitLab host which should be accessed [Default: https://gitlab.com]
   - GITLAB_GROUP_ID		- the GitLab group ID to scan (only be used if not given per argument)
@@ -117,8 +115,8 @@ func main() {
 			groupId = viper.GetString(internal.GITLAB_GROUP_ID)
 		}
 		scan, err = internal.InitScanner(groupId,
-			viper.GetString(JOB_NAME),
-			viper.GetString(ARTIFACT),
+			viper.GetString(internal.JOB_NAME),
+			viper.GetString(internal.ARTIFACT),
 			viper.GetString(FILTER),
 			client)
 		if err != nil {

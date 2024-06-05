@@ -23,6 +23,8 @@ const (
 	LOG_LEVEL       = "LOG_LEVEL"
 	METRICS_PORT    = "METRICS_PORT"
 	METRICS_CRON    = "METRICS_CRON"
+	ARTIFACT        = "ARTIFACT"
+	JOB_NAME        = "JOB_NAME"
 )
 
 func init() {
@@ -32,6 +34,8 @@ func init() {
 	}
 	viper.SetDefault(GITLAB_HOST, "https://gitlab.com")
 	viper.SetDefault(LOG_LEVEL, "info")
+	viper.SetDefault(ARTIFACT, "trivy-results.json")
+	viper.SetDefault(JOB_NAME, "scan_oci_image_trivy")
 	viper.SetDefault(METRICS_PORT, 2112)
 	viper.BindEnv(GITLAB_GROUP_ID)
 	viper.SetDefault(METRICS_CRON, "@every 1h")

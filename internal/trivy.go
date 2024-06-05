@@ -30,7 +30,9 @@ func (t *TrivyResults) Check() {
 func (r *trivy) check() {
 	vullies := vulnerabilities{}
 	for _, pkgResult := range r.ReportResult {
+		vullies.Count += len(pkgResult.Misconfigurations)
 		vullies.Count += len(pkgResult.Vulnerabilities)
+		vullies.Count += len(pkgResult.Secrets)
 		for _, v := range pkgResult.Vulnerabilities {
 			if v.Severity == "CRITICAL" {
 				vullies.Critical++
