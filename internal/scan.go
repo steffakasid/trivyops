@@ -68,16 +68,17 @@ func (s Scan) scanProjects(projs []*gitlab.Project, channel chan *trivy, wg *syn
 				ProjId:   proj.ID,
 				ProjName: proj.Name,
 			}
-			jobState, err := s.getTrivyJobState(s.JobName, projResult.ProjId)
+			jobList, err := s.getTrivyJob(s.JobName, projResult.ProjId)
 			logIfError(proj.Name, err)
-			if jobState != nil {
-				projResult.State = *jobState
-			}
 
-			results, err := s.getTrivyResult(proj.DefaultBranch, s.JobName, s.ArtifactFileName, projResult.ProjId)
-			logIfError(proj.Name, err)
-			if results != nil {
-				projResult.ReportResult = results
+			resultsList := types.Results{}
+			for _, job := range jobList {
+				results, err := s.getTrivyResult(s.ArtifactFileName, job)
+				logIfError(proj.Name, err)
+				if results != nil {
+					resultsList = append(resultsList, results...)
+				}
+				projResult.ReportResult = resultsList
 			}
 
 			trivyIgnore, err := s.getTrivyIgnore(projResult.ProjId, proj.DefaultBranch)
@@ -106,36 +107,39 @@ func (s Scan) processResults(projResults chan *trivy, resultsChannel chan TrivyR
 	close(resultsChannel)
 }
 
-func (s Scan) getTrivyJobState(jobName string, projId int) (*string, error) {
-	jobs, _, err := s.GitLabClient.JobsClient.ListProjectJobs(projId, &gitlab.ListJobsOptions{IncludeRetried: gitlab.Bool(false)})
+func (s Scan) getTrivyJob(jobName string, projId int) ([]gitlab.Job, error) {
+	resultJobList := []gitlab.Job{}
+	pipeline, _, err := s.GitLabClient.PipelinesClient.GetLatestPipeline(projId, &gitlab.GetLatestPipelineOptions{})
 	if err != nil {
-		return nil, err
+		return resultJobList, err
+	}
+	jobs, _, err := s.GitLabClient.JobsClient.ListPipelineJobs(projId, pipeline.ID, &gitlab.ListJobsOptions{IncludeRetried: gitlab.Ptr(false)})
+	if err != nil {
+		return resultJobList, err
 	}
 
 	for _, job := range jobs {
-		if jobName == job.Name {
-			return &job.Status, nil
+		if strings.Contains(job.Name, jobName) {
+			resultJobList = append(resultJobList, *job)
 		}
 	}
-	return nil, fmt.Errorf("job %s wasn't found in job list from project", jobName)
+	return resultJobList, err
 }
 
-func (s Scan) getTrivyResult(branch, jobName, fileName string, projId int) (types.Results, error) {
+func (s Scan) getTrivyResult(fileName string, job gitlab.Job) (types.Results, error) {
 
-	rdr, res, err := s.GitLabClient.JobsClient.DownloadArtifactsFile(projId, branch, &gitlab.DownloadArtifactsFileOptions{Job: gitlab.String(jobName)})
+	artifacts, response, err := s.GitLabClient.JobsClient.GetJobArtifacts(job.Project.ID, job.ID)
 	if err != nil {
-		if res != nil && res.StatusCode == 404 {
+		if response != nil && response.StatusCode == 404 {
 			return nil, nil
 		} else {
 			return nil, err
 		}
 	}
-
-	bt, err := unzipFromReader(rdr, fileName)
+	bt, err := unzipFromReader(artifacts, fileName)
 	if err != nil {
 		return nil, err
 	}
-
 	return s.reportFromFile(bt)
 }
 
@@ -156,7 +160,7 @@ func (s Scan) reportFromFile(bt []byte) (types.Results, error) {
 
 func (s Scan) getTrivyIgnore(projId int, branch string) ([]string, error) {
 
-	bt, res, err := s.GitLabClient.RepositoryFiles.GetRawFile(projId, ".trivyignore", &gitlab.GetRawFileOptions{Ref: gitlab.String(branch)})
+	bt, res, err := s.GitLabClient.RepositoryFiles.GetRawFile(projId, ".trivyignore", &gitlab.GetRawFileOptions{Ref: gitlab.Ptr(branch)})
 	if err != nil {
 		if res.StatusCode == 404 {
 			return nil, nil

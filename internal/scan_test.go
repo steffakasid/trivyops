@@ -19,11 +19,13 @@ func InitMock() *GitLabClient {
 	jobMock := &mocks.GitLabJobs{}
 	projectMock := &mocks.GitLabProjects{}
 	repoFilesMock := &mocks.GitLabRepositoryFiles{}
+	pipeMock := &mocks.GitLabPipelines{}
 	return &GitLabClient{
 		GroupsClient:    groupMock,
 		JobsClient:      jobMock,
 		ProjectsClient:  projectMock,
 		RepositoryFiles: repoFilesMock,
+		PipelinesClient: pipeMock,
 	}
 }
 
@@ -59,6 +61,7 @@ func TestInitScanner(t *testing.T) {
 func TestScanGroup(t *testing.T) {
 
 	grpID := "123"
+	jobID := 123
 	jobName := "unittest_job"
 	artifactFilename := "trivy-result.json"
 	branch := "unittest"
@@ -66,8 +69,11 @@ func TestScanGroup(t *testing.T) {
 	t.Run("success with filter", func(t *testing.T) {
 		projs := generateProjects(50, branch)
 		mockGit := InitMock()
-		mockListProjectJobsForProject(t, projs, jobName, mockGit.JobsClient.(*mocks.GitLabJobs), 10, 15)
-		mockDownloadArtifactsFileForProjects(t, projs, branch, jobName, mockGit.JobsClient.(*mocks.GitLabJobs), 25, 30)
+
+		mockGetLatestPipeline(projs, mockGit.PipelinesClient.(*mocks.GitLabPipelines))
+		mockListPipelineJobsForProject(projs, 0, jobName, mockGit.JobsClient.(*mocks.GitLabJobs))
+		mockListProjectJobsForProject(projs, jobName, mockGit.JobsClient.(*mocks.GitLabJobs), 10, 15)
+		mockDownloadArtifactsFileForProjects(t, projs, jobID, mockGit.JobsClient.(*mocks.GitLabJobs), 25, 30)
 		mockGetRawFileForProjects(t, projs, branch, mockGit.RepositoryFiles.(*mocks.GitLabRepositoryFiles), 44, 45, 46)
 		scan, err := InitScanner(grpID, jobName, artifactFilename, ".*ro.*", mockGit)
 
@@ -76,8 +82,6 @@ func TestScanGroup(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
 		assert.Len(t, result, 50)
-		assertProjNoState(t, result, 10)
-		assertProjNoState(t, result, 15)
 		assertProjNoResult(t, result, 25)
 		assertProjNoResult(t, result, 30)
 		assertProjNoIgnore(t, result, 44)
@@ -88,8 +92,10 @@ func TestScanGroup(t *testing.T) {
 	t.Run("success without filter", func(t *testing.T) {
 		projs := generateProjects(50, branch)
 		mockGit := InitMock()
-		mockListProjectJobsForProject(t, projs, jobName, mockGit.JobsClient.(*mocks.GitLabJobs), 10, 15)
-		mockDownloadArtifactsFileForProjects(t, projs, branch, jobName, mockGit.JobsClient.(*mocks.GitLabJobs), 25, 30)
+		mockGetLatestPipeline(projs, mockGit.PipelinesClient.(*mocks.GitLabPipelines))
+		mockListPipelineJobsForProject(projs, 0, jobName, mockGit.JobsClient.(*mocks.GitLabJobs))
+		mockListProjectJobsForProject(projs, jobName, mockGit.JobsClient.(*mocks.GitLabJobs), 10, 15)
+		mockDownloadArtifactsFileForProjects(t, projs, jobID, mockGit.JobsClient.(*mocks.GitLabJobs), 25, 30)
 		mockGetRawFileForProjects(t, projs, branch, mockGit.RepositoryFiles.(*mocks.GitLabRepositoryFiles), 44, 45, 46)
 		scan, err := InitScanner(grpID, jobName, artifactFilename, "", mockGit)
 
@@ -98,39 +104,11 @@ func TestScanGroup(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
 		assert.Len(t, result, 50)
-		assertProjNoState(t, result, 10)
-		assertProjNoState(t, result, 15)
 		assertProjNoResult(t, result, 25)
 		assertProjNoResult(t, result, 30)
 		assertProjNoIgnore(t, result, 44)
 		assertProjNoIgnore(t, result, 45)
 		assertProjNoIgnore(t, result, 46)
-	})
-}
-
-func TestGetTrivyJobState(t *testing.T) {
-	scan := Scan{
-		JobName:          "unittest-job",
-		ArtifactFileName: "trivy-result.json",
-		GitLabClient:     InitMock(),
-	}
-	projId := 1123
-
-	t.Run("success", func(t *testing.T) {
-		mockListProjectJobs(t, projId, scan.JobName, 1, scan.GitLabClient.JobsClient.(*mocks.GitLabJobs))
-
-		state, err := scan.getTrivyJobState(scan.JobName, projId)
-		assert.NoError(t, err)
-		assert.Equal(t, "success", *state)
-	})
-
-	t.Run("error", func(t *testing.T) {
-		mockListProjectJobs(t, projId, scan.JobName, 1, scan.GitLabClient.JobsClient.(*mocks.GitLabJobs), 1)
-
-		state, err := scan.getTrivyJobState(scan.JobName, projId)
-		assert.Error(t, err)
-		assert.EqualError(t, err, "Fail")
-		assert.Nil(t, state)
 	})
 }
 
@@ -140,21 +118,23 @@ func TestGetTrivyResult(t *testing.T) {
 		ArtifactFileName: "trivy-result.json",
 		GitLabClient:     InitMock(),
 	}
-	projId := 1123
-	branch := "main"
+	projID := 1123
+	jobID := 123
 
 	t.Run("success", func(t *testing.T) {
-		mockDownloadArtifactsFile(t, projId, branch, scan.JobName, 1, scan.GitLabClient.JobsClient.(*mocks.GitLabJobs))
+		mockDownloadArtifactsFile(t, projID, jobID, 1, scan.GitLabClient.JobsClient.(*mocks.GitLabJobs))
 
-		results, err := scan.getTrivyResult("main", scan.JobName, scan.ArtifactFileName, projId)
+		job := gitlab.Job{ID: 123, Project: &gitlab.Project{ID: 1123}}
+		results, err := scan.getTrivyResult(scan.ArtifactFileName, job)
 		assert.NoError(t, err)
 		assert.Len(t, results, 6)
 	})
 
 	t.Run("error", func(t *testing.T) {
-		mockDownloadArtifactsFile(t, projId, branch, scan.JobName, 1, scan.GitLabClient.JobsClient.(*mocks.GitLabJobs), 1)
+		mockDownloadArtifactsFile(t, projID, jobID, 1, scan.GitLabClient.JobsClient.(*mocks.GitLabJobs), 1)
 
-		results, err := scan.getTrivyResult("main", scan.JobName, scan.ArtifactFileName, projId)
+		job := gitlab.Job{ID: 123, Project: &gitlab.Project{ID: 1123}}
+		results, err := scan.getTrivyResult(scan.ArtifactFileName, job)
 		assert.Error(t, err)
 		assert.EqualError(t, err, "Fail")
 		assert.Nil(t, results)
@@ -191,14 +171,6 @@ func TestGetTrivyIgnore(t *testing.T) {
 	})
 }
 
-func assertProjNoState(t *testing.T, result TrivyResults, id int) {
-	for _, res := range result {
-		if res.ProjId == id {
-			assert.Equal(t, "", res.State)
-		}
-	}
-}
-
 func assertProjNoResult(t *testing.T, result TrivyResults, id int) {
 	for _, res := range result {
 		if res.ProjId == id {
@@ -229,19 +201,64 @@ func generateProjects(number int, branch string) []*gitlab.Project {
 	return projs
 }
 
-func mockListProjectJobsForProject(t *testing.T, projs []*gitlab.Project, jobName string, mock *mocks.GitLabJobs, errProj ...int) {
+func mockGetLatestPipeline(projs []*gitlab.Project, mock *mocks.GitLabPipelines, errProj ...int) {
 	for _, proj := range projs {
 		if isErrorCall(errProj, proj.ID) {
-			mockListProjectJobs(t, proj.ID, jobName, 1, mock, 1)
+
 		} else {
-			mockListProjectJobs(t, proj.ID, jobName, 1, mock)
+			mock.EXPECT().GetLatestPipeline(proj.ID, &gitlab.GetLatestPipelineOptions{}).Return(&gitlab.Pipeline{}, &gitlab.Response{}, nil)
 		}
 	}
 }
 
-func mockListProjectJobs(t *testing.T, projId int, jobName string, numCalls int, mock *mocks.GitLabJobs, errCall ...int) {
+func mockListPipelineJobsForProject(projs []*gitlab.Project, genericPipelineID int, jobName string, mock *mocks.GitLabJobs, errProj ...int) {
+	for _, proj := range projs {
+		if isErrorCall(errProj, proj.ID) {
+
+		} else {
+			mockListPipelineJobs(proj.ID, genericPipelineID, jobName, 1, mock)
+		}
+	}
+}
+
+func mockListPipelineJobs(projId int, pipelineID int, jobName string, numCalls int, mock *mocks.GitLabJobs, errCall ...int) {
+	listJobsOptions := &gitlab.ListJobsOptions{
+		IncludeRetried: gitlab.Ptr(false),
+	}
+
+	resp := &gitlab.Response{
+		TotalItems: 1,
+		TotalPages: 1,
+		Response: &http.Response{
+			Status: "200",
+		},
+	}
+
+	for i := 1; i <= numCalls; i++ {
+		if isErrorCall(errCall, i) {
+			resp.Response = &http.Response{
+				Status: "500",
+			}
+			mock.EXPECT().ListPipelineJobs(projId, pipelineID, listJobsOptions).Return(nil, resp, errors.New("Fail")).Once()
+		} else {
+			mock.EXPECT().ListPipelineJobs(projId, pipelineID, listJobsOptions).Return([]*gitlab.Job{{ID: 123, Project: &gitlab.Project{ID: projId}, Name: jobName, Status: "success"}}, resp, nil).Once()
+		}
+	}
+}
+
+func mockListProjectJobsForProject(projs []*gitlab.Project, jobName string, mock *mocks.GitLabJobs, errProj ...int) {
+	for _, proj := range projs {
+		if isErrorCall(errProj, proj.ID) {
+			mockListProjectJobs(proj.ID, jobName, 1, mock, 1)
+		} else {
+			mockListProjectJobs(proj.ID, jobName, 1, mock)
+		}
+	}
+}
+
+func mockListProjectJobs(projId int, jobName string, numCalls int, mock *mocks.GitLabJobs, errCall ...int) {
 	listProjsOpts := &gitlab.ListJobsOptions{
-		IncludeRetried: gitlab.Bool(false),
+		IncludeRetried: gitlab.Ptr(false),
 	}
 
 	resp := &gitlab.Response{
@@ -264,20 +281,18 @@ func mockListProjectJobs(t *testing.T, projId int, jobName string, numCalls int,
 	}
 }
 
-func mockDownloadArtifactsFileForProjects(t *testing.T, projs []*gitlab.Project, branch string, jobName string, mock *mocks.GitLabJobs, errProj ...int) {
+func mockDownloadArtifactsFileForProjects(t *testing.T, projs []*gitlab.Project, jobID int, mock *mocks.GitLabJobs, errProj ...int) {
 	for _, proj := range projs {
 		if isErrorCall(errProj, proj.ID) {
-			mockDownloadArtifactsFile(t, proj.ID, branch, jobName, 1, mock, 1)
+			mockDownloadArtifactsFile(t, proj.ID, jobID, 1, mock, 1)
 		} else {
-			mockDownloadArtifactsFile(t, proj.ID, branch, jobName, 1, mock)
+			mockDownloadArtifactsFile(t, proj.ID, jobID, 1, mock)
 		}
 	}
 }
 
-func mockDownloadArtifactsFile(t *testing.T, projId int, branch string, jobName string, numCalls int, mock *mocks.GitLabJobs, errCall ...int) {
-	downloadOpts := &gitlab.DownloadArtifactsFileOptions{
-		Job: gitlab.String(jobName),
-	}
+func mockDownloadArtifactsFile(t *testing.T, projId int, jobID int, numCalls int, mock *mocks.GitLabJobs, errCall ...int) {
+
 	resp := &gitlab.Response{
 		TotalItems: 1,
 		TotalPages: 1,
@@ -292,9 +307,9 @@ func mockDownloadArtifactsFile(t *testing.T, projId int, branch string, jobName 
 			resp.Response = &http.Response{
 				Status: "500",
 			}
-			mock.EXPECT().DownloadArtifactsFile(projId, branch, downloadOpts).Return(nil, resp, errors.New("Fail")).Once()
+			mock.EXPECT().GetJobArtifacts(projId, jobID).Return(nil, resp, errors.New("Fail")).Once()
 		} else {
-			mock.EXPECT().DownloadArtifactsFile(projId, branch, downloadOpts).Return(bytes.NewReader(artifactsFile), resp, nil).Once()
+			mock.EXPECT().GetJobArtifacts(projId, jobID).Return(bytes.NewReader(artifactsFile), resp, nil).Once()
 		}
 	}
 }
@@ -311,7 +326,7 @@ func mockGetRawFileForProjects(t *testing.T, projs []*gitlab.Project, branch str
 
 func mockGetRawFile(t *testing.T, projId int, branch string, numCalls int, mock *mocks.GitLabRepositoryFiles, errCall ...int) {
 	opts := &gitlab.GetRawFileOptions{
-		Ref: gitlab.String(branch),
+		Ref: gitlab.Ptr(branch),
 	}
 	resp := &gitlab.Response{
 		TotalItems: 1,
