@@ -18,10 +18,9 @@ const (
 func printResultTxt(results internal.TrivyResults) {
 	maxProjNLen := maxProjNameLen(results)
 	for i, projResult := range results {
-		fmt.Printf("[%s]: %s | Job State: %s | Scanned Packages: %s | Vulnerabilities found: %s | .trivyignore: %t\n",
+		fmt.Printf("[%s]: %s | Scanned Packages: %s | Vulnerabilities found: %s | .trivyignore: %t\n",
 			padInt(i, 4, "0"),
 			padString(projResult.ProjName, maxProjNLen),
-			padString(projResult.State, 7),
 			padInt(len(projResult.ReportResult), 3, " "),
 			padInt(projResult.Vulnerabilities.Count, 3, " "),
 			(len(projResult.Ignore) > 0))
