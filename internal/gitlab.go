@@ -12,6 +12,7 @@ type GitLabClient struct {
 	GroupsClient    GitLabGroups
 	ProjectsClient  GitLabProjects
 	JobsClient      GitLabJobs
+	PipelinesClient GitLabPipelines
 	RepositoryFiles GitLabRepositoryFiles
 }
 
@@ -26,8 +27,13 @@ type GitLabProjects interface {
 type GitLabJobs interface {
 	ListProjectJobs(pid interface{}, opts *gitlab.ListJobsOptions, options ...gitlab.RequestOptionFunc) ([]*gitlab.Job, *gitlab.Response, error)
 	DownloadArtifactsFile(pid interface{}, refName string, opt *gitlab.DownloadArtifactsFileOptions, options ...gitlab.RequestOptionFunc) (*bytes.Reader, *gitlab.Response, error)
+	GetJobArtifacts(pid interface{}, jobID int, options ...gitlab.RequestOptionFunc) (*bytes.Reader, *gitlab.Response, error)
+	ListPipelineJobs(pid interface{}, pipelineID int, opts *gitlab.ListJobsOptions, options ...gitlab.RequestOptionFunc) ([]*gitlab.Job, *gitlab.Response, error)
 }
 
+type GitLabPipelines interface {
+	GetLatestPipeline(pid interface{}, opt *gitlab.GetLatestPipelineOptions, options ...gitlab.RequestOptionFunc) (*gitlab.Pipeline, *gitlab.Response, error)
+}
 type GitLabRepositoryFiles interface {
 	GetRawFile(pid interface{}, fileName string, opt *gitlab.GetRawFileOptions, options ...gitlab.RequestOptionFunc) ([]byte, *gitlab.Response, error)
 }
@@ -47,7 +53,7 @@ func (c GitLabClient) GetProjects(groupId string) ([]*gitlab.Project, error) {
 
 func (c GitLabClient) GetAllGroupProjects(groupId string) ([]*gitlab.Project, error) {
 	allProjs := []*gitlab.Project{}
-	var options *gitlab.ListGroupProjectsOptions = &gitlab.ListGroupProjectsOptions{
+	var options = &gitlab.ListGroupProjectsOptions{
 		ListOptions: gitlab.ListOptions{
 			PerPage: 100,
 			Page:    1,
