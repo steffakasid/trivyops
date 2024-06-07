@@ -37,8 +37,8 @@ func mockListGroupProjects(mock *mocks.GitLabGroups, numCalls int, grpId string)
 				PerPage: 100,
 				Page:    i,
 			},
-			Archived:         gitlab.Bool(false),
-			IncludeSubGroups: gitlab.Bool(true),
+			Archived:         gitlab.Ptr(false),
+			IncludeSubGroups: gitlab.Ptr(true),
 		}
 		projects := []*gitlab.Project{
 			{
@@ -65,7 +65,7 @@ func mockListProjects(mock *mocks.GitLabProjects, numCalls int) []*gitlab.Projec
 				PerPage: 100,
 				Page:    i,
 			},
-			Archived:       gitlab.Bool(false),
+			Archived:       gitlab.Ptr(false),
 			MinAccessLevel: gitlab.AccessLevel(gitlab.DeveloperPermissions),
 		}
 		projects := []*gitlab.Project{

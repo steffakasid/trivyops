@@ -105,6 +105,7 @@ func main() {
 			GroupsClient:    git.Groups,
 			ProjectsClient:  git.Projects,
 			JobsClient:      git.Jobs,
+			PipelinesClient: git.Pipelines,
 			RepositoryFiles: git.RepositoryFiles,
 		}
 
