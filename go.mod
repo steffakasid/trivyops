@@ -246,7 +246,7 @@ require (
 )
 
 require (
-	github.com/aquasecurity/trivy-db v0.0.0-20240602051612-79d0fbd1e246
+	github.com/aquasecurity/trivy-db v0.0.0-20240626072725-27fa703f5ffa
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
