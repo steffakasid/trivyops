@@ -2,7 +2,7 @@ module github.com/steffakasid/trivy-scanner
 
 go 1.22.0
 
-toolchain go1.22.4
+toolchain go1.22.5
 
 require (
 	github.com/aquasecurity/trivy v0.53.0
@@ -251,7 +251,7 @@ require (
 )
 
 require (
-	github.com/aquasecurity/trivy-db v0.0.0-20240701103400-8e907467e9ab
+	github.com/aquasecurity/trivy-db v0.0.0-20240705083242-e94dc822c86d
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
