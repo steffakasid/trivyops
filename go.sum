@@ -304,6 +304,8 @@ github.com/aquasecurity/trivy v0.55.0 h1:oWwXdPLjJ9fs7ygerigxaWrUt6urvvrEOib+2sD
 github.com/aquasecurity/trivy v0.55.0/go.mod h1:lopHpH5vGV8+78WdKzA32h5CBtwqLZK12Csl9EGCFCQ=
 github.com/aquasecurity/trivy v0.55.1 h1:LG1BA06cxO9/TYAepF8zfo+sSVxUG3dsjMrVzhlu4e4=
 github.com/aquasecurity/trivy v0.55.1/go.mod h1:dnAVPMsa9mMaZ1DZdasvFWT10WGok/boHQCpoDFgelo=
+github.com/aquasecurity/trivy v0.55.2 h1:C7Olgc3PUtAkh/2+hrgk99xc4ovJqQP9/J0A+iexi3Q=
+github.com/aquasecurity/trivy v0.55.2/go.mod h1:dnAVPMsa9mMaZ1DZdasvFWT10WGok/boHQCpoDFgelo=
 github.com/aquasecurity/trivy-checks v0.13.0 h1:na6PTdY4U0uK/fjz3HNRYBxvYSJ8vgTb57a5T8Y5t9w=
 github.com/aquasecurity/trivy-checks v0.13.0/go.mod h1:Xec/SMVGV66I7RgUqOX9MEr+YxBqHXDVLTYmpspPi3E=
 github.com/aquasecurity/trivy-checks v0.13.1-0.20240830230553-53ddbbade784 h1:1rvPiCK8uQd3sarOuZ60nwksHpxsNdrvptz4eDW/V14=
@@ -1101,6 +1103,8 @@ github.com/prometheus/client_golang v1.20.2 h1:5ctymQzZlyOON1666svgwn3s6IKWgfbjs
 github.com/prometheus/client_golang v1.20.2/go.mod h1:PIEt8X02hGcP8JWbeHyeZ53Y/jReSnHgO035n//V5WE=
 github.com/prometheus/client_golang v1.20.3 h1:oPksm4K8B+Vt35tUhw6GbSNSgVlVSBH0qELP/7u83l4=
 github.com/prometheus/client_golang v1.20.3/go.mod h1:PIEt8X02hGcP8JWbeHyeZ53Y/jReSnHgO035n//V5WE=
+github.com/prometheus/client_golang v1.20.4 h1:Tgh3Yr67PaOv/uTqloMsCEdeuFTatm5zIq5+qNN23vI=
+github.com/prometheus/client_golang v1.20.4/go.mod h1:PIEt8X02hGcP8JWbeHyeZ53Y/jReSnHgO035n//V5WE=
 github.com/prometheus/client_model v0.0.0-20180712105110-5c3871d89910/go.mod h1:MbSGuTsp3dbXC40dX6PRTWyKYBIrTGTE9sqQNg2J8bo=
 github.com/prometheus/client_model v0.0.0-20190129233127-fd36f4220a90/go.mod h1:xMI15A0UPsDsEKsMN9yxemIoYk6Tm2C1GtYGdfGttqA=
 github.com/prometheus/client_model v0.0.0-20190812154241-14fe0d1b01d4/go.mod h1:xMI15A0UPsDsEKsMN9yxemIoYk6Tm2C1GtYGdfGttqA=
