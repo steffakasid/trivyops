@@ -9,7 +9,7 @@ require (
 	github.com/briandowns/spinner v1.23.1
 	github.com/getsops/sops/v3 v3.9.1
 	github.com/jedib0t/go-pretty/v6 v6.6.0
-	github.com/prometheus/client_golang v1.20.4
+	github.com/prometheus/client_golang v1.20.5
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/pflag v1.0.5
@@ -258,7 +258,7 @@ require (
 )
 
 require (
-	github.com/aquasecurity/trivy-db v0.0.0-20241014045434-8bc49edd4a75
+	github.com/aquasecurity/trivy-db v0.0.0-20241015061708-358e1d6974bb
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
