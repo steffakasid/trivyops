@@ -7,7 +7,6 @@ import (
 type trivy struct {
 	ProjId          int
 	ProjName        string
-	State           string
 	Vulnerabilities vulnerabilities
 	Ignore          []string
 	ReportResult    types.Results

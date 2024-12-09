@@ -57,26 +57,43 @@ func updateRegister() {
 		}
 
 		labels := map[string]string{
-			"Project":         trivy.ProjName,
-			"Id":              strconv.Itoa(trivy.ProjId),
-			"Vulnerabilities": strconv.Itoa(trivy.Vulnerabilities.Count),
-			"High":            strconv.Itoa(trivy.Vulnerabilities.High),
-			"Critical":        strconv.Itoa(trivy.Vulnerabilities.Critical),
-			"ScannedJobName":  viper.GetString(internal.JOB_NAME),
-			"JobState":        trivy.State,
-			"trivyignore":     trivyIgnore,
+			"project":          trivy.ProjName,
+			"id":               strconv.Itoa(trivy.ProjId),
+			"scanned_job_name": viper.GetString(internal.JOB_NAME),
+			"trivyignore":      trivyIgnore,
 		}
 
-		gauge := prometheus.NewGauge(prometheus.GaugeOpts{
+		labels["type"] = "total"
+		gaugeTotal := prometheus.NewGauge(prometheus.GaugeOpts{
 			Namespace:   "trivy",
 			Subsystem:   "exporter",
 			Name:        "findings",
 			Help:        "this is a cached result and will updated every hour",
 			ConstLabels: labels,
 		})
-		gauge.Set(float64(trivy.Vulnerabilities.Count))
-		registeredGauges = append(registeredGauges, gauge)
-		reg.MustRegister(gauge)
+		labels["type"] = "critical"
+		gaugeCritical := prometheus.NewGauge(prometheus.GaugeOpts{
+			Namespace:   "trivy",
+			Subsystem:   "exporter",
+			Name:        "findings",
+			Help:        "this is a cached result and will updated every hour",
+			ConstLabels: labels,
+		})
+		labels["type"] = "high"
+		gaugeHigh := prometheus.NewGauge(prometheus.GaugeOpts{
+			Namespace:   "trivy",
+			Subsystem:   "exporter",
+			Name:        "findings",
+			Help:        "this is a cached result and will updated every hour",
+			ConstLabels: labels,
+		})
+		gaugeTotal.Set(float64(trivy.Vulnerabilities.Count))
+		gaugeCritical.Set(float64(trivy.Vulnerabilities.Critical))
+		gaugeHigh.Set(float64(trivy.Vulnerabilities.High))
+		registeredGauges = append(registeredGauges, gaugeTotal, gaugeCritical, gaugeHigh)
+		reg.MustRegister(gaugeTotal)
+		reg.MustRegister(gaugeCritical)
+		reg.MustRegister(gaugeHigh)
 	}
 }
 
