@@ -57,7 +57,7 @@ require (
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
 	github.com/aquasecurity/go-version v0.0.0-20241105054539-1951e80d786f // indirect
 	github.com/aquasecurity/trivy-checks v1.4.0 // indirect
-	github.com/aquasecurity/trivy-db v0.0.0-20241219063536-996f5563aa80
+	github.com/aquasecurity/trivy-db v0.0.0-20250109114009-492b9fcc1279
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
 	github.com/aws/aws-sdk-go v1.55.5 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.32.7 // indirect
