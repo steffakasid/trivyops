@@ -6,7 +6,7 @@ toolchain go1.23.5
 
 require (
 	github.com/aquasecurity/trivy v0.58.2
-	github.com/briandowns/spinner v1.23.1
+	github.com/briandowns/spinner v1.23.2
 	github.com/getsops/sops/v3 v3.9.3
 	github.com/jedib0t/go-pretty/v6 v6.6.5
 	github.com/prometheus/client_golang v1.20.5
