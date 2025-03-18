@@ -98,7 +98,7 @@ require (
 	github.com/chai2010/gettext-go v1.0.3 // indirect
 	github.com/cloudflare/circl v1.5.0 // indirect
 	github.com/cncf/xds/go v0.0.0-20241223141626-cff3c89139a3 // indirect
-	github.com/containerd/containerd v1.7.25 // indirect
+	github.com/containerd/containerd v1.7.27 // indirect
 	github.com/containerd/errdefs v1.0.0 // indirect
 	github.com/containerd/log v0.1.0 // indirect
 	github.com/containerd/platforms v1.0.0-rc.1 // indirect
@@ -191,7 +191,6 @@ require (
 	github.com/lib/pq v1.10.9 // indirect
 	github.com/liggitt/tabwriter v0.0.0-20181228230101-89fcab3d43de // indirect
 	github.com/lunixbochs/struc v0.0.0-20241101090106-8d528fa2c543 // indirect
-	github.com/magiconair/properties v1.8.9 // indirect
 	github.com/mailru/easyjson v0.9.0 // indirect
 	github.com/masahiro331/go-disk v0.0.0-20240625071113-56c933208fee // indirect
 	github.com/masahiro331/go-ext4-filesystem v0.0.0-20240620024024-ca14e6327bbd // indirect
@@ -236,7 +235,6 @@ require (
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/ryanuber/go-glob v1.0.0 // indirect
 	github.com/sagikazarmark/locafero v0.7.0 // indirect
-	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
 	github.com/samber/lo v1.49.1 // indirect
 	github.com/sergi/go-diff v1.3.2-0.20230802210424-5b0b94c5c0d3 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
@@ -275,7 +273,6 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/crypto v0.33.0 // indirect
-	golang.org/x/exp v0.0.0-20250106191152-7588d65b2ba8 // indirect
 	golang.org/x/mod v0.23.0 // indirect
 	golang.org/x/net v0.35.0 // indirect
 	golang.org/x/oauth2 v0.25.0 // indirect
