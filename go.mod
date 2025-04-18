@@ -5,7 +5,7 @@ go 1.24
 toolchain go1.24.2
 
 require (
-	github.com/aquasecurity/trivy v0.61.0
+	github.com/aquasecurity/trivy v0.61.1
 	github.com/briandowns/spinner v1.23.2
 	github.com/getsops/sops/v3 v3.10.2
 	github.com/jedib0t/go-pretty/v6 v6.6.7
@@ -65,7 +65,7 @@ require (
 	github.com/apparentlymart/go-cidr v1.1.0 // indirect
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
 	github.com/aquasecurity/go-version v0.0.1 // indirect
-	github.com/aquasecurity/trivy-checks v1.8.0 // indirect
+	github.com/aquasecurity/trivy-checks v1.8.1 // indirect
 	github.com/aquasecurity/trivy-db v0.0.0-20250416062607-1c66ffe97b20
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
 	github.com/aws/aws-sdk-go v1.55.6 // indirect
