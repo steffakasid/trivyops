@@ -819,6 +819,8 @@ github.com/aquasecurity/trivy-db v0.0.0-20250429054728-7924342bd057 h1:dP1tE1v9C
 github.com/aquasecurity/trivy-db v0.0.0-20250429054728-7924342bd057/go.mod h1:H1qxH5o8nwGyFuFcV/PjxoYdkHa5jvVEhdnX1mRPouU=
 github.com/aquasecurity/trivy-db v0.0.0-20250501163604-a6821ad2abbd h1:weiYdkFZIF0V2MdsmYZ2kzo0kYPQI0vmph82I2wUEpA=
 github.com/aquasecurity/trivy-db v0.0.0-20250501163604-a6821ad2abbd/go.mod h1:H1qxH5o8nwGyFuFcV/PjxoYdkHa5jvVEhdnX1mRPouU=
+github.com/aquasecurity/trivy-db v0.0.0-20250505135245-ea3c2ba6f3e2 h1:380Qfo/FNJHqCmBoBuCoCCzitUCpUA1Ako4UIzebnXk=
+github.com/aquasecurity/trivy-db v0.0.0-20250505135245-ea3c2ba6f3e2/go.mod h1:4zd4qZcjhNAHASz5I0O7qapv5h5gSJzSEaZXv/IPOGc=
 github.com/aquasecurity/trivy-java-db v0.0.0-20240109071736-184bd7481d48 h1:JVgBIuIYbwG+ekC5lUHUpGJboPYiCcxiz06RCtz8neI=
 github.com/aquasecurity/trivy-java-db v0.0.0-20240109071736-184bd7481d48/go.mod h1:Ldya37FLi0e/5Cjq2T5Bty7cFkzUDwTcPeQua+2M8i8=
 github.com/arbovm/levenshtein v0.0.0-20160628152529-48b4e1c0c4d0 h1:jfIu9sQUG6Ig+0+Ap1h4unLjW6YQJpKZVmUzxsD4E/Q=
