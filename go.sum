@@ -66,8 +66,8 @@ github.com/ProtonMail/go-crypto v1.2.0 h1:+PhXXn4SPGd+qk76TlEePBfOfivE0zkWFenhGh
 github.com/ProtonMail/go-crypto v1.2.0/go.mod h1:9whxjD8Rbs29b4XWbB8irEcE8KHMqaR2e7GWU1R+/PE=
 github.com/aquasecurity/trivy v0.63.0 h1:/FXsQO1uT0rUHkfhUzXhuExEiOiIaBKhZJ8ossYI8yQ=
 github.com/aquasecurity/trivy v0.63.0/go.mod h1:q+fxszmeLyxL0I6/IRqju7XMDv+NAZ9UowyO7IXFfJ8=
-github.com/aquasecurity/trivy-db v0.0.0-20250624054431-cfd717e88e6a h1:ZA5VxoUXAJg0fRMht2yeW6XiwcBcKumQ2j8K6/Wq0cQ=
-github.com/aquasecurity/trivy-db v0.0.0-20250624054431-cfd717e88e6a/go.mod h1:Ubl2YWA6Zg7eaojg4MDmeDdYU4+PiGPsnwo6B5UIwqw=
+github.com/aquasecurity/trivy-db v0.0.0-20250624122701-3111ff804c0f h1:TJYrRABeEkQvcXDtHY3dJYDbiNJ0b0rOBrJHErtxPQ4=
+github.com/aquasecurity/trivy-db v0.0.0-20250624122701-3111ff804c0f/go.mod h1:Ubl2YWA6Zg7eaojg4MDmeDdYU4+PiGPsnwo6B5UIwqw=
 github.com/aws/aws-sdk-go-v2 v1.36.3 h1:mJoei2CxPutQVxaATCzDUjcZEjVRdpsiiXi2o38yqWM=
 github.com/aws/aws-sdk-go-v2 v1.36.3/go.mod h1:LLXuLpgzEbD766Z5ECcRmi8AzSwfZItDtmABVkRLGzg=
 github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.6.10 h1:zAybnyUQXIZ5mok5Jqwlf58/TFE7uvd3IAsa1aF9cXs=
