@@ -47,7 +47,7 @@ require (
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.51.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.51.0 // indirect
 	github.com/ProtonMail/go-crypto v1.2.0 // indirect
-	github.com/aquasecurity/trivy-db v0.0.0-20250624122701-3111ff804c0f
+	github.com/aquasecurity/trivy-db v0.0.0-20250626075813-99352785890e
 	github.com/aws/aws-sdk-go-v2 v1.36.3 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.6.10 // indirect
 	github.com/aws/aws-sdk-go-v2/config v1.29.14 // indirect
