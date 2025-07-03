@@ -3,7 +3,7 @@ module github.com/steffakasid/trivy-scanner
 go 1.24.2
 
 require (
-	github.com/aquasecurity/trivy v0.63.0
+	github.com/aquasecurity/trivy v0.64.1
 	github.com/briandowns/spinner v1.23.2
 	github.com/getsops/sops/v3 v3.10.2
 	github.com/jedib0t/go-pretty/v6 v6.6.7
