@@ -19,7 +19,7 @@ require (
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/envoyproxy/go-control-plane/envoy v1.32.4 // indirect
 	github.com/go-test/deep v1.1.1 // indirect
-	github.com/go-viper/mapstructure/v2 v2.3.0 // indirect
+	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/rogpeppe/go-internal v1.14.1 // indirect
 	github.com/spiffe/go-spiffe/v2 v2.5.0 // indirect
 	github.com/zeebo/errs v1.4.0 // indirect
