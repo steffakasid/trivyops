@@ -3,15 +3,15 @@ module github.com/steffakasid/trivy-scanner
 go 1.24.2
 
 require (
-	github.com/aquasecurity/trivy v0.63.0
+	github.com/aquasecurity/trivy v0.67.2
 	github.com/briandowns/spinner v1.23.2
-	github.com/getsops/sops/v3 v3.10.2
-	github.com/jedib0t/go-pretty/v6 v6.7.1
+	github.com/getsops/sops/v3 v3.11.0
+	github.com/jedib0t/go-pretty/v6 v6.7.5
 	github.com/prometheus/client_golang v1.23.2
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/pflag v1.0.10
-	github.com/spf13/viper v1.20.1
+	github.com/spf13/viper v1.21.0
 	github.com/xanzy/go-gitlab v0.115.0
 )
 
@@ -48,7 +48,7 @@ require (
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.51.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.51.0 // indirect
 	github.com/ProtonMail/go-crypto v1.2.0 // indirect
-	github.com/aquasecurity/trivy-db v0.0.0-20250630075649-3a1cd4ffcce2
+	github.com/aquasecurity/trivy-db 729fb118f080
 	github.com/aws/aws-sdk-go-v2 v1.36.3 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.6.10 // indirect
 	github.com/aws/aws-sdk-go-v2/config v1.29.14 // indirect
