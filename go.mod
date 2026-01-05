@@ -1,6 +1,6 @@
 module github.com/steffakasid/trivy-scanner
 
-go 1.25
+go 1.25.5
 
 require (
 	github.com/aquasecurity/trivy v0.68.2
@@ -49,7 +49,7 @@ require (
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.53.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.53.0 // indirect
 	github.com/ProtonMail/go-crypto v1.3.0 // indirect
-	github.com/aquasecurity/trivy-db v0.0.0-20251230084924-b9d9903e9969
+	github.com/aquasecurity/trivy-db v0.0.0-20260105063853-2ead6eed5c84
 	github.com/aws/aws-sdk-go-v2 v1.40.0 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.7.3 // indirect
 	github.com/aws/aws-sdk-go-v2/config v1.32.0 // indirect
