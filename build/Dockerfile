@@ -1,12 +1,4 @@
-FROM alpine:3.23
-
-USER root
-
-RUN adduser -SHD trivyops
-
-WORKDIR /app
-
-ENV GITLAB_HOST=https://gitlab.com
+FROM cgr.dev/chainguard/static:latest
 ENV LOG_LEVEL=warn
 ENV METRICS_PORT=2112
 
@@ -14,9 +6,5 @@ COPY trivyops /app/trivyops
 
 EXPOSE ${METRICS_PORT}
 
-RUN chmod +x /app/trivyops && \
-    chmod g=u /app/trivyops
-
-USER trivyops
 
 ENTRYPOINT [ "/app/trivyops", "-d"]
