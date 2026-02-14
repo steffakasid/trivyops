@@ -7,4 +7,4 @@ COPY trivyops /app/trivyops
 EXPOSE ${METRICS_PORT}
 
 
-ENTRYPOINT [ "/app/trivyops", "-d"]
+ENTRYPOINT [ "/app/trivyops", "server"]
