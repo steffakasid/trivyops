@@ -3,12 +3,13 @@ package internal
 import (
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"regexp"
 	"strings"
 	"sync"
 
 	"github.com/aquasecurity/trivy/pkg/types"
-	logger "github.com/sirupsen/logrus"
+	"github.com/steffakasid/eslog"
 	gitlab "gitlab.com/gitlab-org/api/client-go"
 )
 
@@ -44,11 +45,14 @@ func (s Scan) ScanProjects(projs []*gitlab.Project) (TrivyResults, error) {
 	projectResults := make(chan *trivy)
 	for i := 0; i < len(projs); i += chunkSize {
 		if (i + chunkSize) > len(projs) {
-			go s.scanProjects(projs[i:len(projs)-1], projectResults, &wg)
+			wg.Go(func() {
+				s.scanProjects(projs[i:len(projs)-1], projectResults, &wg)
+			})
 		} else {
-			go s.scanProjects(projs[i:i+chunkSize], projectResults, &wg)
+			wg.Go(func() {
+				s.scanProjects(projs[i:i+chunkSize], projectResults, &wg)
+			})
 		}
-		wg.Add(1)
 	}
 	resultsChannel := make(chan TrivyResults)
 	go s.processResults(projectResults, resultsChannel)
@@ -62,7 +66,7 @@ func (s Scan) scanProjects(projs []*gitlab.Project, channel chan *trivy, wg *syn
 
 	for _, proj := range projs {
 		if s.Filter == nil || len(s.Filter.FindAllString(proj.NameWithNamespace, -1)) > 0 {
-			logger.Infof("Scan project %s for trivy results\n", proj.NameWithNamespace)
+			eslog.Infof("Scan project %s for trivy results\n", proj.NameWithNamespace)
 
 			projResult := &trivy{
 				ProjId:   proj.ID,
@@ -89,10 +93,9 @@ func (s Scan) scanProjects(projs []*gitlab.Project, channel chan *trivy, wg *syn
 
 			channel <- projResult
 		} else {
-			logger.WithField("Project", proj.Name).Debugln("Filtered out")
+			eslog.DebugLn("Filtered out", slog.Attr{Key: "Project", Value: slog.StringValue(proj.Name)})
 		}
 	}
-	wg.Done()
 }
 
 func (s Scan) processResults(projResults chan *trivy, resultsChannel chan TrivyResults) {
@@ -179,6 +182,6 @@ func (s Scan) getTrivyIgnore(projId int64, branch string) ([]string, error) {
 
 func logIfError(projectName string, err error) {
 	if err != nil {
-		logger.WithField("Project", projectName).Error(err)
+		eslog.Error(err, slog.Attr{Key: "Project", Value: slog.StringValue(projectName)})
 	}
 }

@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"sync"
 
-	logger "github.com/sirupsen/logrus"
+	"github.com/steffakasid/eslog"
 	gitlab "gitlab.com/gitlab-org/api/client-go"
 )
 
@@ -80,7 +80,7 @@ func (c GitLabClient) GetAllGroupProjects(groupId string) ([]*gitlab.Project, er
 
 	for result := range projChannel {
 		if result.err != nil {
-			logger.Error(result.err)
+			eslog.Error(result.err)
 		}
 
 		allProjs = append(allProjs, result.projs...)
@@ -124,7 +124,7 @@ func (c GitLabClient) GetAllUserProjects() ([]*gitlab.Project, error) {
 
 	for result := range projChannel {
 		if result.err != nil {
-			logger.Error(err)
+			eslog.Error(err)
 		}
 
 		allProjs = append(allProjs, result.projs...)

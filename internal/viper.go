@@ -7,8 +7,8 @@ import (
 	"path"
 
 	"github.com/getsops/sops/v3/decrypt"
-	logger "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"github.com/steffakasid/eslog"
 )
 
 const (
@@ -30,7 +30,7 @@ const (
 func init() {
 	err := viper.BindEnv(GTILAB_TOKEN)
 	if err != nil {
-		logger.Error(err)
+		eslog.Error(err)
 	}
 	viper.SetDefault(GITLAB_HOST, "https://gitlab.com")
 	viper.SetDefault(LOG_LEVEL, "info")
@@ -44,7 +44,7 @@ func init() {
 func InitConfig() {
 	home, err := os.UserHomeDir()
 	if err != nil {
-		logger.Fatal(err)
+		eslog.Fatal(err)
 	}
 
 	viper.AddConfigPath(home)
@@ -56,21 +56,21 @@ func InitConfig() {
 		cleartext, err := decrypt.File(usedConfigFile, configFileType)
 
 		if err != nil {
-			logger.Warnf("Error decrypting. %s. Maybe you're not using an encrypted config?", err)
+			eslog.Warnf("Error decrypting. %s. Maybe you're not using an encrypted config?", err)
 			if err := viper.ReadInConfig(); err != nil {
-				logger.Warnf("Error reading config. %s. Are you using a config?", err)
+				eslog.Warnf("Error reading config. %s. Are you using a config?", err)
 			} else {
-				logger.Debug("Using config file:", viper.ConfigFileUsed())
+				eslog.Debug("Using config file:", viper.ConfigFileUsed())
 			}
 		} else {
 			if err := viper.ReadConfig(bytes.NewBuffer(cleartext)); err != nil {
-				logger.Fatal(err)
+				eslog.Fatal(err)
 			} else {
-				logger.Debug("Using sops encrypted config file:", viper.ConfigFileUsed())
+				eslog.Debug("Using sops encrypted config file:", viper.ConfigFileUsed())
 			}
 		}
 	} else {
-		logger.Debug("No config file used!")
+		eslog.Debug("No config file used!")
 	}
 	viper.AutomaticEnv()
 	SetLogLevel()
@@ -78,18 +78,18 @@ func InitConfig() {
 
 func getConfigFilename(homedir string) string {
 	pathWithoutExt := path.Join(homedir, configFileName)
-	logger.Debugf("Check if %s exists", pathWithoutExt)
+	eslog.Debugf("Check if %s exists", pathWithoutExt)
 	if _, err := os.Stat(pathWithoutExt); err == nil {
 		return pathWithoutExt
 	}
 
 	pathWithExt := fmt.Sprintf("%s.%s", pathWithoutExt, configFileType)
-	logger.Debugf("Check if %s exists", pathWithExt)
+	eslog.Debugf("Check if %s exists", pathWithExt)
 	if _, err := os.Stat(pathWithExt); err == nil {
 		return pathWithExt
 	}
 	pathWithExt = fmt.Sprintf("%s.%s", pathWithoutExt, "yml")
-	logger.Debugf("Check if %s exists", pathWithExt)
+	eslog.Debugf("Check if %s exists", pathWithExt)
 	if _, err := os.Stat(pathWithExt); err == nil {
 		return pathWithExt
 	}
@@ -97,10 +97,5 @@ func getConfigFilename(homedir string) string {
 }
 
 func SetLogLevel() {
-	lvl, err := logger.ParseLevel(viper.GetString(LOG_LEVEL))
-	if err == nil {
-		logger.SetLevel(lvl)
-	} else {
-		logger.Error(err)
-	}
+	eslog.Logger.SetLogLevel(viper.GetString(LOG_LEVEL))
 }

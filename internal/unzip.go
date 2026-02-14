@@ -6,13 +6,13 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	logger "github.com/sirupsen/logrus"
+	"github.com/steffakasid/eslog"
 )
 
 func unzipFromReader(rdr *bytes.Reader, fileName string) ([]byte, error) {
 	unzip, err := zip.NewReader(rdr, rdr.Size())
 	if err != nil {
-		logger.Error("Error unzip")
+		eslog.Error("Error unzip")
 		return nil, err
 	}
 
@@ -21,7 +21,7 @@ func unzipFromReader(rdr *bytes.Reader, fileName string) ([]byte, error) {
 			rc, err := file.Open()
 
 			if err != nil {
-				logger.Error("Error file open")
+				eslog.Error("Error file open")
 				return nil, err
 			}
 
@@ -29,7 +29,7 @@ func unzipFromReader(rdr *bytes.Reader, fileName string) ([]byte, error) {
 			if err != nil {
 				return nil, err
 			}
-			logger.Debugf("read %d byte", len(bt))
+			eslog.Debugf("read %d byte", len(bt))
 			rc.Close()
 			return bt, nil
 		}
