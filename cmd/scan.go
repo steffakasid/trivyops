@@ -76,7 +76,7 @@ func init() {
 	flag.Bool(V, false, "Get details")
 	flag.Bool(VV, false, "Get more details")
 	flag.Bool(VVV, false, "Get even more details")
-	flag.StringP(OUTPUT, "o", "text", "Define how to output results [text, table, json]")
+	flag.StringP(OUTPUT, "o", "text", "Define how to output results [text, txt, table, tbl, json]")
 	flag.String(OUTPUT_FILE, "", "Define a file to output the result json")
 	err := viper.BindPFlags(flag)
 	eslog.LogIfError(err, eslog.Fatal)
@@ -103,11 +103,16 @@ func doScanWithOutput(scan *internal.Scan) {
 	trivyResults.Check()
 	s.Stop()
 	fmt.Println()
-	if strings.ToLower(viper.GetString(OUTPUT)) == "table" {
-		output.Table(trivyResults, viper.GetBool(V), viper.GetBool(VV), viper.GetBool(VVV))
-	} else if strings.ToLower(viper.GetString(OUTPUT)) == "json" {
-		output.Json(trivyResults, viper.GetString(OUTPUT_FILE))
+
+	if valid, ot := output.IsValid(strings.ToLower(viper.GetString(OUTPUT))); valid {
+		if output.IsTable(ot) {
+			output.Table(trivyResults, viper.GetBool(V), viper.GetBool(VV), viper.GetBool(VVV))
+		} else if output.IsJson(ot) {
+			output.Json(trivyResults, viper.GetString(OUTPUT_FILE))
+		} else if output.IsText(ot) {
+			output.Text(trivyResults, viper.GetBool(V), viper.GetBool(VV), viper.GetBool(VVV))
+		}
 	} else {
-		output.Text(trivyResults, viper.GetBool(V), viper.GetBool(VV), viper.GetBool(VVV))
+		eslog.Fatalf("%s is not a supported output format!", viper.GetString(OUTPUT))
 	}
 }
