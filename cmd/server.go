@@ -24,13 +24,17 @@ import (
 // serverCmd represents the server command
 var serverCmd = &cobra.Command{
 	Use:   "server",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Short: "Starts a server daemon scanning a GitLab group periodically.",
+	Long: `Starts a server daemon scanning a GitLab groupperiodically (based on a cron string definition).
+The scan results are published as a prometheus metric which can then be made visible via prometheus or with
+alert rules and AlertManager.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+Variables:
+  - METRICS_PORT		- the metrics endpoint when running in daemon mode [Default: 2112]
+  - METRICS_CRON		- the cron string used to define how often metrics results are gathered from GitLab [Default: @every 6h]
+  
+Examples:
+  trivyops server		- start the server`,
 	Run: func(cmd *cobra.Command, args []string) {
 		scan, err := initScanClient()
 		eslog.LogIfError(err, eslog.Fatal)

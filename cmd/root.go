@@ -38,14 +38,12 @@ var version = "0.1-dev"
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "cmd",
-	Short: "A brief description of your application",
-	Long: `This tool can be used to receive all trivy results from a GitLab group. The tool
-scans all subgroups and prints out a result a GitLab CI trivy scan job and checks
-if there is a .trivyignore defined in the default branch.
-
-
-Usage:
-  trivyops [flags] GITLAB_GROUP_ID
+	Short: "This tool can be used to receive all trivy results from GitLab projects.",
+	Long: `This tool can be used to receive all trivy results from all GitLab projects of a GitLab group. To do so
+the tool searches for defined GitLab-CI job which ran the trivytool and exposed the result as JSON in the jobs artifacts.
+The tool scans all subgroups and prints out a result a GitLab CI trivy scan job downloads and parses the result json and checks
+if there is a .trivyignore defined in the default branch. It can either be used as a cli tool
+or run in server mode. When run as server it publishes the result as prometheus metrics.
 
 Variables:
   - JOB_NAME  			- The gitlab ci jobname to check [Default "scan_oci_image_trivy"]
@@ -54,16 +52,10 @@ Variables:
   - GITLAB_HOST			- the GitLab host which should be accessed [Default: https://gitlab.com]
   - GITLAB_GROUP_ID		- the GitLab group ID to scan (only be used if not given per argument)
   - LOG_LEVEL			- the log level to use [Default: info]
-  - METRICS_PORT		- the metrics endpoint when running in daemon mode [Default: 2112]
-  - METRICS_CRON		- the cron string used to define how often metrics results are gathered from GitLab [Default: @every 6h]
 
 Examples:
-  trivyops 1234    					- get all trivy results from 1234
-  trivyops 1234 --filter ^blub.*	- get all trivy results from 1234 where name starts with blub
-  trivyops 1234 -o table			- output results as table (works well with less results)
-  trivyops 1234 -v					- get more details
-
-Flags:`,
+  trivyops scan 1234    			- get all trivy results from 1234
+  trivyops server					- starts the server mode`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },
@@ -79,17 +71,9 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(internal.InitConfig, internal.SetLogLevel)
 
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
-
 	persistentFlags := rootCmd.PersistentFlags()
 	persistentFlags.StringP(FILTER, "f", "", "A golang regular expression to filter project name with namespace (e.g. (^.*/groupprefix.+$)|(^.*otherprefix.*))")
 	persistentFlags.StringVar(&cfgFile, "config", "", "config file (default is $HOME/.cmd.yaml)")
-
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
 func validateArgsNEnv() ([]string, string, string) {

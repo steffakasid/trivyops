@@ -40,13 +40,24 @@ const (
 // scanCmd represents the scan command
 var scanCmd = &cobra.Command{
 	Use:   "scan",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Short: "Scan a group in cli mode",
+	Long: `This command starts the scan in cli mode and prints the results. The scan does the following:
+1. Get all projects. 
+    a) If no GroupID is defined, get all user projects where the user has at least developer rights
+	b) Get all subprojects including those of subgroups from the given GroupID.
+	NOTE: archived projects are never returned
+2. Get the latest pipeline for each project.
+3. Find the trivy job from the pipeline.
+4. Download the job artifact (trivy result json).
+5. Check if a .trivyignore file exists in the default branch.
+6. Print the results
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+xamples:
+  trivyops scan							- scan all user projects with at least developer permissions.
+  trivyops scan 1234    				- get all trivy results from 1234
+  trivyops scan 1234 --filter ^blub.*	- get all trivy results from 1234 where name starts with blub
+  trivyops scan 1234 -o table			- output results as table (works well with less results)
+  trivyops scan 1234 -v					- get more details`,
 	Run: func(cmd *cobra.Command, args []string) {
 
 		scan, err := initScanClient()
