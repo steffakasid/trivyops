@@ -13,12 +13,13 @@ func Table(results internal.TrivyResults, v, vv, vvv bool) {
 
 	tw := newLightTableWriter()
 	tw.SetAutoIndex(true)
+	tw.Style().Size.WidthMin = 80
 	tw.AppendHeader(table.Row{"Vulnerable Projects"})
 	for _, projResult := range results {
 		projectTbl := newLightTableWriter()
 		projectTbl.SetColumnConfigs([]table.ColumnConfig{
 			{Number: 1, WidthMax: 30},
-			{Number: 2, WidthMin: 20, WidthMax: 150},
+			{Number: 2, WidthMin: 50},
 		})
 		projectTbl.AppendHeader(table.Row{projResult.ProjName, projResult.ProjName})
 		projectTbl.AppendRow(table.Row{".trivyignore", projResult.Ignore})
