@@ -5,7 +5,7 @@ import (
 	"sync"
 
 	logger "github.com/sirupsen/logrus"
-	"github.com/xanzy/go-gitlab"
+	gitlab "gitlab.com/gitlab-org/api/client-go"
 )
 
 type GitLabClient struct {
@@ -27,8 +27,8 @@ type GitLabProjects interface {
 type GitLabJobs interface {
 	ListProjectJobs(pid interface{}, opts *gitlab.ListJobsOptions, options ...gitlab.RequestOptionFunc) ([]*gitlab.Job, *gitlab.Response, error)
 	DownloadArtifactsFile(pid interface{}, refName string, opt *gitlab.DownloadArtifactsFileOptions, options ...gitlab.RequestOptionFunc) (*bytes.Reader, *gitlab.Response, error)
-	GetJobArtifacts(pid interface{}, jobID int, options ...gitlab.RequestOptionFunc) (*bytes.Reader, *gitlab.Response, error)
-	ListPipelineJobs(pid interface{}, pipelineID int, opts *gitlab.ListJobsOptions, options ...gitlab.RequestOptionFunc) ([]*gitlab.Job, *gitlab.Response, error)
+	GetJobArtifacts(pid interface{}, jobID int64, options ...gitlab.RequestOptionFunc) (*bytes.Reader, *gitlab.Response, error)
+	ListPipelineJobs(pid interface{}, pipelineID int64, opts *gitlab.ListJobsOptions, options ...gitlab.RequestOptionFunc) ([]*gitlab.Job, *gitlab.Response, error)
 }
 
 type GitLabPipelines interface {
@@ -70,7 +70,7 @@ func (c GitLabClient) GetAllGroupProjects(groupId string) ([]*gitlab.Project, er
 	projChannel := make(chan wrapper, resp.TotalPages)
 	allProjs = append(allProjs, projs...)
 
-	for i := 2; i <= resp.TotalPages; i++ {
+	for i := int64(2); i <= resp.TotalPages; i++ {
 		options.Page = i
 		wg.Add(1)
 		go c.listGroupProjectsWrapper(groupId, *options, projChannel, &wg)
@@ -103,7 +103,7 @@ func (c GitLabClient) GetAllUserProjects() ([]*gitlab.Project, error) {
 			Page:    1,
 		},
 		Archived:       gitlab.Ptr(false),
-		MinAccessLevel: gitlab.AccessLevel(gitlab.DeveloperPermissions),
+		MinAccessLevel: gitlab.Ptr(gitlab.AccessLevelValue(gitlab.DeveloperPermissions)),
 	}
 	var wg sync.WaitGroup
 
@@ -114,7 +114,7 @@ func (c GitLabClient) GetAllUserProjects() ([]*gitlab.Project, error) {
 	projChannel := make(chan wrapper, resp.TotalPages)
 	allProjs = append(allProjs, projs...)
 
-	for i := 2; i <= resp.TotalPages; i++ {
+	for i := int64(2); i <= resp.TotalPages; i++ {
 		options.ListOptions.Page = i
 		wg.Add(1)
 		go c.listProjectsWrapper(*options, projChannel, &wg)

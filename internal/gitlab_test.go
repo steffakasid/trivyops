@@ -5,7 +5,7 @@ import (
 
 	"github.com/steffakasid/trivy-scanner/internal/mocks"
 	"github.com/stretchr/testify/assert"
-	"github.com/xanzy/go-gitlab"
+	gitlab "gitlab.com/gitlab-org/api/client-go"
 )
 
 func TestGetAllGroupProjects(t *testing.T) {
@@ -29,9 +29,9 @@ func TestGetAllUserProjects(t *testing.T) {
 	assert.ElementsMatch(t, projs, expectedProjs)
 }
 
-func mockListGroupProjects(mock *mocks.GitLabGroups, numCalls int, grpId string) []*gitlab.Project {
+func mockListGroupProjects(mock *mocks.GitLabGroups, numCalls int64, grpId string) []*gitlab.Project {
 	expectedProjs := []*gitlab.Project{}
-	for i := 1; i <= numCalls; i++ {
+	for i := int64(1); i <= numCalls; i++ {
 		options := &gitlab.ListGroupProjectsOptions{
 			ListOptions: gitlab.ListOptions{
 				PerPage: 100,
@@ -42,10 +42,10 @@ func mockListGroupProjects(mock *mocks.GitLabGroups, numCalls int, grpId string)
 		}
 		projects := []*gitlab.Project{
 			{
-				ID: 10 * i,
+				ID: int64(10 * i),
 			},
 			{
-				ID: 10*i + 1,
+				ID: int64(10*i + 1),
 			},
 		}
 		expectedProjs = append(expectedProjs, projects...)
@@ -57,16 +57,16 @@ func mockListGroupProjects(mock *mocks.GitLabGroups, numCalls int, grpId string)
 	return expectedProjs
 }
 
-func mockListProjects(mock *mocks.GitLabProjects, numCalls int) []*gitlab.Project {
+func mockListProjects(mock *mocks.GitLabProjects, numCalls int64) []*gitlab.Project {
 	expectedProjs := []*gitlab.Project{}
-	for i := 1; i <= numCalls; i++ {
+	for i := int64(1); i <= numCalls; i++ {
 		options := &gitlab.ListProjectsOptions{
 			ListOptions: gitlab.ListOptions{
 				PerPage: 100,
 				Page:    i,
 			},
 			Archived:       gitlab.Ptr(false),
-			MinAccessLevel: gitlab.AccessLevel(gitlab.DeveloperPermissions),
+			MinAccessLevel: gitlab.Ptr(gitlab.DeveloperPermissions),
 		}
 		projects := []*gitlab.Project{
 			{

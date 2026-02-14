@@ -9,7 +9,7 @@ import (
 
 	"github.com/aquasecurity/trivy/pkg/types"
 	logger "github.com/sirupsen/logrus"
-	"github.com/xanzy/go-gitlab"
+	gitlab "gitlab.com/gitlab-org/api/client-go"
 )
 
 const (
@@ -81,7 +81,7 @@ func (s Scan) scanProjects(projs []*gitlab.Project, channel chan *trivy, wg *syn
 				projResult.ReportResult = resultsList
 			}
 
-			trivyIgnore, err := s.getTrivyIgnore(projResult.ProjId, proj.DefaultBranch)
+			trivyIgnore, err := s.getTrivyIgnore(int64(projResult.ProjId), proj.DefaultBranch)
 			logIfError(proj.Name, err)
 			if trivyIgnore != nil {
 				projResult.Ignore = trivyIgnore
@@ -107,7 +107,7 @@ func (s Scan) processResults(projResults chan *trivy, resultsChannel chan TrivyR
 	close(resultsChannel)
 }
 
-func (s Scan) getTrivyJob(jobName string, projId int) ([]gitlab.Job, error) {
+func (s Scan) getTrivyJob(jobName string, projId int64) ([]gitlab.Job, error) {
 	resultJobList := []gitlab.Job{}
 	pipeline, _, err := s.GitLabClient.PipelinesClient.GetLatestPipeline(projId, &gitlab.GetLatestPipelineOptions{})
 	if err != nil {
@@ -158,7 +158,7 @@ func (s Scan) reportFromFile(bt []byte) (types.Results, error) {
 	return jsonReport.Results, nil
 }
 
-func (s Scan) getTrivyIgnore(projId int, branch string) ([]string, error) {
+func (s Scan) getTrivyIgnore(projId int64, branch string) ([]string, error) {
 
 	bt, res, err := s.GitLabClient.RepositoryFiles.GetRawFile(projId, ".trivyignore", &gitlab.GetRawFileOptions{Ref: gitlab.Ptr(branch)})
 	if err != nil {

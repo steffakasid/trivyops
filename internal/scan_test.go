@@ -11,7 +11,7 @@ import (
 
 	"github.com/steffakasid/trivy-scanner/internal/mocks"
 	"github.com/stretchr/testify/assert"
-	"github.com/xanzy/go-gitlab"
+	gitlab "gitlab.com/gitlab-org/api/client-go"
 )
 
 func InitMock() *GitLabClient {
@@ -61,7 +61,7 @@ func TestInitScanner(t *testing.T) {
 func TestScanGroup(t *testing.T) {
 
 	grpID := "123"
-	jobID := 123
+	jobID := int64(123)
 	jobName := "unittest_job"
 	artifactFilename := "trivy-result.json"
 	branch := "unittest"
@@ -118,8 +118,8 @@ func TestGetTrivyResult(t *testing.T) {
 		ArtifactFileName: "trivy-result.json",
 		GitLabClient:     InitMock(),
 	}
-	projID := 1123
-	jobID := 123
+	projID := int64(1123)
+	jobID := int64(123)
 
 	t.Run("success", func(t *testing.T) {
 		mockDownloadArtifactsFile(t, projID, jobID, 1, scan.GitLabClient.JobsClient.(*mocks.GitLabJobs))
@@ -144,7 +144,7 @@ func TestGetTrivyResult(t *testing.T) {
 
 func TestGetTrivyIgnore(t *testing.T) {
 	branch := "main"
-	projId := 1123
+	projId := int64(1123)
 
 	t.Run("success", func(t *testing.T) {
 		scan := Scan{
@@ -171,7 +171,7 @@ func TestGetTrivyIgnore(t *testing.T) {
 	})
 }
 
-func assertProjNoResult(t *testing.T, result TrivyResults, id int) {
+func assertProjNoResult(t *testing.T, result TrivyResults, id int64) {
 	for _, res := range result {
 		if res.ProjId == id {
 			assert.Len(t, res.ReportResult, 0)
@@ -179,7 +179,7 @@ func assertProjNoResult(t *testing.T, result TrivyResults, id int) {
 	}
 }
 
-func assertProjNoIgnore(t *testing.T, result TrivyResults, id int) {
+func assertProjNoIgnore(t *testing.T, result TrivyResults, id int64) {
 	for _, res := range result {
 		if res.ProjId == id {
 			assert.Len(t, res.Ignore, 0)
@@ -187,10 +187,10 @@ func assertProjNoIgnore(t *testing.T, result TrivyResults, id int) {
 	}
 }
 
-func generateProjects(number int, branch string) []*gitlab.Project {
+func generateProjects(number int64, branch string) []*gitlab.Project {
 	projs := []*gitlab.Project{}
 
-	for i := 0; i < number; i++ {
+	for i := int64(0); i < number; i++ {
 		projs = append(projs, &gitlab.Project{
 			ID:                i,
 			Name:              fmt.Sprintf("proj%d", i),
@@ -201,27 +201,27 @@ func generateProjects(number int, branch string) []*gitlab.Project {
 	return projs
 }
 
-func mockGetLatestPipeline(projs []*gitlab.Project, mock *mocks.GitLabPipelines, errProj ...int) {
+func mockGetLatestPipeline(projs []*gitlab.Project, mock *mocks.GitLabPipelines, errProj ...int64) {
 	for _, proj := range projs {
 		if isErrorCall(errProj, proj.ID) {
-
+			continue
 		} else {
 			mock.EXPECT().GetLatestPipeline(proj.ID, &gitlab.GetLatestPipelineOptions{}).Return(&gitlab.Pipeline{}, &gitlab.Response{}, nil)
 		}
 	}
 }
 
-func mockListPipelineJobsForProject(projs []*gitlab.Project, genericPipelineID int, jobName string, mock *mocks.GitLabJobs, errProj ...int) {
+func mockListPipelineJobsForProject(projs []*gitlab.Project, genericPipelineID int64, jobName string, mock *mocks.GitLabJobs, errProj ...int64) {
 	for _, proj := range projs {
 		if isErrorCall(errProj, proj.ID) {
-
+			continue
 		} else {
 			mockListPipelineJobs(proj.ID, genericPipelineID, jobName, 1, mock)
 		}
 	}
 }
 
-func mockListPipelineJobs(projId int, pipelineID int, jobName string, numCalls int, mock *mocks.GitLabJobs, errCall ...int) {
+func mockListPipelineJobs(projId int64, pipelineID int64, jobName string, numCalls int64, mock *mocks.GitLabJobs, errCall ...int64) {
 	listJobsOptions := &gitlab.ListJobsOptions{
 		IncludeRetried: gitlab.Ptr(false),
 	}
@@ -234,7 +234,7 @@ func mockListPipelineJobs(projId int, pipelineID int, jobName string, numCalls i
 		},
 	}
 
-	for i := 1; i <= numCalls; i++ {
+	for i := int64(1); i <= numCalls; i++ {
 		if isErrorCall(errCall, i) {
 			resp.Response = &http.Response{
 				Status: "500",
@@ -246,7 +246,7 @@ func mockListPipelineJobs(projId int, pipelineID int, jobName string, numCalls i
 	}
 }
 
-func mockListProjectJobsForProject(projs []*gitlab.Project, jobName string, mock *mocks.GitLabJobs, errProj ...int) {
+func mockListProjectJobsForProject(projs []*gitlab.Project, jobName string, mock *mocks.GitLabJobs, errProj ...int64) {
 	for _, proj := range projs {
 		if isErrorCall(errProj, proj.ID) {
 			mockListProjectJobs(proj.ID, jobName, 1, mock, 1)
@@ -256,7 +256,7 @@ func mockListProjectJobsForProject(projs []*gitlab.Project, jobName string, mock
 	}
 }
 
-func mockListProjectJobs(projId int, jobName string, numCalls int, mock *mocks.GitLabJobs, errCall ...int) {
+func mockListProjectJobs(projId int64, jobName string, numCalls int64, mock *mocks.GitLabJobs, errCall ...int64) {
 	listProjsOpts := &gitlab.ListJobsOptions{
 		IncludeRetried: gitlab.Ptr(false),
 	}
@@ -269,19 +269,19 @@ func mockListProjectJobs(projId int, jobName string, numCalls int, mock *mocks.G
 		},
 	}
 
-	for i := 1; i <= numCalls; i++ {
+	for i := int64(1); i <= numCalls; i++ {
 		if isErrorCall(errCall, i) {
 			resp.Response = &http.Response{
 				Status: "500",
 			}
 			mock.EXPECT().ListProjectJobs(projId, listProjsOpts).Return(nil, resp, errors.New("Fail")).Once()
 		} else {
-			mock.EXPECT().ListProjectJobs(projId, listProjsOpts).Return([]*gitlab.Job{{ID: rand.Int(), Name: jobName, Status: "success"}}, resp, nil).Once()
+			mock.EXPECT().ListProjectJobs(projId, listProjsOpts).Return([]*gitlab.Job{{ID: rand.Int63(), Name: jobName, Status: "success"}}, resp, nil).Once()
 		}
 	}
 }
 
-func mockDownloadArtifactsFileForProjects(t *testing.T, projs []*gitlab.Project, jobID int, mock *mocks.GitLabJobs, errProj ...int) {
+func mockDownloadArtifactsFileForProjects(t *testing.T, projs []*gitlab.Project, jobID int64, mock *mocks.GitLabJobs, errProj ...int64) {
 	for _, proj := range projs {
 		if isErrorCall(errProj, proj.ID) {
 			mockDownloadArtifactsFile(t, proj.ID, jobID, 1, mock, 1)
@@ -291,7 +291,7 @@ func mockDownloadArtifactsFileForProjects(t *testing.T, projs []*gitlab.Project,
 	}
 }
 
-func mockDownloadArtifactsFile(t *testing.T, projId int, jobID int, numCalls int, mock *mocks.GitLabJobs, errCall ...int) {
+func mockDownloadArtifactsFile(t *testing.T, projId int64, jobID int64, numCalls int64, mock *mocks.GitLabJobs, errCall ...int64) {
 
 	resp := &gitlab.Response{
 		TotalItems: 1,
@@ -302,7 +302,7 @@ func mockDownloadArtifactsFile(t *testing.T, projId int, jobID int, numCalls int
 	}
 	artifactsFile, err := os.ReadFile("../test/result.zip")
 	assert.NoError(t, err)
-	for i := 1; i <= numCalls; i++ {
+	for i := int64(1); i <= numCalls; i++ {
 		if isErrorCall(errCall, i) {
 			resp.Response = &http.Response{
 				Status: "500",
@@ -314,7 +314,7 @@ func mockDownloadArtifactsFile(t *testing.T, projId int, jobID int, numCalls int
 	}
 }
 
-func mockGetRawFileForProjects(t *testing.T, projs []*gitlab.Project, branch string, mock *mocks.GitLabRepositoryFiles, errProj ...int) {
+func mockGetRawFileForProjects(t *testing.T, projs []*gitlab.Project, branch string, mock *mocks.GitLabRepositoryFiles, errProj ...int64) {
 	for _, proj := range projs {
 		if isErrorCall(errProj, proj.ID) {
 			mockGetRawFile(t, proj.ID, branch, 1, mock, 1)
@@ -324,7 +324,7 @@ func mockGetRawFileForProjects(t *testing.T, projs []*gitlab.Project, branch str
 	}
 }
 
-func mockGetRawFile(t *testing.T, projId int, branch string, numCalls int, mock *mocks.GitLabRepositoryFiles, errCall ...int) {
+func mockGetRawFile(t *testing.T, projId int64, branch string, numCalls int64, mock *mocks.GitLabRepositoryFiles, errCall ...int64) {
 	opts := &gitlab.GetRawFileOptions{
 		Ref: gitlab.Ptr(branch),
 	}
@@ -337,7 +337,7 @@ func mockGetRawFile(t *testing.T, projId int, branch string, numCalls int, mock 
 	}
 	bt, err := os.ReadFile("../test/.trivyignore")
 	assert.NoError(t, err)
-	for i := 1; i <= numCalls; i++ {
+	for i := int64(1); i <= numCalls; i++ {
 		if isErrorCall(errCall, i) {
 			resp.Response = &http.Response{
 				Status: "500",
@@ -349,7 +349,7 @@ func mockGetRawFile(t *testing.T, projId int, branch string, numCalls int, mock 
 	}
 }
 
-func isErrorCall(errCalls []int, callNo int) bool {
+func isErrorCall(errCalls []int64, callNo int64) bool {
 	for _, errCall := range errCalls {
 		if errCall == callNo {
 			return true

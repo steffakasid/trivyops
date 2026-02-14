@@ -5,7 +5,7 @@ import (
 )
 
 type trivy struct {
-	ProjId          int
+	ProjId          int64
 	ProjName        string
 	Vulnerabilities vulnerabilities
 	Ignore          []string
