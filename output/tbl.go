@@ -1,4 +1,4 @@
-package main
+package output
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	"github.com/steffakasid/trivy-scanner/internal"
 )
 
-func printResultTbl(results internal.TrivyResults) {
+func Table(results internal.TrivyResults, v, vv, vvv bool) {
 
 	tw := newLightTableWriter()
 	tw.SetAutoIndex(true)
@@ -30,8 +30,8 @@ func printResultTbl(results internal.TrivyResults) {
 		projectTbl.AppendRow(table.Row{"Summary", summaryTable.Render()})
 		projectTbl.AppendSeparator()
 
-		if viper.GetBool(V) || viper.GetBool(VV) || viper.GetBool(VVV) {
-			printResultDetailsTbl(projectTbl, projResult.ReportResult)
+		if v || vv || vvv {
+			printResultDetailsTbl(projectTbl, projResult.ReportResult, v, vv, vvv)
 		}
 		tw.AppendRow(table.Row{projectTbl.Render()})
 		tw.AppendSeparator()
@@ -40,11 +40,11 @@ func printResultTbl(results internal.TrivyResults) {
 	fmt.Println(tw.Render())
 }
 
-func printResultDetailsTbl(projTbl table.Writer, res types.Results) {
+func printResultDetailsTbl(projTbl table.Writer, res types.Results, v, vv, vvv bool) {
 	for _, tgt := range res {
 		detailsLvl2 := table.NewWriter()
 		detailsLvl2.SetStyle(table.StyleLight)
-		if (viper.GetBool(VV) || viper.GetBool(VVV)) && len(tgt.Vulnerabilities) > 0 {
+		if (vv || vvv) && len(tgt.Vulnerabilities) > 0 {
 			detailsLvl2.SetColumnConfigs([]table.ColumnConfig{
 				{Number: 1, WidthMax: 30},
 				{Number: 2, WidthMax: 30},
@@ -55,13 +55,13 @@ func printResultDetailsTbl(projTbl table.Writer, res types.Results) {
 				{Number: 7, WidthMin: 15, WidthMax: 15},
 			})
 			headerRow := table.Row{"internal", "ID", "Severity", "Title", "IsFixable"}
-			if viper.GetBool(VVV) {
+			if vvv {
 				headerRow = append(headerRow, "InstalledVersion", "FixedVersion")
 			}
 			detailsLvl2.AppendHeader(headerRow)
 			for _, internal := range tgt.Vulnerabilities {
 				row := table.Row{internal.PkgName, internal.VulnerabilityID, internal.Severity, internal.Title, (internal.FixedVersion != "")}
-				if viper.GetBool(VVV) {
+				if vvv {
 					row = append(row, internal.InstalledVersion, internal.FixedVersion)
 				}
 				detailsLvl2.AppendRow(row)

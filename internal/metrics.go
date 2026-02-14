@@ -1,53 +1,63 @@
-package main
+package internal
 
 import (
 	"fmt"
+	"net/http"
+	"strconv"
+
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/robfig/cron/v3"
-	logger "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"github.com/steffakasid/trivy-scanner/internal"
-	"net/http"
-	"strconv"
+	"github.com/steffakasid/eslog"
 )
 
 var (
 	registeredGauges []prometheus.Gauge
-	trivyResults     internal.TrivyResults
 	reg              *prometheus.Registry
 )
 
-func startDaemon() {
+type Metrics struct {
+	scan         *Scan
+	trivyResults TrivyResults
+}
+
+func NewMetrics(s *Scan) *Metrics {
+	return &Metrics{
+		scan: s,
+	}
+}
+
+func (m *Metrics) StartDaemon() {
 	reg = prometheus.NewRegistry()
-	initCron()
-	fetchResults()
+	m.initCron()
+	m.fetchResults()
 	promHandler := promhttp.HandlerFor(reg, promhttp.HandlerOpts{})
 	http.Handle("/metrics", promHandler)
 
-	logger.Infoln("Starting metrics daemon...")
-	err := http.ListenAndServe(fmt.Sprintf(":%d", viper.GetInt(internal.METRICS_PORT)), nil)
+	eslog.InfoLn("Starting metrics daemon...")
+	err := http.ListenAndServe(fmt.Sprintf(":%d", viper.GetInt(METRICS_PORT)), nil)
 	if err != nil {
-		logger.Fatal(err)
+		eslog.Fatal(err)
 	}
 }
 
-func fetchResults() {
-	projs, err := scan.GitLabClient.GetProjects(scan.ID)
+func (m *Metrics) fetchResults() {
+	projs, err := m.scan.GitLabClient.GetProjects(m.scan.ID)
 	if err != nil {
-		logger.Errorf("failed getting projects: %v", err)
+		eslog.Errorf("failed getting projects: %v", err)
 	}
-	trivyResults, err = scan.ScanProjects(projs)
+	m.trivyResults, err = m.scan.ScanProjects(projs)
 	if err != nil {
-		logger.Errorf("failed scan projects: %v", err)
+		eslog.Errorf("failed scan projects: %v", err)
 	}
-	updateRegister()
+	m.updateRegister()
 }
 
-func updateRegister() {
-	unregisterOldGauges()
+func (m *Metrics) updateRegister() {
+	m.unregisterOldGauges()
 	registeredGauges = []prometheus.Gauge{}
-	for _, trivy := range trivyResults {
+	for _, trivy := range m.trivyResults {
 
 		var trivyIgnore string
 		if len(trivy.Ignore) > 0 {
@@ -58,8 +68,8 @@ func updateRegister() {
 
 		labels := map[string]string{
 			"project":          trivy.ProjName,
-			"id":               strconv.Itoa(trivy.ProjId),
-			"scanned_job_name": viper.GetString(internal.JOB_NAME),
+			"id":               strconv.FormatInt(trivy.ProjId, 10),
+			"scanned_job_name": viper.GetString(JOB_NAME),
 			"trivyignore":      trivyIgnore,
 		}
 
@@ -97,17 +107,17 @@ func updateRegister() {
 	}
 }
 
-func unregisterOldGauges() {
+func (m *Metrics) unregisterOldGauges() {
 	for _, gauge := range registeredGauges {
 		reg.Unregister(gauge)
 	}
 }
 
-func initCron() {
+func (m *Metrics) initCron() {
 	c := cron.New()
-	_, err := c.AddFunc(viper.GetString(internal.METRICS_CRON), fetchResults)
+	_, err := c.AddFunc(viper.GetString(METRICS_CRON), m.fetchResults)
 	if err != nil {
-		logger.Fatal(err)
+		eslog.Fatal(err)
 	}
 	c.Start()
 }

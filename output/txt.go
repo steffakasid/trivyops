@@ -1,4 +1,4 @@
-package main
+package output
 
 import (
 	"fmt"
@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/aquasecurity/trivy/pkg/types"
-	"github.com/spf13/viper"
 	"github.com/steffakasid/trivy-scanner/internal"
 )
 
@@ -15,7 +14,7 @@ const (
 	maxTitleLen = 50
 )
 
-func printResultTxt(results internal.TrivyResults) {
+func Text(results internal.TrivyResults, v, vv, vvv bool) {
 	maxProjNLen := maxProjNameLen(results)
 	for i, projResult := range results {
 		fmt.Printf("[%s]: %s | Scanned Packages: %s | Vulnerabilities found: %s | .trivyignore: %t\n",
@@ -24,18 +23,18 @@ func printResultTxt(results internal.TrivyResults) {
 			padInt(len(projResult.ReportResult), 3, " "),
 			padInt(projResult.Vulnerabilities.Count, 3, " "),
 			(len(projResult.Ignore) > 0))
-		if viper.GetBool(V) || viper.GetBool(VV) || viper.GetBool(VVV) {
-			printResultDetailsTxt(projResult.ReportResult)
+		if v || vv || vvv {
+			printResultDetailsTxt(projResult.ReportResult, v, vv, vvv)
 		}
 	}
 }
 
-func printResultDetailsTxt(res types.Results) {
+func printResultDetailsTxt(res types.Results, v, vv, vvv bool) {
 	maxTgtNLen := maxTgtNameLen(res)
 	lvl1 := strings.Repeat(" ", 2)
 	lvl2 := strings.Repeat(" ", 4)
 	for _, tgt := range res {
-		if viper.GetBool(V) {
+		if v {
 			crit, hi, med, lo, un := internal.GetSummary(tgt.Vulnerabilities)
 			fmt.Printf("%s%s| Critical %s | High %s | Medium %s | Low %s | Unkown %s\n",
 				lvl1,
@@ -57,7 +56,7 @@ func printResultDetailsTxt(res types.Results) {
 						vulli.Severity,
 						cut(vulli.Title, maxTitleLen),
 						(vulli.FixedVersion != ""))
-					if viper.GetBool(VVV) {
+					if vvv {
 						fmt.Printf(" | InstalledVersion: %s | FixedVersion %s", vulli.InstalledVersion, vulli.FixedVersion)
 					}
 					fmt.Println()
