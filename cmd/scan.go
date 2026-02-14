@@ -57,6 +57,7 @@ xamples:
   trivyops scan 1234    				- get all trivy results from 1234
   trivyops scan 1234 --filter ^blub.*	- get all trivy results from 1234 where name starts with blub
   trivyops scan 1234 -o table			- output results as table (works well with less results)
+  trivyops scan 1234 -o json | jq 		- output results as JSON an do what ever you like with jq 
   trivyops scan 1234 -v					- get more details`,
 	Run: func(cmd *cobra.Command, args []string) {
 
@@ -77,6 +78,8 @@ func init() {
 	flag.Bool(VVV, false, "Get even more details")
 	flag.StringP(OUTPUT, "o", "text", "Define how to output results [text, table, json]")
 	flag.String(OUTPUT_FILE, "", "Define a file to output the result json")
+	err := viper.BindPFlags(flag)
+	eslog.LogIfError(err, eslog.Fatal)
 }
 
 func doScanWithOutput(scan *internal.Scan) {

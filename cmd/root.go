@@ -74,6 +74,8 @@ func init() {
 	persistentFlags := rootCmd.PersistentFlags()
 	persistentFlags.StringP(FILTER, "f", "", "A golang regular expression to filter project name with namespace (e.g. (^.*/groupprefix.+$)|(^.*otherprefix.*))")
 	persistentFlags.StringVar(&cfgFile, "config", "", "config file (default is $HOME/.cmd.yaml)")
+	err := viper.BindPFlags(persistentFlags)
+	eslog.LogIfError(err, eslog.Fatal)
 }
 
 func validateArgsNEnv() ([]string, string, string) {
