@@ -41,11 +41,11 @@ Or `brew tap steffakasid/trivyops` and then `brew install trivyops`.
 
 `[-f]`, `[--filter]` **string** A golang regular expression to filter project name with namespace (e.g. (^.*/groupprefix.+$)|(^.*otherprefix.*))
 
-`[--help]`                   Print help message
+`[--help]` Print help message
 
 `[-j]`, `[--job-name]` **string** The gitlab ci jobname to check (*default* "scan_oci_image_trivy")
 
-`-o`, `[--output]` **string** Define how to output results [text, table, json] (*default* "text")
+`-o`, `[--output]` **string** Define how to output results [text, txt, table, tbl, json] (*default* "text")
 
 `[--v]` Get details
 
@@ -57,21 +57,25 @@ Or `brew tap steffakasid/trivyops` and then `brew install trivyops`.
 
 ## Configuration
 
-```yaml
+.~/.trivyops
+[source,yaml]
+----
 ---
 GITLAB_TOKEN: a;lsdkfya9s8df879
 GITLAB_HOST: https://gitlab.com
 GITLAB_GROUP_ID: 12345
 LOG_LEVEL: warn
-FILTER: ^dbs-businesshub\/(!smartlocker)|(bizhub.+)$
-```
+FILTER: ^group1\/(!subgroup)|(groupprefix.+)$
+----
 
-All flags can also be set via config file. The configuration can be sops encrypted.
+NOTE: All flags can also be set via config file. 
+
+NOTE: The configuration can be sops encrypted.
 
 ## Configuration precedence
+
+(from lowest to highest priority)
 
 . Command line flags
 . Env variables
 . Config file
-
-This means the config file has the lowest priority an will be overwritten by the other configuration methods.
