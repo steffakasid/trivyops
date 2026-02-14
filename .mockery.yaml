@@ -1,11 +1,13 @@
-with-expecter: True
 all: true
+log-level: info
+structname: "{{.InterfaceName}}"
 filename: "{{.InterfaceName}}.go"
-mockname: "{{.InterfaceName}}"
-outpkg: "mocks"
-log-level: "info"
+pkgname: mocks
+template: testify
+template-data:
+  unroll-variadic: true
 packages:
   github.com/steffakasid/trivy-scanner/internal:
     config:
-      dir: "internal/mocks"
-      recursive: True
+      dir: internal/mocks
+      recursive: true
