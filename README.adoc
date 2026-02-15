@@ -57,6 +57,9 @@ Or `brew tap steffakasid/trivyops` and then `brew install trivyops`.
 
 ## Configuration
 
+The config file must be yaml format and can optionally be encrypthed using Sops. To
+do so you can use the following Sops command: `sops --input-type yaml --output-type yaml ~/.trivyops`
+
 .~/.trivyops
 [source,yaml]
 ----
@@ -70,12 +73,16 @@ FILTER: ^group1\/(!subgroup)|(groupprefix.+)$
 
 NOTE: All flags can also be set via config file. 
 
-NOTE: The configuration can be sops encrypted.
+### Configpaths
+
+- `${HOME}/.trivyops`
+- `/etc/.trivyops`
+- `${HOME}/.config/trivyops/.trivyops`
 
 ## Configuration precedence
 
 (from lowest to highest priority)
 
 . Command line flags
-. Env variables
 . Config file
+. Env variables

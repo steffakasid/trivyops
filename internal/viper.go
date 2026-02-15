@@ -48,6 +48,8 @@ func InitConfig() {
 	}
 
 	viper.AddConfigPath(home)
+	viper.AddConfigPath(path.Join(home, ".config", "trivyops"))
+	viper.AddConfigPath("/etc")
 	viper.SetConfigType(configFileType)
 	viper.SetConfigName(configFileName)
 
