@@ -23,19 +23,18 @@ builds:
       - arm64
     ldflags:
       - "-X main.version={{.Version}}"
-dockers_v2:
+dockers:
   - ids:
       - container
 
-    images:
-      - "docker.io/steffakasid/{{ .ProjectName }}"
-    tags:
-      - "{{ .Tag }}"
-      - "v{{ .Major }}"
-      - "v{{ .Major }}.{{ .Minor }}"
-      - "latest"
-    platforms:
-      - linux/amd64
+    goos: linux
+    goarch: amd64
+
+    image_templates:
+      - "docker.io/steffakasid/{{ .ProjectName }}:{{ .Tag }}"
+      - "docker.io/steffakasid/{{ .ProjectName }}:v{{ .Major }}"
+      - "docker.io/steffakasid/{{ .ProjectName }}:v{{ .Major }}.{{ .Minor }}"
+      - "docker.io/steffakasid/{{ .ProjectName }}:latest"
 
     dockerfile: build/Dockerfile
 archives:
