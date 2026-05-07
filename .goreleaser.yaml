@@ -59,7 +59,7 @@ brews:
     # GitHub/GitLab repository to push the formula to
     repository:
       owner: steffakasid
-      name: homebrew-trivyops
+      name: homebrew-tap
       token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
 
     # Git author used to commit to the repository.
