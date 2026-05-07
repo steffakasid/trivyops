@@ -26,7 +26,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
-          go-version: 1.26.2
+          go-version: 1.26.3
       - uses: go-semantic-release/action@v1
         with:
           changelog-generator-opt: "emojis=true"
