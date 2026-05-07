@@ -75,5 +75,6 @@ brews:
     directory: Formula
 
     homepage: "https://github.com/steffakasid/trivyops"
-    description: "This tool can be used to scan GitLab for trivy results"
+    description: >-
+      Collect GitLab Trivy scan results across groups and subgroups
     license: "Apache-2.0"

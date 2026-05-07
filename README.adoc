@@ -75,3 +75,7 @@ All flags can also be set via config file
 . Config file
 
 This means the config file has the lowest priority an will be overwritten by the other configuration methods.
+
+## TODO
+
+* Publish Homebrew formula updates through one shared tap repository for all projects.
