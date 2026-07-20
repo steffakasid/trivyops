@@ -6,7 +6,7 @@ require (
 	github.com/aquasecurity/trivy v0.72.0
 	github.com/briandowns/spinner v1.23.2
 	github.com/getsops/sops/v3 v3.13.0
-	github.com/jedib0t/go-pretty/v6 v6.8.2
+	github.com/jedib0t/go-pretty/v6 v6.8.3
 	github.com/prometheus/client_golang v1.23.2
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/sirupsen/logrus v1.9.4
