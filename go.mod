@@ -1,6 +1,6 @@
 module github.com/steffakasid/trivy-scanner
 
-go 1.27.1
+go 1.27.2
 
 require (
 	github.com/aquasecurity/trivy v0.75.0
