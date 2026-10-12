@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"os"
 
 	"github.com/spf13/viper"
 	"github.com/steffakasid/trivy-scanner/internal"
@@ -12,7 +12,7 @@ import (
 func printResultJson(results internal.TrivyResults) {
 	file, _ := json.MarshalIndent(results, "", "  ")
 	if len(viper.GetString(OUTPUT_FILE)) > 0 {
-		if err := ioutil.WriteFile(viper.GetString(OUTPUT_FILE), file, 0644); err != nil {
+		if err := os.WriteFile(viper.GetString(OUTPUT_FILE), file, 0644); err != nil {
 			panic(err)
 		}
 	} else {

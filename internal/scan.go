@@ -113,7 +113,7 @@ func (s Scan) getTrivyJob(jobName string, projId int) ([]gitlab.Job, error) {
 	if err != nil {
 		return resultJobList, err
 	}
-	jobs, _, err := s.GitLabClient.JobsClient.ListPipelineJobs(projId, pipeline.ID, &gitlab.ListJobsOptions{IncludeRetried: gitlab.Ptr(false)})
+	jobs, _, err := s.GitLabClient.JobsClient.ListPipelineJobs(projId, pipeline.ID, &gitlab.ListJobsOptions{IncludeRetried: new(false)})
 	if err != nil {
 		return resultJobList, err
 	}
@@ -160,7 +160,7 @@ func (s Scan) reportFromFile(bt []byte) (types.Results, error) {
 
 func (s Scan) getTrivyIgnore(projId int, branch string) ([]string, error) {
 
-	bt, res, err := s.GitLabClient.RepositoryFiles.GetRawFile(projId, ".trivyignore", &gitlab.GetRawFileOptions{Ref: gitlab.Ptr(branch)})
+	bt, res, err := s.GitLabClient.RepositoryFiles.GetRawFile(projId, ".trivyignore", &gitlab.GetRawFileOptions{Ref: new(branch)})
 	if err != nil {
 		if res.StatusCode == 404 {
 			return nil, nil
@@ -169,7 +169,7 @@ func (s Scan) getTrivyIgnore(projId int, branch string) ([]string, error) {
 		}
 	}
 	var ignores []string
-	for _, str := range strings.Split(string(bt), "\n") {
+	for str := range strings.SplitSeq(string(bt), "\n") {
 		if !strings.HasPrefix(str, "#") {
 			ignores = append(ignores, str)
 		}

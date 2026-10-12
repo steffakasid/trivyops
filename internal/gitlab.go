@@ -17,7 +17,7 @@ type GitLabClient struct {
 }
 
 type GitLabGroups interface {
-	ListGroupProjects(gid interface{}, opt *gitlab.ListGroupProjectsOptions, options ...gitlab.RequestOptionFunc) ([]*gitlab.Project, *gitlab.Response, error)
+	ListGroupProjects(gid any, opt *gitlab.ListGroupProjectsOptions, options ...gitlab.RequestOptionFunc) ([]*gitlab.Project, *gitlab.Response, error)
 }
 
 type GitLabProjects interface {
@@ -25,17 +25,17 @@ type GitLabProjects interface {
 }
 
 type GitLabJobs interface {
-	ListProjectJobs(pid interface{}, opts *gitlab.ListJobsOptions, options ...gitlab.RequestOptionFunc) ([]*gitlab.Job, *gitlab.Response, error)
-	DownloadArtifactsFile(pid interface{}, refName string, opt *gitlab.DownloadArtifactsFileOptions, options ...gitlab.RequestOptionFunc) (*bytes.Reader, *gitlab.Response, error)
-	GetJobArtifacts(pid interface{}, jobID int, options ...gitlab.RequestOptionFunc) (*bytes.Reader, *gitlab.Response, error)
-	ListPipelineJobs(pid interface{}, pipelineID int, opts *gitlab.ListJobsOptions, options ...gitlab.RequestOptionFunc) ([]*gitlab.Job, *gitlab.Response, error)
+	ListProjectJobs(pid any, opts *gitlab.ListJobsOptions, options ...gitlab.RequestOptionFunc) ([]*gitlab.Job, *gitlab.Response, error)
+	DownloadArtifactsFile(pid any, refName string, opt *gitlab.DownloadArtifactsFileOptions, options ...gitlab.RequestOptionFunc) (*bytes.Reader, *gitlab.Response, error)
+	GetJobArtifacts(pid any, jobID int, options ...gitlab.RequestOptionFunc) (*bytes.Reader, *gitlab.Response, error)
+	ListPipelineJobs(pid any, pipelineID int, opts *gitlab.ListJobsOptions, options ...gitlab.RequestOptionFunc) ([]*gitlab.Job, *gitlab.Response, error)
 }
 
 type GitLabPipelines interface {
-	GetLatestPipeline(pid interface{}, opt *gitlab.GetLatestPipelineOptions, options ...gitlab.RequestOptionFunc) (*gitlab.Pipeline, *gitlab.Response, error)
+	GetLatestPipeline(pid any, opt *gitlab.GetLatestPipelineOptions, options ...gitlab.RequestOptionFunc) (*gitlab.Pipeline, *gitlab.Response, error)
 }
 type GitLabRepositoryFiles interface {
-	GetRawFile(pid interface{}, fileName string, opt *gitlab.GetRawFileOptions, options ...gitlab.RequestOptionFunc) ([]byte, *gitlab.Response, error)
+	GetRawFile(pid any, fileName string, opt *gitlab.GetRawFileOptions, options ...gitlab.RequestOptionFunc) ([]byte, *gitlab.Response, error)
 }
 
 type wrapper struct {
@@ -54,12 +54,10 @@ func (c GitLabClient) GetProjects(groupId string) ([]*gitlab.Project, error) {
 func (c GitLabClient) GetAllGroupProjects(groupId string) ([]*gitlab.Project, error) {
 	allProjs := []*gitlab.Project{}
 	var options = &gitlab.ListGroupProjectsOptions{
-		ListOptions: gitlab.ListOptions{
-			PerPage: 100,
-			Page:    1,
-		},
-		Archived:         gitlab.Ptr(false),
-		IncludeSubGroups: gitlab.Ptr(true),
+		PerPage:          100,
+		Page:             1,
+		Archived:         new(false),
+		IncludeSubGroups: new(true),
 	}
 	var wg sync.WaitGroup
 
@@ -98,11 +96,9 @@ func (c GitLabClient) listGroupProjectsWrapper(grpId string, options gitlab.List
 func (c GitLabClient) GetAllUserProjects() ([]*gitlab.Project, error) {
 	allProjs := []*gitlab.Project{}
 	options := &gitlab.ListProjectsOptions{
-		ListOptions: gitlab.ListOptions{
-			PerPage: 100,
-			Page:    1,
-		},
-		Archived:       gitlab.Ptr(false),
+		PerPage:        100,
+		Page:           1,
+		Archived:       new(false),
 		MinAccessLevel: gitlab.AccessLevel(gitlab.DeveloperPermissions),
 	}
 	var wg sync.WaitGroup

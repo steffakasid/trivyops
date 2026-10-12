@@ -2,7 +2,7 @@ package internal
 
 import (
 	"bytes"
-	"io/ioutil"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -10,7 +10,7 @@ import (
 
 func TestUnzipFromReader(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
-		btZip, err := ioutil.ReadFile("../test/result.zip")
+		btZip, err := os.ReadFile("../test/result.zip")
 		assert.NoError(t, err)
 		btUnzip, err := unzipFromReader(bytes.NewReader(btZip), "trivy-result.json")
 		assert.NoError(t, err)
@@ -18,7 +18,7 @@ func TestUnzipFromReader(t *testing.T) {
 	})
 
 	t.Run("No such file", func(t *testing.T) {
-		btZip, err := ioutil.ReadFile("../test/result.zip")
+		btZip, err := os.ReadFile("../test/result.zip")
 		assert.NoError(t, err)
 		btUnzip, err := unzipFromReader(bytes.NewReader(btZip), "not-there.json")
 		assert.Error(t, err)

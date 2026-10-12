@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"slices"
 	"testing"
 
 	"github.com/steffakasid/trivy-scanner/internal/mocks"
@@ -190,7 +191,7 @@ func assertProjNoIgnore(t *testing.T, result TrivyResults, id int) {
 func generateProjects(number int, branch string) []*gitlab.Project {
 	projs := []*gitlab.Project{}
 
-	for i := 0; i < number; i++ {
+	for i := range number {
 		projs = append(projs, &gitlab.Project{
 			ID:                i,
 			Name:              fmt.Sprintf("proj%d", i),
@@ -223,7 +224,7 @@ func mockListPipelineJobsForProject(projs []*gitlab.Project, genericPipelineID i
 
 func mockListPipelineJobs(projId int, pipelineID int, jobName string, numCalls int, mock *mocks.GitLabJobs, errCall ...int) {
 	listJobsOptions := &gitlab.ListJobsOptions{
-		IncludeRetried: gitlab.Ptr(false),
+		IncludeRetried: new(false),
 	}
 
 	resp := &gitlab.Response{
@@ -258,7 +259,7 @@ func mockListProjectJobsForProject(projs []*gitlab.Project, jobName string, mock
 
 func mockListProjectJobs(projId int, jobName string, numCalls int, mock *mocks.GitLabJobs, errCall ...int) {
 	listProjsOpts := &gitlab.ListJobsOptions{
-		IncludeRetried: gitlab.Ptr(false),
+		IncludeRetried: new(false),
 	}
 
 	resp := &gitlab.Response{
@@ -326,7 +327,7 @@ func mockGetRawFileForProjects(t *testing.T, projs []*gitlab.Project, branch str
 
 func mockGetRawFile(t *testing.T, projId int, branch string, numCalls int, mock *mocks.GitLabRepositoryFiles, errCall ...int) {
 	opts := &gitlab.GetRawFileOptions{
-		Ref: gitlab.Ptr(branch),
+		Ref: new(branch),
 	}
 	resp := &gitlab.Response{
 		TotalItems: 1,
@@ -350,10 +351,5 @@ func mockGetRawFile(t *testing.T, projId int, branch string, numCalls int, mock 
 }
 
 func isErrorCall(errCalls []int, callNo int) bool {
-	for _, errCall := range errCalls {
-		if errCall == callNo {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(errCalls, callNo)
 }

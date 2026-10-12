@@ -3,7 +3,6 @@ package internal
 import (
 	"testing"
 
-	dbtypes "github.com/aquasecurity/trivy-db/pkg/types"
 	"github.com/aquasecurity/trivy/pkg/types"
 	"github.com/stretchr/testify/assert"
 )
@@ -16,10 +15,10 @@ func TestCheck(t *testing.T) {
 				types.Result{
 					Vulnerabilities: []types.DetectedVulnerability{
 						{
-							Vulnerability: dbtypes.Vulnerability{Severity: "CRITICAL"},
+							Severity: "CRITICAL",
 						},
 						{
-							Vulnerability: dbtypes.Vulnerability{Severity: "HIGH"},
+							Severity: "HIGH",
 						},
 					},
 				},
@@ -31,10 +30,10 @@ func TestCheck(t *testing.T) {
 				types.Result{
 					Vulnerabilities: []types.DetectedVulnerability{
 						{
-							Vulnerability: dbtypes.Vulnerability{Severity: "LOW"},
+							Severity: "LOW",
 						},
 						{
-							Vulnerability: dbtypes.Vulnerability{Severity: "HIGH"},
+							Severity: "HIGH",
 						},
 					},
 				},
@@ -53,19 +52,19 @@ func TestCheck(t *testing.T) {
 func TestSummary(t *testing.T) {
 	vullies := []types.DetectedVulnerability{
 		{
-			Vulnerability: dbtypes.Vulnerability{Severity: "HIGH"},
+			Severity: "HIGH",
 		},
 		{
-			Vulnerability: dbtypes.Vulnerability{Severity: "LOW"},
+			Severity: "LOW",
 		},
 		{
-			Vulnerability: dbtypes.Vulnerability{Severity: "CRITICAL"},
+			Severity: "CRITICAL",
 		},
 		{
-			Vulnerability: dbtypes.Vulnerability{Severity: "OTHER"},
+			Severity: "OTHER",
 		},
 		{
-			Vulnerability: dbtypes.Vulnerability{Severity: "HIGH"},
+			Severity: "HIGH",
 		},
 	}
 	crit, high, med, low, other := GetSummary(vullies)

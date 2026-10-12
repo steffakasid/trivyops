@@ -33,12 +33,10 @@ func mockListGroupProjects(mock *mocks.GitLabGroups, numCalls int, grpId string)
 	expectedProjs := []*gitlab.Project{}
 	for i := 1; i <= numCalls; i++ {
 		options := &gitlab.ListGroupProjectsOptions{
-			ListOptions: gitlab.ListOptions{
-				PerPage: 100,
-				Page:    i,
-			},
-			Archived:         gitlab.Ptr(false),
-			IncludeSubGroups: gitlab.Ptr(true),
+			PerPage:          100,
+			Page:             i,
+			Archived:         new(false),
+			IncludeSubGroups: new(true),
 		}
 		projects := []*gitlab.Project{
 			{
@@ -61,11 +59,9 @@ func mockListProjects(mock *mocks.GitLabProjects, numCalls int) []*gitlab.Projec
 	expectedProjs := []*gitlab.Project{}
 	for i := 1; i <= numCalls; i++ {
 		options := &gitlab.ListProjectsOptions{
-			ListOptions: gitlab.ListOptions{
-				PerPage: 100,
-				Page:    i,
-			},
-			Archived:       gitlab.Ptr(false),
+			PerPage:        100,
+			Page:           i,
+			Archived:       new(false),
 			MinAccessLevel: gitlab.AccessLevel(gitlab.DeveloperPermissions),
 		}
 		projects := []*gitlab.Project{

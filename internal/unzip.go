@@ -4,7 +4,7 @@ import (
 	"archive/zip"
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
 
 	logger "github.com/sirupsen/logrus"
 )
@@ -25,7 +25,7 @@ func unzipFromReader(rdr *bytes.Reader, fileName string) ([]byte, error) {
 				return nil, err
 			}
 
-			bt, err := ioutil.ReadAll(rc)
+			bt, err := io.ReadAll(rc)
 			if err != nil {
 				return nil, err
 			}
